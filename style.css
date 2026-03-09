@@ -71,12 +71,211 @@ body.verify-page {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background: #f2f4f7;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 32px 20px;
 }
 
+/* ============================================================
+   Cloudflare / nopecha exact replica
+   ============================================================ */
+body.cf-page {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: #1c1c1c;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #d4d4d4;
+  display: flex;
+  flex-direction: column;
+}
+
+.cf-page-inner {
+  flex: 1;
+  padding: 48px 40px 32px;
+  max-width: 860px;
+}
+
+.cf-site-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cf-site-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.cf-site-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #f0f0f0;
+  letter-spacing: -0.01em;
+}
+
+.cf-heading {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f0f0f0;
+}
+
+.cf-desc {
+  margin: 0 0 28px;
+  font-size: 14px;
+  color: #a3a3a3;
+  line-height: 1.55;
+  max-width: 640px;
+}
+
+/* The compact widget box */
+.cf-widget {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 300px;
+  padding: 14px 16px;
+  background: #2d2d2d;
+  border: 1px solid #3e3e3e;
+  border-radius: 4px;
+  cursor: pointer;
+  gap: 16px;
+  user-select: none;
+}
+
+.cf-widget-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.cf-widget-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.cf-widget-label .robot-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.cf-widget-check {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid #5e5e5e;
+  border-radius: 3px;
+  background: #1c1c1c;
+  position: relative;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cf-widget-label .robot-checkbox:checked + .cf-widget-check {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.cf-widget-label .robot-checkbox:checked + .cf-widget-check::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.cf-widget-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e0e0e0;
+  white-space: nowrap;
+}
+
+.cf-widget-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cf-widget-logo {
+  display: block;
+}
+
+.cf-widget-brand-name {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8a8a8a;
+  margin-top: 1px;
+}
+
+.cf-widget-links {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.cf-widget-link {
+  font-size: 9px;
+  color: #6e6e6e;
+  text-decoration: none;
+}
+
+.cf-widget-link:hover {
+  color: #a0a0a0;
+  text-decoration: underline;
+}
+
+.cf-widget-sep {
+  font-size: 9px;
+  color: #4e4e4e;
+}
+
+/* Footer: Ray ID, Cloudflare attribution */
+.cf-page-footer {
+  border-top: 1px solid #2e2e2e;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #555;
+}
+
+.cf-ray {
+  color: #555;
+}
+
+.cf-footer-link {
+  color: #4a9eff;
+  text-decoration: none;
+}
+
+.cf-footer-link:hover {
+  text-decoration: underline;
+}
+
+/* Legacy verify-page card (kept for any other pages) */
 .verify-container {
   width: 100%;
   max-width: 520px;
@@ -947,6 +1146,22 @@ body.verify-page {
   text-decoration: none;
   color: #fff;
   text-align: center;
+}
+
+/* Interactive challenge popup (like hCaptcha/reCAPTCHA) */
+.captcha-popup-overlay.hidden {
+  display: none !important;
+}
+.captcha-popup.challenge-popup {
+  max-width: 540px;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+.challenge-popup .captcha-box {
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 /* Verified screen – after bookmarklet return */

