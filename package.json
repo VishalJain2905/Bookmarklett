@@ -1,0 +1,8 @@
+{
+  "name": "security-awareness-demo",
+  "version": "1.0.0",
+  "description": "Captcha phishing awareness demo – two-stage flow, bookmarklets, localStorage",
+  "scripts": {
+    "start": "npx -y serve . -p 3000"
+  }
+}

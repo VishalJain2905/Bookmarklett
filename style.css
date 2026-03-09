@@ -1,0 +1,1278 @@
+/* ============================================
+   Security Awareness Demo – Captcha Phishing
+   Styling: captcha-like box, progress bar, clean UI
+   ============================================ */
+
+:root {
+  --bg-page: #f0f2f5;
+  --bg-card: #ffffff;
+  --border: #dadce0;
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --accent: #1a73e8;
+  --accent-hover: #1557b0;
+  --banner-bg: #e8f0fe;
+  --banner-border: #1a73e8;
+  --progress-fill: #34a853;
+  --warning-bg: #fef7e0;
+  --warning-border: #f9a825;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  padding: 0 16px;
+  text-align: center;
+}
+
+body.landing-page {
+  padding: 0;
+  background: #2563eb;
+  text-align: left;
+}
+
+/* Banner: always visible, clearly indicates this is a demo */
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 24px;
+  background: var(--banner-bg);
+  border-bottom: 2px solid var(--banner-border);
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+
+.container {
+  max-width: 520px;
+  margin: 32px auto;
+}
+
+/* Verification page: single centered card (reference layout) */
+body.verify-page {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: #f2f4f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 20px;
+}
+
+.verify-container {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.verify-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  overflow: hidden;
+}
+
+.verify-title {
+  margin: 0 0 28px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: -0.02em;
+}
+
+.verify-box {
+  border: 1px solid #e8eaed;
+  padding: 24px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #fafafa;
+  min-height: 72px;
+}
+
+.verify-box-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.verify-box .verify-cloudflare-logo {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.verify-box .loader.verified {
+  animation: none;
+  border-top-color: #34a853;
+}
+
+.verify-box .loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e8eaed;
+  border-top-color: #0d9488;
+  border-radius: 50%;
+  animation: verify-spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
+.verify-box span {
+  font-size: 15px;
+  font-weight: 500;
+  color: #3c4043;
+}
+
+@keyframes verify-spin {
+  to { transform: rotate(360deg); }
+}
+
+.verify-text {
+  margin: 24px 0 0;
+  font-size: 14px;
+  color: #5f6368;
+  line-height: 1.55;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.human-box {
+  margin-top: 28px;
+  border: 1px solid #e8eaed;
+  padding: 20px 20px;
+  border-radius: 10px;
+  text-align: left;
+  background: #fff;
+}
+
+.human-box .human-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.human-box .robot-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.human-box .checkbox-custom {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #dadce0;
+  border-radius: 5px;
+  background: #fff;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.human-box .robot-checkbox:checked + .checkbox-custom {
+  background: #34a853;
+  border-color: #34a853;
+}
+
+.human-box .robot-checkbox:checked + .checkbox-custom::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.btn-verify {
+  width: 100%;
+  margin-top: 28px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.2s;
+}
+
+.btn-verify:hover {
+  background: #1557b0;
+}
+
+/* Captcha challenges inside the card */
+.verify-card .captcha-box {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e2e2;
+  text-align: left;
+}
+
+.verify-step.verify-done {
+  display: none;
+}
+
+.verify-step.verify-done ~ .captcha-box {
+  margin-top: 0;
+  padding-top: 0;
+  padding: 0;
+  border-top: none;
+}
+
+/* Challenge view when it's the only content - proper padding */
+.verify-step.verify-done ~ .captcha-box .challenge-stage {
+  padding: 0;
+}
+
+/* Heading */
+.heading {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Instructions */
+.instructions {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.instruction-bookmarklet {
+  margin: 0 0 24px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Captcha container – 4 math symbol images */
+.captcha-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  justify-items: center;
+  margin-bottom: 24px;
+}
+
+/* Captcha boxes – clickable image triggers (links with bookmarklet href) */
+.captcha {
+  width: 150px;
+  height: 150px;
+  border-radius: 10px;
+  padding: 0;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.captcha:hover {
+  background: #f8f9fa;
+  border-color: var(--accent);
+}
+
+.captcha:active {
+  transform: scale(0.98);
+}
+
+.captcha img {
+  display: block;
+  pointer-events: none;
+}
+
+/* Timer – 20 second countdown */
+.timer {
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timer.timer-low {
+  color: #d93025;
+}
+
+.timer.timer-out {
+  color: #d93025;
+}
+
+/* Answer display area */
+.answer-display {
+  min-height: 48px;
+  margin-bottom: 24px;
+  padding: 12px 16px;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* Buttons row */
+.buttons-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-family: inherit;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+#doneButton,
+.btn-done {
+  background: #5f6368;
+  color: #fff;
+  font-weight: 500;
+  padding: 12px 28px;
+}
+
+#doneButton:hover,
+.btn-done:hover {
+  background: #4a4d52;
+}
+
+#submitButton,
+.btn-submit {
+  background: var(--accent);
+  color: #fff;
+}
+
+#submitButton:hover,
+.btn-submit:hover {
+  background: var(--accent-hover);
+}
+
+/* Stage 2: Math question */
+.stage2 {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.math-question {
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.math-input {
+  display: block;
+  width: 120px;
+  margin: 0 auto 12px;
+  padding: 10px 16px;
+  font-size: 18px;
+  font-family: inherit;
+  text-align: center;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.math-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.math-feedback {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.math-feedback.success {
+  color: #1e8e3e;
+}
+
+.math-feedback.error {
+  color: #d93025;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Captcha page – main card */
+.container.captcha-content .captcha-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.card-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.card-subtitle {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* Checkbox row – "I'm not a robot" */
+.checkbox-row {
+  margin-bottom: 24px;
+  padding: 12px 0;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.robot-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.checkbox-custom {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.robot-checkbox:checked + .checkbox-custom {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.robot-checkbox:focus + .checkbox-custom {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.checkbox-text {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+/* Captcha box – appears after checkbox is checked */
+.captcha-box {
+  margin-top: 0;
+  padding: 24px 20px;
+  background: #f8f9fa;
+  border: 1px solid #e8eaed;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.captcha-box.hidden {
+  display: none;
+}
+
+.captcha-box .heading {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.captcha-box .instructions {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.captcha-box .instruction-bookmarklet {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Calculation display - big prominent area */
+.calculation-display {
+  background: #f0f7ff;
+  border: 3px solid #1a73e8;
+  border-radius: 12px;
+  padding: 32px 24px;
+  margin: 24px 0;
+  text-align: center;
+}
+
+.calculation-display #currentCalc {
+  margin: 0 0 16px;
+  font-size: 48px;
+  font-weight: 700;
+  color: #1a73e8;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+.calculation-display #clickCount {
+  margin: 0;
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+.bookmarklet-instruction {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  border: 2px dashed #1a73e8;
+}
+
+.bookmarklet-link {
+  display: inline-block;
+  padding: 16px 32px;
+  background: #1a73e8;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: grab;
+  transition: all 0.2s;
+  border: 2px solid #1a73e8;
+}
+
+.bookmarklet-link:hover {
+  background: #1557b0;
+  border-color: #1557b0;
+  transform: scale(1.02);
+}
+
+.bookmarklet-link:active {
+  cursor: grabbing;
+}
+
+.bookmarklet-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.captcha-container {
+  display: none;
+}
+
+/* Challenge stages - hCaptcha/Cloudflare style */
+.challenge-stage {
+  margin-top: 0;
+  padding: 0;
+}
+
+.challenge-banner {
+  background: #0d9488;
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 0;
+  margin: 0 0 24px 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.verify-step.verify-done ~ .captcha-box .challenge-banner {
+  margin-left: -36px;
+  margin-right: -36px;
+  margin-top: -40px;
+  margin-bottom: 24px;
+  padding: 18px 36px;
+}
+
+.challenge-instruction {
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: #3c4043;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.challenge-tile {
+  aspect-ratio: 1;
+  border: 2px solid #e8eaed;
+  border-radius: 12px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 600;
+  color: #202124;
+  user-select: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.challenge-tile.draggable {
+  cursor: grab;
+  background: #fff;
+  border-color: #0d9488;
+  border-width: 3px;
+  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.2);
+}
+
+.challenge-tile.draggable:hover {
+  border-color: #0f766e;
+  background: #f0fdfa;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.25);
+}
+
+.challenge-tile.draggable:active {
+  cursor: grabbing;
+}
+
+.challenge-tile a {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.challenge-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 4px;
+  border-top: 1px solid #e8eaed;
+}
+
+.btn-challenge-done {
+  background: #0d9488;
+  color: #fff;
+  padding: 12px 28px;
+  font-weight: 600;
+  border-radius: 10px;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn-challenge-done:hover {
+  background: #0f766e;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35);
+}
+
+.step-num {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+.click-counter-line {
+  text-align: center;
+  font-size: 18px;
+  margin: 0 0 20px;
+  color: var(--text-primary);
+}
+
+.click-counter-line strong {
+  font-size: 24px;
+  color: #0d9488;
+}
+
+.captcha-box .captcha-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 0;
+}
+
+.captcha-box .captcha {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  padding: 0;
+  font-size: 0;
+}
+
+.captcha-box .captcha:hover {
+  background: #f8f9fa;
+  border-color: #1a73e8;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+}
+
+.captcha-box .captcha:active {
+  transform: scale(0.95);
+}
+
+.captcha-box .captcha img {
+  width: 60px;
+  height: 60px;
+  display: block;
+  pointer-events: none;
+}
+
+.captcha-box .timer {
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.captcha-box .answer-display {
+  min-height: 44px;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #e8eaed;
+  font-size: 14px;
+  border-radius: 8px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.captcha-box .buttons-row {
+  margin-top: 4px;
+}
+
+.captcha-instruction {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.symbols-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.symbol-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.symbol-btn:hover {
+  background: #f8f9fa;
+  border-color: var(--accent);
+}
+
+.symbol-btn:active {
+  transform: scale(0.98);
+}
+
+.symbol-btn img {
+  display: block;
+  pointer-events: none;
+}
+
+/* Progress bar */
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--progress-width, 0%);
+  background: var(--progress-fill);
+  border-radius: 4px;
+  transition: width 0.2s ease;
+}
+
+.progress-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-width: 48px;
+}
+
+/* Warning message – shown after required clicks */
+.warning-message {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.warning-message.hidden {
+  display: none;
+}
+
+/* Popup before redirect to exodus */
+.captcha-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+.captcha-popup {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 28px;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.captcha-popup h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: var(--text-primary);
+}
+.captcha-popup p {
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.captcha-popup .btn {
+  min-width: 120px;
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+  text-align: center;
+}
+
+/* Verified screen – after bookmarklet return */
+.verified-screen {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  padding: 24px;
+}
+.verified-box {
+  text-align: center;
+  max-width: 420px;
+}
+.verified-title {
+  margin: 0 0 16px;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.verified-message {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
+}
+
+/* ============================================
+   Verifying screen (Cloudflare-style first view)
+   ============================================ */
+.verifying-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px 24px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.verifying-screen.verifying-hidden {
+  display: none !important;
+}
+
+.verifying-message {
+  margin: 0 0 32px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #4a4a4a;
+  max-width: 420px;
+  line-height: 1.5;
+}
+
+.verifying-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 28px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 32px;
+}
+
+.verifying-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.verifying-spinner {
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+
+.verifying-spinner span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #0d9488;
+  animation: verifying-dot 1.2s ease-in-out infinite both;
+}
+
+.verifying-spinner span:nth-child(1) { top: 0; left: 50%; margin-left: -2px; animation-delay: 0s; }
+.verifying-spinner span:nth-child(2) { top: 4px; right: 4px; animation-delay: 0.15s; }
+.verifying-spinner span:nth-child(3) { right: 0; top: 50%; margin-top: -2px; animation-delay: 0.3s; }
+.verifying-spinner span:nth-child(4) { bottom: 4px; right: 4px; animation-delay: 0.45s; }
+.verifying-spinner span:nth-child(5) { bottom: 0; left: 50%; margin-left: -2px; animation-delay: 0.6s; }
+.verifying-spinner span:nth-child(6) { bottom: 4px; left: 4px; animation-delay: 0.75s; }
+.verifying-spinner span:nth-child(7) { left: 0; top: 50%; margin-top: -2px; animation-delay: 0.9s; }
+.verifying-spinner span:nth-child(8) { top: 4px; left: 4px; animation-delay: 1.05s; }
+
+@keyframes verifying-dot {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+.verifying-label {
+  font-size: 15px;
+  color: #4a4a4a;
+}
+
+.verifying-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.verifying-brand-icon,
+.verifying-brand-logo {
+  flex-shrink: 0;
+  display: block;
+}
+
+.verifying-brand-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.verifying-brand-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #2d3748;
+}
+
+.verifying-brand-legal {
+  font-size: 11px;
+  color: #718096;
+}
+
+.verifying-footer {
+  margin: 0;
+  font-size: 14px;
+  color: #4a4a4a;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* When verifying is shown */
+body.verifying-active {
+  background: #ffffff;
+}
+body.verifying-active .banner {
+  display: none;
+}
+
+/* 11. Client Concept Layer – description */ – description */
+.concept-layer {
+  margin-top: 32px;
+  padding: 20px;
+  background: var(--banner-bg);
+  border: 1px solid var(--banner-border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.concept-layer-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.concept-layer-intro {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.concept-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.concept-list li {
+  margin-bottom: 8px;
+}
+
+.concept-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* 12. Overall System Flow */
+.flow-layer {
+  margin-top: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.flow-layer-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.flow-layer-intro {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.flow-list {
+  margin: 0;
+  padding-left: 24px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.flow-list li {
+  margin-bottom: 4px;
+}
+
+/* 13. Technologies Used */
+.tech-layer {
+  margin-top: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.tech-layer-title,
+.test-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.test-title {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.tech-layer-intro {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.tech-list,
+.test-list {
+  margin: 0 0 0 4px;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.tech-list li,
+.test-list li {
+  margin-bottom: 6px;
+}
+
+.tech-list code,
+.test-list code {
+  font-size: 12px;
+  background: var(--border);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* 14. Functional Components Summary */
+.components-layer {
+  margin-top: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+}
+
+.components-layer-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.components-layer-intro {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.components-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.components-list li {
+  margin-bottom: 10px;
+}
+
+.components-list code {
+  font-size: 12px;
+  background: var(--border);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}

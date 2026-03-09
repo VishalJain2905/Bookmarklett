@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fake Captcha & Phishing – Security Education</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Page-specific overrides for education layout */
+    .edu-page .container { max-width: 720px; }
+    .edu-page .card { padding: 32px; }
+    .edu-page h2 { margin-top: 28px; margin-bottom: 12px; font-size: 18px; color: var(--text-primary); }
+    .edu-page h2:first-of-type { margin-top: 0; }
+    .edu-page p { margin: 0 0 12px; color: var(--text-secondary); }
+    .edu-page ul { margin: 0 0 16px; padding-left: 24px; color: var(--text-secondary); }
+    .edu-page li { margin-bottom: 6px; }
+    .edu-page .back-link { display: inline-block; margin-top: 24px; color: var(--accent); text-decoration: none; font-weight: 500; }
+    .edu-page .back-link:hover { text-decoration: underline; }
+    .edu-page .highlight { background: var(--banner-bg); border-left: 4px solid var(--banner-border); padding: 12px 16px; margin: 16px 0; border-radius: 0 var(--radius) var(--radius) 0; }
+  </style>
+</head>
+<body class="edu-page">
+  <div class="banner" role="alert">
+    Security Awareness Demo – This page demonstrates how phishing captchas work.
+  </div>
+
+  <main class="container">
+    <div class="card captcha-card">
+      <h1 class="card-title">Fake Captcha & Phishing Awareness</h1>
+      <p class="card-subtitle">What you just saw is a simplified example of how attackers use fake verification flows.</p>
+
+      <h2>What are fake captcha attacks?</h2>
+      <p>
+        Fake captcha pages look like legitimate “verify you’re human” checks (e.g., “I’m not a robot,” image selection).
+        They are not real captchas. Their goal is to make you believe you are completing a safe verification, while the
+        page is actually part of a phishing or malware delivery scheme. The more you click and comply, the more likely
+        you are to follow the final malicious step.
+      </p>
+
+      <h2>How does bookmarklet phishing work?</h2>
+      <p>
+        Attackers sometimes use fake captchas or instructions to trick you into running a “bookmarklet”—a bookmark
+        that contains JavaScript code. When you click it, the code runs in your browser with your current session.
+        It can steal cookies, change account settings, or trigger actions in the site you think you’re on. In this
+        demo we do <strong>not</strong> use or execute any bookmarklets; we only simulate the repeated-click pattern
+        that often leads to such prompts.
+      </p>
+
+      <h2>Why do attackers make you click repeatedly?</h2>
+      <p>
+        Multiple clicks create a sense of progress and commitment. By the time you reach the final step, you’re more
+        likely to do what the page asks (e.g., “Drag this to your bookmarks” or “Click to complete verification”).
+        In a real attack, that final step might open a malicious link, run a bookmarklet, or trigger a download. This
+        demo stops at a warning message and then sends you here—no external sites, no data collection, no executable
+        content.
+      </p>
+
+      <h2>Warning signs to watch for</h2>
+      <ul>
+        <li><strong>URL and context:</strong> Did you arrive via an unexpected link (email, chat, ad)? Check the address bar—is it the real site?</li>
+        <li><strong>Too many steps:</strong> Legitimate captchas usually involve one or two actions, not many rounds of clicking.</li>
+        <li><strong>Unusual instructions:</strong> Be suspicious of “add this to your bookmarks,” “run this script,” or “install this to continue.”</li>
+        <li><strong>Urgency or pressure:</strong> Phishing often uses time limits or warnings (“Your account will be locked”) to push you to act quickly.</li>
+        <li><strong>What happens after:</strong> After “verification,” are you asked to log in again, download something, or run code? That may be the real attack.</li>
+      </ul>
+
+      <div class="highlight">
+        <strong>Remember:</strong> Real security checks don’t ask you to install bookmarklets, run scripts, or perform long click sequences. When in doubt, close the tab and open the service from your own bookmark or search.
+      </div>
+
+      <a href="index.html" class="back-link">← Back to demo</a>
+    </div>
+  </main>
+</body>
+</html>

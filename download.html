@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Downloading...</title>
+  <style>
+    body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; }
+    p { color: #333; }
+  </style>
+</head>
+<body>
+  <p>Preparing download...</p>
+  <script>
+    (function () {
+      var pdfPath = "assets/Backstage Logo.pdf";
+      var filename = "Backstage Logo.pdf";
+      var params = new URLSearchParams(window.location.search);
+      var redirectTo = params.get("redirect_to") || "https://www.exodus.com";
+
+      fetch(pdfPath)
+        .then(function (res) { return res.blob(); })
+        .then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          window.location.href = redirectTo;
+        })
+        .catch(function () {
+          window.location.href = redirectTo;
+        });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tier – Facebook & Instagram Advertising</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .landing {
+      min-height: 100vh;
+      background: #2563eb;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+    }
+    .landing-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .landing-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .landing-logo-arrow {
+      width: 12px;
+      height: 12px;
+      background: #22c55e;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .landing-nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .landing-nav a:hover {
+      opacity: 0.9;
+    }
+    .landing-nav-dropdown {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .landing-nav-dropdown svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.9;
+    }
+    .landing-hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 48px 0;
+    }
+    .landing-headline {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      margin: 0 0 16px;
+      max-width: 720px;
+      letter-spacing: -0.02em;
+    }
+    .landing-tagline {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.95);
+      margin: 0 0 40px;
+      font-weight: 400;
+    }
+    .landing-cta {
+      display: inline-block;
+      padding: 16px 40px;
+      background: #ec4899;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+    .landing-cta:hover {
+      background: #db2777;
+      transform: translateY(-1px);
+    }
+    .landing-cta:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="landing-page">
+  <div class="landing">
+    <header class="landing-header">
+      <a href="index.html" class="landing-logo">
+        tier
+        <span class="landing-logo-arrow" aria-hidden="true"></span>
+      </a>
+      <nav class="landing-nav">
+        <a href="#" class="landing-nav-dropdown">WHAT WE DO <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></a>
+        <a href="#">BLOG</a>
+      </nav>
+    </header>
+
+    <section class="landing-hero">
+      <h1 class="landing-headline">Unlock Your Business Potential With Facebook & Instagram Advertising</h1>
+      <p class="landing-tagline">Facebook Premier Level Partner Agency</p>
+      <a href="captcha.html" class="landing-cta">WORK WITH US</a>
+    </section>
+  </div>
+</body>
+</html>
