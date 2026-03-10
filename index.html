@@ -9,9 +9,9 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background-color: #ffffff;
-      color: #212529;
-      font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+      background-color: #f5f5f5;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       font-size: 16px;
       min-height: 100vh;
       display: flex;
@@ -20,84 +20,93 @@
       justify-content: center;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
     }
 
     .container {
       width: 100%;
-      max-width: 1060px;
-      padding: 0 40px;
+      max-width: 560px;
+      padding: 0 24px;
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
       box-sizing: border-box;
-      margin-bottom: 150px;
-    }
-
-    .body-popup-open .container {
-      display: none;
     }
 
     .header {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 24px;
+      gap: 12px;
+      margin-bottom: 28px;
     }
 
     .robot-emoji {
-      font-size: 42px;
+      font-size: 36px;
       line-height: 1;
+      filter: grayscale(0.1);
     }
 
     .site-name {
-      font-size: 40px;
-      font-weight: 700;
-      color: #212529;
+      font-size: 28px;
+      font-weight: 600;
+      color: #1a1a1a;
       letter-spacing: -0.02em;
-      line-height: 1.1;
+      line-height: 1.2;
     }
 
     .title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #212529;
-      margin-bottom: 10px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
       letter-spacing: -0.01em;
-      line-height: 1.3;
+      line-height: 1.35;
       width: 100%;
       max-width: 100%;
     }
 
     .description {
-      font-size: 16px;
-      font-weight: 700;
-      color: #212529;
-      line-height: 1.65;
+      font-size: 15px;
+      font-weight: 400;
+      color: #555;
+      line-height: 1.6;
       max-width: 100%;
       width: 100%;
-      margin-bottom: 24px;
-      letter-spacing: 0.01em;
+      margin-bottom: 28px;
+      letter-spacing: 0;
     }
 
     .captcha-box {
-      width: 340px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      width: 100%;
+      max-width: 360px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
       background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 12px;
+      padding: 14px 16px;
       cursor: pointer;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
     .captcha-box:hover {
-      border-color: #c0c0c0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-color: #b0b0b0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+      background: #fafafa;
+    }
+
+    .captcha-box:focus {
+      outline: none;
+    }
+
+    .captcha-box:focus-visible {
+      outline: 2px solid #f38020;
+      outline-offset: 2px;
+      border-color: #f38020;
     }
 
     /* Left column: checkbox+text OR spinner/success - one visible at a time */
@@ -128,19 +137,20 @@
     }
 
     .checkbox {
-      width: 22px;
-      height: 22px;
-      border: 2px solid #888;
-      border-radius: 4px;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #8c8c8c;
+      border-radius: 3px;
       background: #fff;
       flex-shrink: 0;
       position: relative;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.15s ease;
     }
 
     .checkbox.checked {
       background: #22c55e;
       border-color: #22c55e;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
     }
 
     .checkbox.checked::after {
@@ -156,17 +166,17 @@
     }
 
     .verify-text {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 500;
-      color: #212529;
-      letter-spacing: 0.01em;
+      color: #1a1a1a;
+      letter-spacing: 0;
     }
 
     .cloudflare-brand {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 4px;
+      gap: 2px;
     }
 
     .cloudflare-logo {
@@ -176,69 +186,66 @@
     }
 
     .cf-logo-img {
-      height: 30px;
+      height: 24px;
       width: auto;
-      max-width: 100px;
+      max-width: 92px;
       object-fit: contain;
       display: block;
     }
 
-    .cf-cloud {
-      width: 28px;
-      height: 16px;
-    }
-
     .cf-text {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
-      color: #212529;
-      letter-spacing: 0.1em;
+      color: #4a4a4a;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
     .cf-links {
       display: flex;
       align-items: center;
-      gap: 1px;
+      gap: 4px;
       font-size: 11px;
       font-weight: 500;
     }
 
     .cf-links a {
+      color: #f38020;
       text-decoration: none;
     }
 
     .cf-link2 {
-      color: #040405;
+      color: #f38020;
     }
 
     .cf-links a:hover {
       text-decoration: underline;
+      color: #e07010;
     }
 
     .footer {
       width: 100%;
-      border-top: 1px solid #e0e0e0;
-      padding: 24px 40px 32px;
+      border-top: 1px solid #e5e5e5;
+      padding: 20px 24px 28px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       font-size: 13px;
-      font-weight: 600;
-      background: #ffffff;
-      color: #6c757d;
+      font-weight: 400;
+      background: #fafafa;
+      color: #6b7280;
       letter-spacing: 0.01em;
       text-align: center;
     }
 
     .footer .footer-line-1 {
-      color: #6c757d;
+      color: #6b7280;
     }
 
     .footer .footer-line-2 {
-      color: #6c757d;
+      color: #6b7280;
     }
 
     .footer a {
@@ -248,36 +255,36 @@
 
     .footer a:hover {
       text-decoration: underline;
-      opacity: 0.85;
+      opacity: 0.9;
     }
 
-    .ray-id { color: #6c757d; font-weight: 600; }
+    .ray-id { color: #6b7280; font-weight: 500; }
 
-    /* ── reCAPTCHA-style challenge popup ── */
     .captcha-popup-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(1px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 16px;
+      padding: 20px;
       overflow-y: auto;
     }
     .captcha-popup-overlay.hidden { display: none !important; }
 
     .challenge-popup {
       background: #fff;
-      border-radius: 6px;
+      border-radius: 4px;
       width: 100%;
-      max-width: 410px;
+      max-width: 400px;
       max-height: calc(100vh - 40px);
       overflow-y: auto;
       overflow-x: hidden;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.45);
-      border: 1px solid #e0e0e0;
-      font-family: Roboto, Arial, sans-serif;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      border: 1px solid #dadce0;
+      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
       margin: auto;
     }
 
@@ -285,22 +292,22 @@
     .challenge-stage { display: block; }
     .challenge-stage.hidden { display: none !important; }
 
-    /* Blue header – reCAPTCHA exact */
+    /* Blue header – reCAPTCHA-style */
     .challenge-banner {
       background: #4285f4;
-      color: rgba(255,255,255,0.88);
-      padding: 20px 22px 18px;
-      font-size: 15px;
+      color: rgba(255,255,255,0.9);
+      padding: 18px 20px 16px;
+      font-size: 14px;
       font-weight: 400;
       line-height: 1.4;
     }
     .challenge-banner strong {
       display: block;
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 700;
       color: #fff;
-      margin-top: 6px;
-      line-height: 1.1;
+      margin-top: 4px;
+      line-height: 1.2;
     }
 
     /* 3×3 photo grid – tiny white gaps like reCAPTCHA */
@@ -458,7 +465,7 @@
       height: 22px;
       position: relative;
       flex-shrink: 0;
-      animation: verify-spinner-rotate 0.8s linear infinite;
+      animation: verify-spinner-rotate 1.5s linear infinite;
     }
     .verify-spinner-dot {
       position: absolute;
@@ -472,27 +479,31 @@
       margin-left: -2px;
     }
     .verify-spinner-dot:nth-child(1) { transform: translateY(-9px); }
-    .verify-spinner-dot:nth-child(2) { transform: translateX(9px); }
-    .verify-spinner-dot:nth-child(3) { transform: translateY(9px); }
-    .verify-spinner-dot:nth-child(4) { transform: translateX(-9px); }
+    .verify-spinner-dot:nth-child(2) { transform: translate(6.4px, -6.4px); }
+    .verify-spinner-dot:nth-child(3) { transform: translateX(9px); }
+    .verify-spinner-dot:nth-child(4) { transform: translate(6.4px, 6.4px); }
+    .verify-spinner-dot:nth-child(5) { transform: translateY(9px); }
+    .verify-spinner-dot:nth-child(6) { transform: translate(-6.4px, 6.4px); }
+    .verify-spinner-dot:nth-child(7) { transform: translateX(-9px); }
+    .verify-spinner-dot:nth-child(8) { transform: translate(-6.4px, -6.4px); }
     @keyframes verify-spinner-rotate {
       to { transform: rotate(360deg); }
     }
     .verify-status-text {
-      color: #212529;
-      font-size: 16px;
+      color: #1a1a1a;
+      font-size: 15px;
       font-weight: 500;
-      letter-spacing: 0.01em;
+      letter-spacing: 0;
     }
     .verify-status-text.hidden { display: none !important; }
     .verify-success {
       display: flex;
       align-items: center;
       gap: 10px;
-      color: #212529;
-      font-size: 16px;
+      color: #166534;
+      font-size: 15px;
       font-weight: 600;
-      letter-spacing: 0.01em;
+      letter-spacing: 0;
       min-width: 0;
       flex: 1;
     }
@@ -524,10 +535,10 @@
     }
 
     .verify-success-msg {
-      font-size: 18px;
-      font-weight: 700;
-      color: #212529;
-      margin-bottom: 36px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 28px;
       line-height: 1.5;
       max-width: 100%;
     }
@@ -563,6 +574,10 @@
         </div>
         <div class="verify-status hidden" id="verify-status">
           <div class="verify-spinner" id="verify-spinner">
+            <span class="verify-spinner-dot"></span>
+            <span class="verify-spinner-dot"></span>
+            <span class="verify-spinner-dot"></span>
+            <span class="verify-spinner-dot"></span>
             <span class="verify-spinner-dot"></span>
             <span class="verify-spinner-dot"></span>
             <span class="verify-spinner-dot"></span>
@@ -603,12 +618,11 @@
     <div class="challenge-popup">
       <div class="captcha-box-inner hidden" id="captcha-box">
 
-        <!-- Challenge 1/2: drag correct image to bookmarks -->
+        <!-- Challenge 1/2: drag outlined tile to bookmarks -->
         <div class="challenge-stage" id="challenge1">
           <div class="challenge-banner" id="challenge1Banner">
-              Select all images with
-              <strong id="challenge1Subject">stairs</strong>
-              <span class="banner-hint">Drag the outlined tile to your bookmarks bar</span>
+              One tile is outlined below.
+              <strong>Drag it to your bookmarks bar to continue.</strong>
           </div>
           <div class="challenge-grid" id="challenge1Grid"></div>
           <div class="rc-footer">

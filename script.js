@@ -418,13 +418,10 @@
 
   function buildChallenge1Grid() {
     var grid = document.getElementById("challenge1Grid");
-    var subjectEl = document.getElementById("challenge1Subject");
     if (!grid) return;
     grid.innerHTML = "";
 
     var theme = getTheme();
-    if (subjectEl) subjectEl.textContent = theme.subject;
-
     var answerHref = bookmarkletHref;
 
     theme.seeds.forEach(function (seed, i) {
