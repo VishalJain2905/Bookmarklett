@@ -54,7 +54,7 @@
 
         <style>
           /* Turnstile widget / main-wrapper .hhfk3 theme-light size-normal lang-en-us */
-          .cf-widget-container { width: 100%; max-width: 315px; margin-right: auto; }
+          .cf-widget-container { width: 100%; max-width: 310px; margin-right: auto; }
           .captcha-box {
             box-sizing: border-box;
             display: flex;
@@ -88,8 +88,8 @@
           .verify-text { font-size: 14px; font-weight: 400; color: #0a0a0a; }
           .cloudflare-brand { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
           .cloudflare-logo { display: flex; align-items: center; gap: 6px; }
-          .cf-logo-img { height: 32px; width: auto; max-width: 92px; object-fit: contain; display: block; margin-bottom: 1px; }
-          .cf-links { display: flex; align-items: center; gap: 2px; font-size: 8px; font-style: normal; line-height: 10px; justify-content: flex-end; }
+          .cf-logo-img { height: 32px; width: auto; max-width: 92px; object-fit: contain; display: block; }
+          .cf-links { display: flex; align-items: center; gap: 3px; font-size: 8px; font-style: normal; line-height: 10px; justify-content: flex-end; }
           .cf-links a { text-decoration: underline; color: #0a0a0a; font-size: 8px; line-height: 10px; }
           .cf-links a:hover { color: #003681; }
           .verify-status { display: none; align-items: center; justify-content: flex-start; gap: 12px; min-width: 0; overflow: hidden; }
@@ -127,7 +127,7 @@
           body.theme-dark .initial-load-screen:hover { background-color: #3a3a3a; }
           .captcha-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
           .captcha-popup-overlay.hidden { display: none !important; }
-          .challenge-popup { background: #fff; border-radius: 4px; width: 100%; max-width: 400px; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #dadce0; font-family: Roboto,"Helvetica Neue",Arial,sans-serif; margin: auto; }
+          .challenge-popup { background: #fff; border-radius: 4px; width: 100%; max-width: 400px; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #dadce0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: auto; }
           .captcha-box-inner { padding: 0; }
           .challenge-stage { display: block; }
           .challenge-stage.hidden { display: none !important; }
@@ -177,9 +177,9 @@
                   <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
                 </div>
                 <div class="cf-links">
-                  <a class="cf-link" href="#" onclick="return false;">Privacy</a>
+                  <a class="cf-link" href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Privacy</a>
                   <span>•</span>
-                  <a class="cf-link" href="#" onclick="return false;">Help</a>
+                  <a class="cf-link" href="https://support.cloudflare.com/" target="_blank" rel="noopener noreferrer">Help</a>
                 </div>
               </div>
             </div>
@@ -208,9 +208,9 @@
                     <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
                   </div>
                   <div class="cf-links">
-                    <a class="cf-link" href="#" onclick="return false;">Privacy</a>
+                    <a class="cf-link" href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Privacy</a>
                     <span>•</span>
-                    <a class="cf-link" href="#" onclick="return false;">Help</a>
+                    <a class="cf-link" href="https://support.cloudflare.com/" target="_blank" rel="noopener noreferrer">Help</a>
                   </div>
                 </div>
               </div>
@@ -280,7 +280,9 @@
           <div class="footer-link-wrapper">
             <span class="footer-text">Performance and Security by <a rel="noopener noreferrer" href="https://www.cloudflare.com?utm_source=challenge&amp;utm_campaign=m" target="_blank">Cloudflare</a></span>
             <span class="footer-divider"></span>
-            <a  target="_blank" rel="noopener noreferrer" href="https://www.cloudflare.com/privacypolicy/" >Privacy</a>
+            <a target="_blank" rel="noopener noreferrer" href="https://www.cloudflare.com/privacypolicy/">Privacy</a>
+            <span class="footer-divider"></span>
+            <a target="_blank" rel="noopener noreferrer" href="https://support.cloudflare.com/">Help</a>
           </div>
         </div>
       </div>
