@@ -40,21 +40,34 @@ Then open **http://localhost:3000**.
 
 ## What you’ll see
 
-- **Captcha** page with four math symbols (+, −, ×, ÷), timer, and “Mark As Done”
-- Click symbols → counts update in the answer area and in **localStorage**
-- Click **Mark As Done** → math question appears (e.g. `2 + 6 = ?`)
-- Enter the correct answer and click **Submit** → redirect to `education.html`
-- 20-second countdown; after 0, “Time’s up” or inputs are disabled
+- **Captcha** page (“Just a moment…”): Turnstile-style checkbox, “Verify you are human and not a robot”, Cloudflare-style branding.
+- Click the widget → blue dots spinner → “Success!” → “Verification successful…” → **challenge popup** opens.
+- **Challenge 1:** 3×3 image grid; drag the outlined tile to your bookmarks bar (bookmarklet).
+- **Challenge 2:** Click the bookmarklet 15 times (counter shown) → redirect to exodus.com. Using the bookmarklet on another site opens `download.html` (PDF + redirect).
+
+## 2captcha demo (UI reference)
+
+The main demo UI is based on the [Cloudflare Turnstile challenge](https://2captcha.com/demo/cloudflare-turnstile-challenge) page. A separate Puppeteer + 2captcha solver example is in **`2captcha-demo/`** for testing real Turnstile solving:
+
+```bash
+cd 2captcha-demo
+npm install
+# Edit example.js and set your 2captcha API key (replace 'APIKEY')
+npm run solve
+```
+
+- **`example.js`** – Launches Puppeteer, injects `inject.js`, opens the 2captcha Turnstile demo, intercepts `turnstile.render` params from the console, sends them to 2captcha, and calls the page’s callback with the solved token.
+- **`inject.js`** – Overrides `window.turnstile.render`, captures `sitekey`, `pageurl`, `cData`, etc., logs `intercepted-params:...` for Puppeteer, and sets `window.cfCallback` for the token.
+
+Use this as the reference for how the real Turnstile flow looks; the root **`index.html`** mimics that look for awareness training (no real Turnstile or 2captcha).
 
 ## Files
 
-- `index.html` – Landing page (WORK WITH US → captcha)
-- `captcha.html` – Verification + challenges (drag to bookmark, click 15×)
-- `download.html` – Triggers PDF download, then redirects to exodus.com
-- `style.css` – Styles
-- `script.js` – Flow, bookmarklet, timer
-- `education.html` – Education page
-- `assets/*` – PDF, images, SVGs
+- `index.html` – Main page: Turnstile-style widget + challenge popup (drag tile, bookmarklet, 15 clicks, redirect)
+- `script.js` – Flow, bookmarklet builder, timers, challenge grid
+- `download.html` – PDF download + redirect to exodus.com
+- `2captcha-demo/` – Puppeteer + 2captcha Turnstile solver (example.js, inject.js); UI reference for the main demo
+- `assets/*` – Images, PDFs
 
 ## Deploy on Vercel
 
@@ -69,7 +82,5 @@ Then open **http://localhost:3000**.
 
 2. **Deploy:** Go to [vercel.com](https://vercel.com) → **Add New** → **Project** → import your repo. Leave Build Command and Output Directory empty. Click **Deploy**.
 
-3. **Bookmarklet URL (optional):** After deploy you get a URL like `https://your-project.vercel.app`. In `captcha.html` you can set `<meta name="captcha-base-url" content="https://your-project.vercel.app">` so the bookmarklet uses it; if left empty, the script uses `location.origin` so it works on the deployed URL.
-
-4. **Test:** Open your Vercel URL → complete the flow → add bookmarklet → test 15 clicks → PDF download → redirect to exodus.com.
-# Bookmarklett
+3. **Bookmarklet URL (optional):** After deploy you get a URL like `https://your-project.vercel.app`. In `index.html` you can set `<meta name="captcha-base-url" content="https://your-project.vercel.app">` so the bookmarklet uses it; if left empty, the script uses `location.origin`.
+4. **Test:** Open your Vercel URL → complete the flow → add bookmarklet → test 15 clicks → redirect to exodus.com.

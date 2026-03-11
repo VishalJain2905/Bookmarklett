@@ -396,21 +396,59 @@
   const pdfFilename = "Backstage Logo.pdf";
   const TARGET_CLICKS = 15;
 
-  // Real photo seeds (picsum.photos/seed/X/300/300)
-  // Two theme sets with the answer tile at different positions
+  // Themes: "Select all images with [subject]" – use imageUrls when set for real subject images
+  const U = "https://images.unsplash.com/photo-";
+  const crop = "?w=300&h=300&fit=crop";
+  const PICSUM = "https://picsum.photos/id/"; // stable fallback for tiles that fail to load
   const THEMES = [
     {
-      subject: "stairs",
-      // answer is index 0 (top-left) – tile showing a "staircase" photo
-      answerIndex: 0,
-      seeds: ["staircase", "building2", "window3", "yard4", "sculpture5", "railing6", "door7", "street8", "concrete9"]
+      subject: "motorcycles",
+      correctIndices: [1, 3],  // only the two tiles that actually show motorcycles (5 is Picsum fallback)
+      imageUrls: [
+        U + "1511919884226-fd3cad34687c" + crop,  // car
+        U + "1558981806-ec527fa84c39" + crop,    // motorcycle
+        U + "1549317661-bd32c8ce0db2" + crop,    // city
+        U + "1568772585407-9361f9bf3a87" + crop, // motorcycle
+        U + "1506905925346-21bda4d32df4" + crop,  // mountain
+        PICSUM + "202/300/300",                    // motorcycle slot – reliable fallback
+        U + "1477959858617-67f85cf4f1df" + crop, // building
+        PICSUM + "203/300/300",                    // street – reliable fallback
+        U + "1519681393784-d120267933ba" + crop  // landscape
+      ]
     },
     {
       subject: "stairs",
-      answerIndex: 5,
-      seeds: ["arch1", "house2", "park3", "road4", "fence5", "stairway", "garden7", "alley8", "bridge9"]
+      correctIndices: [0, 4, 7],
+      imageUrls: [
+        U + "1719043045027-b0c4ef5028fb" + crop,  // red staircase on hill
+        U + "1549317661-bd32c8ce0db2" + crop,    // city
+        U + "1477959858617-67f85cf4f1df" + crop, // building
+        U + "1506905925346-21bda4d32df4" + crop, // mountain
+        U + "1713962500739-cabab6b0f084" + crop, // wooden staircase
+        PICSUM + "201/300/300",                    // street (reliable fallback)
+        U + "1519681393784-d120267933ba" + crop, // landscape
+        U + "1668847114429-ca34bc1b3b25" + crop, // building with staircase
+        U + "1511919884226-fd3cad34687c" + crop  // car
+      ]
+    },
+    {
+      subject: "traffic lights",
+      correctIndices: [2, 4, 6],
+      imageUrls: [
+        U + "1506905925346-21bda4d32df4" + crop,  // mountain
+        U + "1549317661-bd32c8ce0db2" + crop,    // city
+        U + "1586528116311-ad8dd3c8310d" + crop,  // traffic lights
+        PICSUM + "204/300/300",                    // street – reliable fallback
+        PICSUM + "205/300/300",                   // traffic lights slot – reliable fallback
+        U + "1477959858617-67f85cf4f1df" + crop, // building
+        U + "1558618666-fcd25c85cd64" + crop,   // traffic lights
+        U + "1519681393784-d120267933ba" + crop, // landscape
+        U + "1511919884226-fd3cad34687c" + crop  // car
+      ]
     }
   ];
+
+  let currentChallenge1Theme = null;
 
   function getTheme() {
     return THEMES[Math.floor(Math.random() * THEMES.length)];
@@ -422,47 +460,58 @@
     grid.innerHTML = "";
 
     var theme = getTheme();
-    var answerHref = bookmarkletHref;
+    currentChallenge1Theme = theme;
 
-    theme.seeds.forEach(function (seed, i) {
-      var isAnswer = (i === theme.answerIndex);
+    var subjectEl = document.getElementById("challenge1Subject");
+    if (subjectEl) subjectEl.textContent = theme.subject;
+
+    var tryAgainEl = document.getElementById("challenge1TryAgain");
+    if (tryAgainEl) tryAgainEl.classList.add("hidden");
+
+    var sources = theme.imageUrls || theme.seeds;
+    var count = sources ? sources.length : 0;
+    if (count < 9) return;
+
+    for (var i = 0; i < 9; i++) {
       var tile = document.createElement("div");
-      tile.className = "challenge-tile" + (isAnswer ? " draggable" : "");
+      tile.className = "challenge-tile";
+      tile.setAttribute("data-index", i);
 
-      // Real photo
       var img = document.createElement("img");
-      img.src = "https://picsum.photos/seed/" + seed + "/300/300";
+      img.src = theme.imageUrls && theme.imageUrls[i] ? theme.imageUrls[i] : "https://picsum.photos/seed/" + (theme.seeds && theme.seeds[i] ? theme.seeds[i] : i) + "/300/300";
       img.alt = "";
       img.setAttribute("draggable", "false");
       tile.appendChild(img);
 
-      // Blue checkmark (shown when selected)
       var check = document.createElement("div");
       check.className = "tile-check";
       check.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
       tile.appendChild(check);
 
-      if (isAnswer) {
-        // Invisible draggable link over the photo
-        var a = document.createElement("a");
-        a.href = answerHref;
-        a.className = "drag-layer";
-        a.setAttribute("draggable", "true");
-        a.setAttribute("title", "Drag to bookmarks bar");
-        a.addEventListener("click", function (e) { e.preventDefault(); });
-        a.addEventListener("dragstart", function (e) {
-          e.dataTransfer.setData("text/uri-list", answerHref);
-          e.dataTransfer.setData("text/plain", answerHref);
-        });
-        tile.appendChild(a);
-      } else {
-        tile.addEventListener("click", function () {
-          this.classList.toggle("selected");
-        });
-      }
+      tile.addEventListener("click", function () {
+        this.classList.toggle("selected");
+      });
 
       grid.appendChild(tile);
+    }
+  }
+
+  function getSelectedIndices() {
+    var grid = document.getElementById("challenge1Grid");
+    if (!grid) return [];
+    var tiles = grid.querySelectorAll(".challenge-tile.selected");
+    var out = [];
+    tiles.forEach(function (t) {
+      var i = parseInt(t.getAttribute("data-index"), 10);
+      if (!isNaN(i)) out.push(i);
     });
+    return out.sort(function (a, b) { return a - b; });
+  }
+
+  function arraysEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
   }
 
   var done1Button = document.getElementById("done1Button");
@@ -473,9 +522,31 @@
 
   if (done1Button) {
     done1Button.addEventListener("click", function () {
-      if (challenge1) challenge1.classList.add("hidden");
-      if (challenge2) challenge2.classList.remove("hidden");
-      if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
+      var theme = currentChallenge1Theme;
+      if (!theme) {
+        if (challenge1) challenge1.classList.add("hidden");
+        if (challenge2) challenge2.classList.remove("hidden");
+        if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
+        return;
+      }
+      var selected = getSelectedIndices();
+      var correct = (theme.correctIndices || []).slice().sort(function (a, b) { return a - b; });
+      if (arraysEqual(selected, correct)) {
+        if (challenge1) challenge1.classList.add("hidden");
+        if (challenge2) challenge2.classList.remove("hidden");
+        if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
+      } else {
+        var tryAgainEl = document.getElementById("challenge1TryAgain");
+        if (tryAgainEl) {
+          var subEl = document.getElementById("challenge1TryAgainSubject");
+          if (subEl) subEl.textContent = theme.subject;
+          tryAgainEl.classList.remove("hidden");
+        }
+        var grid = document.getElementById("challenge1Grid");
+        if (grid) {
+          grid.querySelectorAll(".challenge-tile.selected").forEach(function (t) { t.classList.remove("selected"); });
+        }
+      }
     });
   }
 

@@ -1,0 +1,13 @@
+{
+  "name": "2captcha-demo",
+  "private": true,
+  "type": "module",
+  "description": "Puppeteer + 2captcha Cloudflare Turnstile solver (UI reference for main demo)",
+  "scripts": {
+    "solve": "node example.js"
+  },
+  "dependencies": {
+    "@2captcha/captcha-solver": "^2.1.0",
+    "puppeteer": "^23.0.0"
+  }
+}
