@@ -396,54 +396,55 @@
   const pdfFilename = "Backstage Logo.pdf";
   const TARGET_CLICKS = 15;
 
-  // Themes: "Select all images with [subject]" – use imageUrls when set for real subject images
+  // Themes: seed-based Picsum URLs (always work); Unsplash for real subject images on correct tiles
+  const P = "https://picsum.photos/seed/";
+  const S = "/300/300";
   const U = "https://images.unsplash.com/photo-";
   const crop = "?w=300&h=300&fit=crop";
-  const PICSUM = "https://picsum.photos/id/"; // stable fallback for tiles that fail to load
   const THEMES = [
     {
       subject: "motorcycles",
-      correctIndices: [1, 3],  // only the two tiles that actually show motorcycles (5 is Picsum fallback)
+      correctIndices: [1, 3],
       imageUrls: [
-        U + "1511919884226-fd3cad34687c" + crop,  // car
+        P + "car1" + S,
         U + "1558981806-ec527fa84c39" + crop,    // motorcycle
-        U + "1549317661-bd32c8ce0db2" + crop,    // city
+        P + "city1" + S,
         U + "1568772585407-9361f9bf3a87" + crop, // motorcycle
-        U + "1506905925346-21bda4d32df4" + crop,  // mountain
-        PICSUM + "202/300/300",                    // motorcycle slot – reliable fallback
-        U + "1477959858617-67f85cf4f1df" + crop, // building
-        PICSUM + "203/300/300",                    // street – reliable fallback
-        U + "1519681393784-d120267933ba" + crop  // landscape
+        P + "mountain1" + S,
+        P + "flower1" + S,
+        P + "building1" + S,
+        P + "street1" + S,
+        P + "landscape1" + S
       ]
     },
     {
       subject: "stairs",
       correctIndices: [0, 4, 7],
       imageUrls: [
-        U + "1719043045027-b0c4ef5028fb" + crop,  // red staircase on hill
-        U + "1549317661-bd32c8ce0db2" + crop,    // city
-        U + "1477959858617-67f85cf4f1df" + crop, // building
-        U + "1506905925346-21bda4d32df4" + crop, // mountain
+        U + "1719043045027-b0c4ef5028fb" + crop, // red staircase
+        P + "office1" + S,
+        P + "beach1" + S,
+        P + "river1" + S,
         U + "1713962500739-cabab6b0f084" + crop, // wooden staircase
-        PICSUM + "201/300/300",                    // street (reliable fallback)
-        U + "1519681393784-d120267933ba" + crop, // landscape
+        P + "forest1" + S,
+        P + "desert1" + S,
         U + "1668847114429-ca34bc1b3b25" + crop, // building with staircase
-        U + "1511919884226-fd3cad34687c" + crop  // car
+        P + "sunset1" + S
       ]
     },
     {
       subject: "traffic lights",
       correctIndices: [2, 4, 6],
       imageUrls: [
-        U + "1506905925346-21bda4d32df4" + crop,  // mountain
-        U + "1549317661-bd32c8ce0db2" + crop,    // city
-        U + "1586528116311-ad8dd3c8310d" + crop,  // traffic lights
-        PICSUM + "204/300/300",                    // street – reliable fallback
-        PICSUM + "205/300/300",                   // traffic lights slot – reliable fallback
-        U + "1477959858617-67f85cf4f1df" + crop, // building
-        U + "1558618666-fcd25c85cd64" + crop,   // traffic lights
-        U + "1519681393784-d120267933ba" + crop, // landscape
-        U + "1511919884226-fd3cad34687c" + crop  // car
+        P + "park1" + S,
+        P + "lake1" + S,
+        U + "1586528116311-ad8dd3c8310d" + crop,  // traffic light
+        P + "bridge1" + S,
+        U + "1569336415962-a4bd89f3efb9" + crop,  // traffic light
+        P + "garden1" + S,
+        U + "1558618666-fcd25c85cd64" + crop,     // traffic light
+        P + "snow1" + S,
+        P + "rain1" + S
       ]
     }
   ];

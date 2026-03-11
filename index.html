@@ -42,6 +42,28 @@
       margin-bottom: 10px;
     }
 
+    .header-logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .header-logo-fallback {
+      font-size: 36px;
+      line-height: 1;
+      display: none;
+    }
+
     .robot-emoji {
       font-size: 36px;
       line-height: 1;
@@ -49,41 +71,36 @@
     }
 
     .site-name {
-      font-size: 28px;
+      font-size: 40px;
       font-weight: 600;
       color: #1a1a1a;
-      letter-spacing: -0.02em;
+
       line-height: 1.2;
     }
 
     .title {
-      font-size: 22px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 12px;
-      letter-spacing: -0.01em;
-      line-height: 1.35;
-      width: 100%;
-      max-width: 100%;
+    line-height: 125%;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-style: normal;
+    margin-bottom: 8px;
     }
 
     .description {
-      font-size: 17px;
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-weight: 400;
       color: #555;
-      line-height: 1.6;
-      max-width: 100%;
-      width: 100%;
-      margin-bottom: 28px;
-      letter-spacing: 0;
+      line-height: 150%;
+      margin-bottom: 2rem;
+
     }
 
     .captcha-box {
       width: 100%;
       max-width: 360px;
       border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      background: #ffffff;
+      border-radius: 0px;
+      background: #efeeee;
       box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
       display: flex;
       flex-direction: row;
@@ -243,8 +260,8 @@
       align-items: center;
       justify-content: center;
       gap: 2px;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 0.75rem;
+      font-weight: 500;
       background: #fafafa;
       color: #6b7280;
       letter-spacing: 0.01em;
@@ -558,17 +575,43 @@
     .verify-success-msg.hidden { display: none !important; }
 
     .captcha-widget-wrap.hidden { display: none !important; }
+
+    /* Initial load: same box as widget, only left content is spinner + Verifying... */
+    .initial-load-screen {
+      width: 100%;
+      max-width: 360px;
+      border: 1px solid #d0d0d0;
+      border-radius: 0px;
+      background: #efeeee;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      box-sizing: border-box;
+    }
+    .initial-load-screen .initial-load-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .initial-load-screen.hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <div class="header">
-      <span class="robot-emoji">🤖</span>
-      <span class="site-name">backstage.io</span>
+      <div class="header-logo-wrap">
+        <img src="assets/round-bottom-flask.png" alt="" class="header-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="header-logo-fallback robot-emoji" aria-hidden="true">🤖</span>
+      </div>
+      <span class="site-name">www.scrapingcourse.com</span>
     </div>
 
-    <div class="title">Performing security verification</div>
+    <h2 class="title">Performing security verification</h2>
     <p class="description">
       This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
     </p>
@@ -577,7 +620,33 @@
       <strong>Verification successful. Waiting for <span id="verify-success-host">backstage.io</span> to respond.</strong>
     </p>
 
-    <div class="captcha-widget-wrap" id="captcha-widget-wrap">
+    <div class="initial-load-screen" id="initial-load-screen">
+      <div class="initial-load-left">
+        <div class="verify-spinner">
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+          <span class="verify-spinner-dot"></span>
+        </div>
+        <span class="verify-status-text">Verifying...</span>
+      </div>
+      <div class="cloudflare-brand">
+        <div class="cloudflare-logo">
+          <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
+        </div>
+        <div class="cf-links">
+          <a class="cf-link" href="#" onclick="return false;">Privacy</a>
+          <span class="cf-link-separator">•</span>
+          <a class="cf-link2" href="#" onclick="return false;">Help</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="captcha-widget-wrap hidden" id="captcha-widget-wrap">
     <div class="captcha-box" id="captcha-widget" role="button" tabindex="0" aria-label="Verify you are human">
       <div class="captcha-widget-default" id="captcha-widget-default">
         <div class="captcha-left">
@@ -698,6 +767,18 @@
     // Fake Ray ID
     var hex = Math.random().toString(16).slice(2,18);
     document.getElementById("cf-ray-id").textContent = hex + "-SIN";
+
+    // Initial load: show spinner first, then reveal checkbox after delay
+    (function () {
+      var initialScreen = document.getElementById("initial-load-screen");
+      var widgetWrap = document.getElementById("captcha-widget-wrap");
+      if (initialScreen && widgetWrap) {
+        setTimeout(function () {
+          initialScreen.classList.add("hidden");
+          widgetWrap.classList.remove("hidden");
+        }, 2200);
+      }
+    })();
 
     // Clicking the widget checks the box and opens challenge
     var widget = document.getElementById("captcha-widget");
