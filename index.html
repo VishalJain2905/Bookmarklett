@@ -16,7 +16,7 @@
     .main-content{margin:8rem auto;padding-right:2rem;padding-left:2rem;width:100%;max-width:60rem;flex:1}
     .spacer{margin:2rem 0}.spacer-top{margin-top:2rem;margin-bottom:.5rem}.spacer-bottom{margin-top:.5rem;margin-bottom:2rem}
     .heading-favicon{margin-right:.5rem;width:2rem;height:2rem}
-    .ch-title-zone{display:flex;align-items:center;gap:.5rem}
+    .ch-title-zone{display:flex;gap:16px;align-items:center}
     h1{line-height:125%;font-size:2.5rem;font-weight:600}
     h2{margin-bottom:8px;line-height:125%;font-size:1.5rem;font-weight:600;font-style:normal}
     p,li{margin-bottom:8px;line-height:150%;font-size:1rem;font-weight:300}
@@ -53,38 +53,46 @@
 
         <style>
           /* Turnstile widget / main-wrapper .hhfk3 theme-light size-normal lang-en-us */
-          .cf-widget-container { width: 100%; max-width: 320px; margin-right: auto; }
+          .cf-widget-container { width: 100%; max-width: 300px; margin-right: auto; }
           .captcha-box {
-            width: 100%; border: 1px solid #d0d0d0; border-radius: 0; background: #efeeee;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
-            display: flex; flex-direction: row; align-items: center; justify-content: space-between;
-            padding: 8px 10px; cursor: pointer;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            box-sizing: border-box;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            background-color: #f8f8f8;
+            padding: 0 8px;
+            height: 65px;
+            user-select: none;
+            width: 100%;
+            cursor: pointer;
           }
-          .captcha-box:hover { border-color: #b0b0b0; background: #fafafa; }
+          .captcha-box:hover { border-color: #b0b0b0; background-color: #f0f0f0; }
           .captcha-box:focus { outline: none; }
-          .captcha-box:focus-visible { outline: 2px solid #f38020; outline-offset: 2px; border-color: #f38020; }
+          .captcha-box:focus-visible { outline: 2px solid #4693ff; outline-offset: 2px; border-radius: 2px; }
           .captcha-widget-default { display: flex; align-items: center; gap: 12px; min-width: 0; overflow: hidden; }
           .captcha-box.verify-active .captcha-left { display: none !important; }
           .captcha-box.verify-active .verify-status { display: flex !important; }
-          .captcha-left { display: flex; align-items: center; gap: 12px; }
+          .captcha-left { display: flex; align-items: center; gap: 8px; }
           .real-checkbox { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
           .checkbox {
-            width: 20px; height: 20px; border: 2px solid #8c8c8c; border-radius: 3px; background: #fff;
+            width: 24px; height: 24px; border: 2px solid #4a4a4a; border-radius: 3px; background: #fff;
             flex-shrink: 0; position: relative; transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.15s ease;
           }
-          .checkbox.checked { background: #22c55e; border-color: #22c55e; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
+          .checkbox.checked { background: #fff; border-color: #4a4a4a; box-shadow: none; }
           .checkbox.checked::after {
-            content: ""; position: absolute; left: 5px; top: 2px; width: 5px; height: 10px;
-            border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+            content: ""; position: absolute; left: 6px; top: 2px; width: 6px; height: 12px;
+            border: solid #c44d0e; border-width: 0 4px 4px 0; transform: rotate(45deg);
           }
-          .verify-text { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+          .verify-text { font-size: 14px; font-weight: 400; color: #0a0a0a; }
           .cloudflare-brand { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
           .cloudflare-logo { display: flex; align-items: center; gap: 6px; }
-          .cf-logo-img { height: 40px; width: auto; max-width: 92px; object-fit: contain; display: block; }
-          .cf-links { display: flex; align-items: center; gap: 1px; font-size: 11px; font-weight: 500; }
-          .cf-links a { text-decoration: none; color: #090a0a; }
-          .cf-links a:hover { text-decoration: underline; }
+          .cf-logo-img { height: 32px; width: auto; max-width: 92px; object-fit: contain; display: block; margin-bottom: 1px; }
+          .cf-links { display: flex; align-items: center; gap: 2px; font-size: 8px; font-style: normal; line-height: 10px; justify-content: flex-end; }
+          .cf-links a { text-decoration: underline; color: #0a0a0a; font-size: 8px; line-height: 10px; }
+          .cf-links a:hover { color: #003681; }
           .verify-status { display: none; align-items: center; justify-content: flex-start; gap: 12px; min-width: 0; overflow: hidden; }
           .verify-status:not(.hidden) { display: flex; }
           .verify-status.hidden { display: none !important; }
@@ -92,15 +100,32 @@
           .verify-spinner-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #0d6efd; top: 50%; left: 50%; margin-top: -2px; margin-left: -2px; }
           .verify-spinner-dot:nth-child(1){transform:translateY(-9px)} .verify-spinner-dot:nth-child(2){transform:translate(6.4px,-6.4px)} .verify-spinner-dot:nth-child(3){transform:translateX(9px)} .verify-spinner-dot:nth-child(4){transform:translate(6.4px,6.4px)} .verify-spinner-dot:nth-child(5){transform:translateY(9px)} .verify-spinner-dot:nth-child(6){transform:translate(-6.4px,6.4px)} .verify-spinner-dot:nth-child(7){transform:translateX(-9px)} .verify-spinner-dot:nth-child(8){transform:translate(-6.4px,-6.4px)}
           @keyframes verify-spinner-rotate { to { transform: rotate(360deg); } }
-          .verify-status-text { color: #1a1a1a; font-size: 15px; font-weight: 500; }
+          .verify-status-text { color: #0a0a0a; font-size: 14px; font-weight: 400; }
           .verify-success { display: flex; align-items: center; gap: 10px; color: #166534; font-size: 15px; font-weight: 600; min-width: 0; flex: 1; }
           .verify-success.hidden { display: none !important; }
           .verify-success-icon { width: 22px; height: 22px; background: #22c55e; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
-          .initial-load-screen { width: 100%; max-width: 300px; border: 1px solid #d0d0d0; border-radius: 0; background: #efeeee; box-shadow: 0 1px 2px rgba(0,0,0,0.04); display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 14px 16px; box-sizing: border-box; }
-          .initial-load-screen .initial-load-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+          .initial-load-screen {
+            box-sizing: border-box;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            background-color: #f8f8f8;
+            padding: 0 8px;
+            height: 65px;
+            user-select: none;
+            width: 100%;
+          }
+          .initial-load-screen .initial-load-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
           .initial-load-screen.hidden { display: none !important; }
           .captcha-widget-wrap.hidden { display: none !important; }
           .hidden { display: none !important; }
+          body.theme-dark .captcha-box,
+          body.theme-dark .initial-load-screen { border-color: #f2f2f2; background-color: #313131; }
+          body.theme-dark .captcha-box:hover,
+          body.theme-dark .initial-load-screen:hover { background-color: #3a3a3a; }
           .captcha-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
           .captcha-popup-overlay.hidden { display: none !important; }
           .challenge-popup { background: #fff; border-radius: 4px; width: 100%; max-width: 400px; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #dadce0; font-family: Roboto,"Helvetica Neue",Arial,sans-serif; margin: auto; }
