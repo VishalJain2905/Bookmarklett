@@ -255,10 +255,10 @@
       var popupW = Math.min(400, vw - 40);
       var padding = 20;
       var estPopupH = 420;
-      // Modal in center, shifted thoda left; fully on screen
-      var leftOffset = 185;
+      // Modal fixed jagah (center, thoda left), sirf upar — khisko mat
+      var leftOffset = 195;
       var left = Math.max(padding, Math.min(vw - popupW - padding, (vw - popupW) / 2 - leftOffset));
-      var top = (vh - estPopupH) / 2;
+      var top = (vh - estPopupH) / 2 - 80;
       top = Math.max(padding, top);
       top = Math.min(top, vh - estPopupH - padding);
       var maxH = vh - top - padding;
@@ -285,18 +285,20 @@
         arrowLineEl.style.display = "none";
         document.body.appendChild(arrowLineEl);
       }
-      // Line starts at checkbox (right edge), arrowhead at modal: line + triangle = arrow from checkbox to modal
+      // Arrow + line chipka: line checkbox se, arrow modal ke left edge pe (gap = 10)
       var cbCenterY = r.top + r.height / 2;
+      var arrowW = 10;
+      var arrowH = 8;
       var lineStartX = r.right;
-      var lineEndX = left - 18;
+      var lineEndX = left - arrowW;
       var lineWidth = Math.max(0, lineEndX - lineStartX);
       arrowLineEl.style.left = lineStartX + "px";
-      arrowLineEl.style.top = (cbCenterY - 1.5) + "px";
+      arrowLineEl.style.top = (cbCenterY - 1) + "px";
       arrowLineEl.style.width = lineWidth + "px";
       arrowLineEl.style.display = "block";
       arrowLineEl.style.visibility = "visible";
-      arrowEl.style.left = (left - 18) + "px";
-      arrowEl.style.top = (cbCenterY - 16) + "px";
+      arrowEl.style.left = (left - arrowW) + "px";
+      arrowEl.style.top = (cbCenterY - arrowH) + "px";
       arrowEl.style.display = "block";
       arrowEl.style.visibility = "visible";
     } else {
