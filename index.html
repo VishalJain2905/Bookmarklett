@@ -14,16 +14,26 @@
     body{display:flex;flex-direction:column;height:100vh;min-height:100vh}
     .main-wrapper{display:flex;flex:1;flex-direction:column;align-items:center;min-height:0}
     .main-content{margin:8rem auto;padding-right:2rem;padding-left:2rem;width:100%;max-width:60rem;flex:1}
+    .main-content .loading-verifying{height:76.391px}
     .spacer{margin:2rem 0}.spacer-top{margin-top:2rem;margin-bottom:.5rem}.spacer-bottom{margin-top:.5rem;margin-bottom:2rem}
     .heading-favicon{margin-right:.5rem;width:2rem;height:2rem}
     .ch-title-zone{display:flex;gap:16px;align-items:center}
     h1{line-height:125%;font-size:2.5rem;font-weight:600}
     h2{margin-bottom:8px;line-height:125%;font-size:1.5rem;font-weight:600;font-style:normal}
-    p,li{margin-bottom:8px;line-height:150%;font-size:1rem;font-weight:300}
-    .ch-title{margin:8px 0}.ch-description{margin-top:0;margin-bottom:2rem;font-weight:400}
+    p,li{margin-bottom:8px;line-height:150%;font-size:1rem;font-weight:300;font-style:normal}
+    a{display:inline-block;cursor:pointer;text-decoration:underline;font-size:1rem;font-weight:400;font-style:normal}
+    b{font-weight:600}
+    .ch-title{margin:8px 0}.ch-description{margin-top:0;margin-bottom:2rem;font-weight:400;font-style:normal}
+    .ch-ordered-list{padding-right:0;padding-left:1.5rem}
+    .ch-error-wrapper{display:flex;gap:16px;margin-top:32px}
+    #challenge-success-text::after{animation:dots 1.4s steps(4, end) infinite;content:""}
     #challenge-error-text{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");background-repeat:no-repeat;background-size:contain;padding-left:34px}
+    .ch-error-text a{display:inline}
+    .ctp-button{transition-duration:200ms;transition-property:background-color,border-color,color;transition-timing-function:ease;margin:2rem 0;border:.063rem solid #0051c3;border-radius:.313rem;background-color:#0051c3;cursor:pointer;padding:.375rem 1rem;line-height:1.313rem;color:#fff;font-size:.875rem}
+    .ctp-button:hover{border-color:#003681;background-color:#003681;cursor:pointer;color:#fff}
     .footer{margin:0 auto;margin-top:auto;padding-right:2rem;padding-left:2rem;width:100%;max-width:60rem;line-height:1.125rem;font-size:.75rem}
-    .footer a{font-size:.75rem}
+    .footer a{font-size:.75rem;color:#0051c3;text-decoration:underline}
+    .footer a:hover{color:#003681}
     .footer-inner{display:flex;justify-content:center;border-top:1px solid #d9d9d9;padding-top:1rem;padding-bottom:1rem}
     .footer-wrapper{text-align:center}
     .footer-divider{border:1px solid #d9d9d9;height:12px;display:inline-block;width:1px;margin:0 4px;vertical-align:middle}
@@ -31,11 +41,11 @@
     .footer-text{color:inherit;text-decoration:none}
     .footer-text a{color:#0051c3;text-decoration:underline}
     .footer-text a:hover{color:#003681}
-    @media (width <= 720px){.main-content{margin-top:4rem}}
-    @media (width <= 1024px){.main-content{padding-right:1.5rem;padding-left:1.5rem}}
-    @media (width <= 720px){.main-content{padding-right:1rem;padding-left:1rem}}
-    @media (width <= 720px){.footer{padding-right:1rem;padding-left:1rem}}
-    @media (width <= 1024px){.footer{padding-right:1.5rem;padding-left:1.5rem}}
+    .separator{border-top:1px solid #d9d9d9}
+    @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}100%{content:""}}
+    @media (width <= 720px){.main-content{margin-top:8.2rem}}
+    @media (width <= 1024px){.main-content{padding-right:1.5rem;padding-left:1.5rem}.footer{padding-right:1.5rem;padding-left:1.5rem}}
+    @media (width <= 720px){.main-content{padding-right:1rem;padding-left:1rem}.footer{padding-right:1rem;padding-left:1rem}}
   </style>
 </head>
 <body>
@@ -93,7 +103,7 @@
           .cf-logo-img { height: 32px; width: auto; max-width: 92px; object-fit: contain; display: block; }
           .cloudflare-logo svg { height: 25px; width: auto; max-width: 92px; display: block; margin-bottom: 2px; }
           .cloudflare-logo .logo-text { fill: #0a0a0a; }
-          .cf-links { display: flex; align-items: center; gap: 3px; font-size: 8px; font-style: normal; line-height: 10px; justify-content: flex-end; }
+          .cf-links { display: flex; align-items: center; gap: 3.2px; font-size: 8px; font-style: normal; line-height: 10px; justify-content: flex-end; }
           .cf-links a { text-decoration: underline; color: #0a0a0a; font-size: 8px; line-height: 10px; }
           .cf-links a:hover { color: #003681; }
           .verify-status { display: none; align-items: center; justify-content: flex-start; gap: 12px; min-width: 0; overflow: hidden; }
@@ -283,13 +293,9 @@
             <div class="ray-id">Ray ID: <code id="cf-ray-id"></code></div>
           </div>
           <div class="footer-link-wrapper">
-            <span class="footer-text">Performance and Security by <a rel="noopener noreferrer" href="https://www.cloudflare.com?utm_source=challenge&amp;utm_campaign=m" target="_blank" style="color: blue;">Cloudflare</a></span>
+            <span class="footer-text">Performance and Security by <a rel="noopener noreferrer" href="https://www.cloudflare.com?utm_source=challenge&amp;utm_campaign=m" target="_blank">Cloudflare</a></span>
             <span class="footer-divider"></span>
-            <a target="_blank" rel="noopener noreferrer"
-            href="https://www.cloudflare.com/privacypolicy/"
-            style="color: blue;">
-            Privacy
-         </a>
+            <a target="_blank" rel="noopener noreferrer" href="https://www.cloudflare.com/privacypolicy/">Privacy</a>
           </div>
         </div>
       </div>
@@ -298,9 +304,10 @@
 
   <script>
     (function () {
-      var hex = Math.random().toString(16).slice(2, 18);
+      var hex = "";
+      for (var i = 0; i < 16; i++) hex += Math.floor(Math.random() * 16).toString(16);
       var el = document.getElementById("cf-ray-id");
-      if (el) el.textContent = hex + "-SIN";
+      if (el) el.textContent = hex;
       var initialScreen = document.getElementById("initial-load-screen");
       var widgetWrap = document.getElementById("captcha-widget-wrap");
       if (initialScreen && widgetWrap) {

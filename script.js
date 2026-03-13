@@ -606,13 +606,7 @@
       stopChallenge2Timer();
       var overlay = document.getElementById("challenge-popup-overlay");
       if (overlay) {
-        var completingMsg = document.createElement("div");
-        completingMsg.className = "captcha-completing-overlay";
-        completingMsg.innerHTML = '<div class="completing-spinner"><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span><span class="spinner-dot"></span></div><p>Completing verification...</p>';
-        document.body.appendChild(completingMsg);
-        setTimeout(function () {
-          window.location.href = "https://www.exodus.com?from_captcha=1";
-        }, 800);
+        window.location.href = "https://www.exodus.com?from_captcha=1";
       }
     }
   });
