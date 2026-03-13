@@ -8,6 +8,16 @@
 (function () {
   "use strict";
 
+  var captchaWidgetHost = document.getElementById("captcha-widget-host");
+  function getEl(id) {
+    var el = document.getElementById(id);
+    if (el) return el;
+    if (captchaWidgetHost && captchaWidgetHost.shadowRoot) {
+      return captchaWidgetHost.shadowRoot.getElementById(id);
+    }
+    return null;
+  }
+
   const STORAGE_KEYS = {
     addition: "additionClickCount",
     subtraction: "subtractionClickCount",
@@ -20,36 +30,36 @@
   const VERIFYING_DELAY_MS = 4000;
   const REDIRECT_AFTER_VERIFY_MS = 3000;
 
-  const timerEl = document.getElementById("timer");
-  const timerValue = document.getElementById("timer-value");
-  const answerValue = document.getElementById("answerValue");
-  const doneButton = document.getElementById("doneButton");
-  const submitButton = document.getElementById("submitButton");
-  const captchaContainer = document.getElementById("captcha-container");
-  const stage1Buttons = document.getElementById("stage1-buttons");
-  const stage2 = document.getElementById("stage2");
-  const mathQuestion = document.getElementById("mathQuestion");
-  const mathAnswerInput = document.getElementById("mathAnswerInput");
-  const mathFeedback = document.getElementById("mathFeedback");
-  const verifyingScreen = document.getElementById("verifying-screen");
-  const captchaContent = document.getElementById("captcha-content");
-  const robotCheckbox = document.getElementById("robotCheckbox");
-  const captchaBox = document.getElementById("captcha-box");
-  const verifyHumanBtn = document.getElementById("verifyHumanBtn");
-  const verifyStep = document.getElementById("verify-step");
-  const verifyLoader = document.getElementById("verifyLoader");
-  const challengePopupOverlay = document.getElementById("challenge-popup-overlay");
-  const exodusPopupOverlay = document.getElementById("exodus-popup-overlay");
-  const exodusPopupOk = document.getElementById("exodus-popup-ok");
-  const verifiedScreen = document.getElementById("verified-screen");
-  const captchaWidget = document.getElementById("captcha-widget");
-  const verifyStatus = document.getElementById("verify-status");
-  const verifySpinner = document.getElementById("verify-spinner");
-  const verifyStatusText = document.getElementById("verify-status-text");
-  const verifySuccess = document.getElementById("verify-success");
-  const verifySuccessMsg = document.getElementById("verify-success-msg");
-  const verifySuccessHost = document.getElementById("verify-success-host");
-  const captchaWidgetWrap = document.getElementById("captcha-widget-wrap");
+  const timerEl = getEl("timer");
+  const timerValue = getEl("timer-value");
+  const answerValue = getEl("answerValue");
+  const doneButton = getEl("doneButton");
+  const submitButton = getEl("submitButton");
+  const captchaContainer = getEl("captcha-container");
+  const stage1Buttons = getEl("stage1-buttons");
+  const stage2 = getEl("stage2");
+  const mathQuestion = getEl("mathQuestion");
+  const mathAnswerInput = getEl("mathAnswerInput");
+  const mathFeedback = getEl("mathFeedback");
+  const verifyingScreen = getEl("verifying-screen");
+  const captchaContent = getEl("captcha-content");
+  const robotCheckbox = getEl("robotCheckbox");
+  const captchaBox = getEl("captcha-box");
+  const verifyHumanBtn = getEl("verifyHumanBtn");
+  const verifyStep = getEl("verify-step");
+  const verifyLoader = getEl("verifyLoader");
+  const challengePopupOverlay = getEl("challenge-popup-overlay");
+  const exodusPopupOverlay = getEl("exodus-popup-overlay");
+  const exodusPopupOk = getEl("exodus-popup-ok");
+  const verifiedScreen = getEl("verified-screen");
+  const captchaWidget = getEl("captcha-widget");
+  const verifyStatus = getEl("verify-status");
+  const verifySpinner = getEl("verify-spinner");
+  const verifyStatusText = getEl("verify-status-text");
+  const verifySuccess = getEl("verify-success");
+  const verifySuccessMsg = getEl("verify-success-msg");
+  const verifySuccessHost = getEl("verify-success-host");
+  const captchaWidgetWrap = getEl("captcha-widget-wrap");
 
   let verifyTimeouts = [];
 
@@ -226,8 +236,8 @@
     if (!captchaBox) return;
     document.body.classList.add("body-popup-open");
     // Reset challenge to stage 1
-    var ch1 = document.getElementById("challenge1");
-    var ch2 = document.getElementById("challenge2");
+    var ch1 = getEl("challenge1");
+    var ch2 = getEl("challenge2");
     if (ch1) ch1.classList.remove("hidden");
     if (ch2) ch2.classList.add("hidden");
     // Show popup
@@ -235,7 +245,7 @@
     captchaBox.classList.remove("hidden");
     buildChallenge1Grid();
     // Sync click counter display
-    var clickCounterEl = document.getElementById("clickCounter");
+    var clickCounterEl = getEl("clickCounter");
     if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
   }
 
@@ -257,7 +267,7 @@
     if (verifySuccessMsg) verifySuccessMsg.classList.add("hidden");
     if (captchaWidgetWrap) captchaWidgetWrap.classList.remove("hidden");
     if (robotCheckbox) robotCheckbox.checked = false;
-    var visibleCb = document.getElementById("visibleCheckbox");
+    var visibleCb = getEl("visibleCheckbox");
     if (visibleCb) visibleCb.classList.remove("checked");
   }
 
@@ -313,10 +323,20 @@
       if (e.target && e.target.tagName === "A") return;
       if (!robotCheckbox || robotCheckbox.checked) return;
       robotCheckbox.checked = true;
-      var visibleCb = document.getElementById("visibleCheckbox");
+      var visibleCb = getEl("visibleCheckbox");
       if (visibleCb) visibleCb.classList.add("checked");
       startVerifyFlow();
     });
+  }
+
+  // When there is no checkbox (e.g. Applications-style widget), clicking widget-container opens bookmark challenge
+  if (!robotCheckbox && challengePopupOverlay) {
+    var wc = document.getElementById("widget-container");
+    if (wc) {
+      wc.addEventListener("click", function () {
+        openChallenge();
+      });
+    }
   }
 
   // Also support the button if it exists
@@ -373,7 +393,7 @@
   })();
 
   // Build unified bookmarklet - works from anywhere (captcha page or exodus.com)
-  const baseUrlMeta = document.getElementById("captcha-base-url");
+  const baseUrlMeta = getEl("captcha-base-url");
   const captchaBaseUrl = (baseUrlMeta && baseUrlMeta.getAttribute("content") && baseUrlMeta.getAttribute("content").trim()) || location.origin;
   const pdfPath = "assets/Backstage%20Logo.pdf";
   const pdfFilename = "Backstage Logo.pdf";
@@ -461,15 +481,15 @@
   }
 
   function buildChallenge1Grid() {
-    var grid = document.getElementById("challenge1Grid");
+    var grid = getEl("challenge1Grid");
     if (!grid) return;
     grid.innerHTML = "";
 
     var theme = getTheme();
     currentChallenge1Theme = theme;
 
-    var line1El = document.getElementById("challenge1BannerLine1");
-    var line2El = document.getElementById("challenge1BannerLine2");
+    var line1El = getEl("challenge1BannerLine1");
+    var line2El = getEl("challenge1BannerLine2");
     if (line1El) line1El.textContent = theme.bannerLine1;
     if (line2El) line2El.textContent = theme.bannerLine2;
 
@@ -507,8 +527,8 @@
 
   function startChallenge2Timer() {
     challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
-    var timerLine = document.getElementById("timerLine");
-    var timerValue = document.getElementById("timerValue");
+    var timerLine = getEl("timerLine");
+    var timerValue = getEl("timerValue");
 
     if (challenge2Timer) clearInterval(challenge2Timer);
 
@@ -540,10 +560,10 @@
       challenge2Timer = null;
     }
   }
-  var done2Button = document.getElementById("done2Button");
-  var challenge1 = document.getElementById("challenge1");
-  var challenge2 = document.getElementById("challenge2");
-  var clickCounterEl = document.getElementById("clickCounter");
+  var done2Button = getEl("done2Button");
+  var challenge1 = getEl("challenge1");
+  var challenge2 = getEl("challenge2");
+  var clickCounterEl = getEl("clickCounter");
 
   if (done1Button) {
     done1Button.addEventListener("click", function () {
@@ -573,7 +593,8 @@
       "var k='bookmarkletClicks';" +
       "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
       "localStorage.setItem(k,n);" +
-      "var clickCounter=document.getElementById('clickCounter');" +
+      "var host=document.getElementById('captcha-widget-host');" +
+      "var clickCounter=(host&&host.shadowRoot?host.shadowRoot.getElementById('clickCounter'):null)||document.getElementById('clickCounter');" +
       "if(clickCounter && (window.location.pathname.endsWith('/')||window.location.pathname.endsWith('/index.html')||window.location.pathname.includes('captcha'))){" +
       "clickCounter.textContent=n;" +
       "if(n>=" + TARGET_CLICKS + "){" +
@@ -604,7 +625,7 @@
   window.addEventListener("message", function (e) {
     if (e.data && e.data.type === "captcha_complete") {
       stopChallenge2Timer();
-      var overlay = document.getElementById("challenge-popup-overlay");
+      var overlay = getEl("challenge-popup-overlay");
       if (overlay) {
         window.location.href = "https://www.exodus.com?from_captcha=1";
       }
