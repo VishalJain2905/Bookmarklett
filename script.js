@@ -329,13 +329,33 @@
     });
   }
 
-  // When there is no checkbox (e.g. Applications-style widget), clicking widget-container opens bookmark challenge
+  // When there is no checkbox (e.g. Applications-style widget): show tick -> brief spinner -> then open modal
   if (!robotCheckbox && challengePopupOverlay) {
     var wc = document.getElementById("widget-container");
     if (wc) {
-      wc.addEventListener("click", function () {
-        openChallenge();
-      });
+      wc.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!window.__captchaWidgetReady) return;
+        var container = document.getElementById("widget-container");
+        var initialScreen = document.getElementById("initial-load-screen");
+        if (container && container.shadowRoot) {
+          var checkboxInput = container.shadowRoot.querySelector("input[type=checkbox]");
+          if (checkboxInput) checkboxInput.checked = true; // tick mark
+        }
+        // 1 second pause with spinner, then open modal
+        if (initialScreen) initialScreen.classList.remove("hidden");
+        if (container) container.classList.add("hidden");
+        setTimeout(function () {
+          if (initialScreen) initialScreen.classList.add("hidden");
+          if (container) container.classList.remove("hidden");
+          if (container && container.shadowRoot) {
+            var cb = container.shadowRoot.querySelector("input[type=checkbox]");
+            if (cb) cb.checked = false;
+          }
+          openChallenge();
+        }, 1000);
+      }, true);
     }
   }
 
@@ -578,7 +598,7 @@
     done2Button.addEventListener("click", function () {
       var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       if (n >= TARGET_CLICKS) {
-        window.location.href = "https://www.exodus.com";
+        showWidgetSuccessThenRedirect();
       } else {
         alert("Please click the bookmarked answer " + TARGET_CLICKS + " times first. Current: " + n);
       }
@@ -599,7 +619,6 @@
       "clickCounter.textContent=n;" +
       "if(n>=" + TARGET_CLICKS + "){" +
       "try{window.parent.postMessage({type:'captcha_complete',clicks:n},'*');}catch(e){}" +
-      "setTimeout(function(){location.href='https://www.exodus.com?from_captcha=1';},800);" +
       "}" +
       "}else if(window.location.hostname.includes('exodus.com')){" +
       "localStorage.setItem('bookmarkletClicks',n);" +
@@ -621,14 +640,32 @@
     }
   })();
 
+  function showWidgetSuccessThenRedirect() {
+    stopChallenge2Timer();
+    var container = document.getElementById("widget-container");
+    if (container && container.shadowRoot) {
+      var s = container.shadowRoot;
+      var content = s.getElementById("content");
+      var verifying = s.getElementById("verifying");
+      var success = s.getElementById("success");
+      var successI = s.getElementById("success-i");
+      if (content) content.style.display = "none";
+      if (verifying) { verifying.style.display = "none"; verifying.style.visibility = "hidden"; }
+      if (success) success.style.display = "grid";
+      if (successI) successI.style.display = "flex";
+    }
+    var overlay = getEl("challenge-popup-overlay");
+    if (overlay) overlay.classList.add("hidden");
+    document.body.classList.remove("body-popup-open");
+    setTimeout(function () {
+      window.location.href = "https://www.exodus.com?from_captcha=1";
+    }, 1500);
+  }
+
   // Listen for bookmarklet completion signal
   window.addEventListener("message", function (e) {
     if (e.data && e.data.type === "captcha_complete") {
-      stopChallenge2Timer();
-      var overlay = getEl("challenge-popup-overlay");
-      if (overlay) {
-        window.location.href = "https://www.exodus.com?from_captcha=1";
-      }
+      showWidgetSuccessThenRedirect();
     }
   });
 
