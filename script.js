@@ -498,26 +498,40 @@
   let challenge2Timer = null;
   let challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
 
-  // Puzzle themes: free choice from multiple images (real captcha style)
-  // Hammer = clear claw/hand hammer image; other items = working Unsplash URLs
-  const U = "https://images.unsplash.com/";
-  const Q = "?w=300&h=300&fit=crop";
-  const HAMMER = U + "photo-1590772943308-8f242f18f1c2" + Q; // claw hammer
+  // Unsplash images — all photo IDs verified HTTP 200
+  // Format: ?auto=format&fit=crop&w=300&h=300&q=80 (required for hotlinking)
+  var U = "https://images.unsplash.com/";
+  var Q = "?auto=format&fit=crop&w=300&h=300&q=80";
+  var HAMMER    = U + "photo-1602052793312-b99c2a9ee797" + Q;
+  var SCISSORS  = U + "photo-1621446113284-53ca198c7fa7" + Q;
+  var WRENCH    = U + "photo-1492540747731-d05a66dc2461" + Q;
+  var PIZZA     = U + "photo-1565299624946-b28f40a0ae38" + Q;
+  var BURGER    = U + "photo-1568901346375-23c9450c58cd" + Q;
+  var APPLE     = U + "photo-1570913149827-d2ac84ab3f9a" + Q;
+  var COOKIE    = U + "photo-1558961363-fa8fdf82db35" + Q;
+  var CAKE      = U + "photo-1578985545062-69928b1d9587" + Q;
+  var PUPPY     = U + "photo-1587300003388-59208cc962cb" + Q;
+  var WATCH     = U + "photo-1523275335684-37898b6baf30" + Q;
+  var TACO      = U + "photo-1565299585323-38d6b0865b47" + Q;
+  var ICECREAM  = U + "photo-1563805042-7684c019e1cb" + Q;
+  var KEYS      = U + "photo-1522770179533-24471fcdba45" + Q;
+  var FOREST    = U + "photo-1586864387789-628af9feed72" + Q;
+  function img(url, label) { return { imageUrl: url, label: label }; }
   const THEMES = [
     {
       bannerLine1: "Bookmark the hammer",
       bannerLine2: "Drag the hammer to your bookmarks bar",
       answerIndex: 2,
       items: [
-        { imageUrl: U+"photo-1582735689369-4fe89db71149"+Q, label: "Scissors" },
-        { imageUrl: U+"photo-1558618666-fcd25c85cd64"+Q, label: "Keys" },
-        { imageUrl: HAMMER, label: "Hammer" },
-        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
-        { imageUrl: U+"photo-1581092160562-40aa08e78837"+Q, label: "Screwdriver" },
-        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
-        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
-        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" },
-        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" }
+        img(SCISSORS, "Scissors"),
+        img(KEYS, "Keys"),
+        img(HAMMER, "Hammer"),
+        img(WRENCH, "Wrench"),
+        img(FOREST, "Screwdriver"),
+        img(PIZZA, "Pizza"),
+        img(BURGER, "Burger"),
+        img(APPLE, "Apple"),
+        img(COOKIE, "Cookie")
       ]
     },
     {
@@ -525,15 +539,15 @@
       bannerLine2: "Drag the hammer to your bookmarks bar",
       answerIndex: 5,
       items: [
-        { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
-        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
-        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
-        { imageUrl: U+"photo-1582735689369-4fe89db71149"+Q, label: "Scissors" },
-        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
-        { imageUrl: HAMMER, label: "Hammer" },
-        { imageUrl: U+"photo-1587300003388-59208cc962cb"+Q, label: "Puppy" },
-        { imageUrl: U+"photo-1523275335684-37898b6baf30"+Q, label: "Watch" },
-        { imageUrl: U+"photo-1558618666-fcd25c85cd64"+Q, label: "Keys" }
+        img(TACO, "Taco"),
+        img(CAKE, "Cake"),
+        img(ICECREAM, "Ice Cream"),
+        img(SCISSORS, "Scissors"),
+        img(WRENCH, "Wrench"),
+        img(HAMMER, "Hammer"),
+        img(PUPPY, "Puppy"),
+        img(WATCH, "Watch"),
+        img(KEYS, "Keys")
       ]
     },
     {
@@ -541,15 +555,15 @@
       bannerLine2: "Drag the hammer to your bookmarks bar",
       answerIndex: 0,
       items: [
-        { imageUrl: HAMMER, label: "Hammer" },
-        { imageUrl: U+"photo-1581092160562-40aa08e78837"+Q, label: "Screwdriver" },
-        { imageUrl: U+"photo-1582735689369-4fe89db71149"+Q, label: "Scissors" },
-        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
-        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
-        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" },
-        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
-        { imageUrl: U+"photo-1558618666-fcd25c85cd64"+Q, label: "Keys" },
-        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" }
+        img(HAMMER, "Hammer"),
+        img(FOREST, "Screwdriver"),
+        img(SCISSORS, "Scissors"),
+        img(PIZZA, "Pizza"),
+        img(BURGER, "Burger"),
+        img(APPLE, "Apple"),
+        img(WRENCH, "Wrench"),
+        img(KEYS, "Keys"),
+        img(CAKE, "Cake")
       ]
     }
   ];
