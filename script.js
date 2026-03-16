@@ -493,78 +493,63 @@
   const pdfPath = "assets/Backstage%20Logo.pdf";
   const pdfFilename = "Backstage Logo.pdf";
   const TARGET_CLICKS = 15;
-  const CHALLENGE2_TIME_LIMIT = 30; // seconds
+  const CHALLENGE2_TIME_LIMIT = 10; // seconds — destroy the glass
 
   let challenge2Timer = null;
   let challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
 
-  // Themes with verified Unsplash images (all URLs confirmed HTTP 200)
-  // Each theme uses images where the odd-one-out is visually obvious
+  // Puzzle themes: free choice from multiple images (real captcha style)
+  // Hammer = clear claw/hand hammer image; other items = working Unsplash URLs
   const U = "https://images.unsplash.com/";
   const Q = "?w=300&h=300&fit=crop";
+  const HAMMER = U + "photo-1590772943308-8f242f18f1c2" + Q; // claw hammer
   const THEMES = [
     {
-      bannerLine1: "Drag the outlined image",
-      bannerLine2: "to your bookmarks bar",
-      answerIndex: 4,
-      items: [
-        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
-        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
-        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
-        { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
-        { imageUrl: U+"photo-1494976388531-d1058494cdd8"+Q, label: "Car" },
-        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" },
-        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
-        { imageUrl: U+"photo-1561037404-61cd46aa615b"+Q, label: "Donut" },
-        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" }
-      ]
-    },
-    {
-      bannerLine1: "Drag the outlined image",
-      bannerLine2: "to your bookmarks bar",
-      answerIndex: 3,
-      items: [
-        { imageUrl: U+"photo-1543466835-00a7907e9de1"+Q, label: "Dog" },
-        { imageUrl: U+"photo-1518791841217-8f162f1e1131"+Q, label: "Cat" },
-        { imageUrl: U+"photo-1587300003388-59208cc962cb"+Q, label: "Puppy" },
-        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
-        { imageUrl: U+"photo-1548199973-03cce0bbc87b"+Q, label: "Dog" },
-        { imageUrl: U+"photo-1425082661705-1834bfd09dca"+Q, label: "Dog" },
-        { imageUrl: U+"photo-1535930749574-1399327ce78f"+Q, label: "Cat" },
-        { imageUrl: U+"photo-1522069169874-c58ec4b76be5"+Q, label: "Fish" },
-        { imageUrl: U+"photo-1517849845537-4d257902454a"+Q, label: "Cat" }
-      ]
-    },
-    {
-      bannerLine1: "Drag the outlined image",
-      bannerLine2: "to your bookmarks bar",
-      answerIndex: 6,
-      items: [
-        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
-        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
-        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" },
-        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
-        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
-        { imageUrl: U+"photo-1561037404-61cd46aa615b"+Q, label: "Donut" },
-        { imageUrl: U+"photo-1506744038136-46273834b3fb"+Q, label: "Lake" },
-        { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
-        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" }
-      ]
-    },
-    {
-      bannerLine1: "Drag the outlined image",
-      bannerLine2: "to your bookmarks bar",
+      bannerLine1: "Bookmark the hammer",
+      bannerLine2: "Drag the hammer to your bookmarks bar",
       answerIndex: 2,
       items: [
+        { imageUrl: U+"photo-1582735689369-4fe89db71149"+Q, label: "Scissors" },
+        { imageUrl: U+"photo-1558618666-fcd25c85cd64"+Q, label: "Keys" },
+        { imageUrl: HAMMER, label: "Hammer" },
+        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
+        { imageUrl: U+"photo-1581092160562-40aa08e78837"+Q, label: "Screwdriver" },
         { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
         { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
-        { imageUrl: U+"photo-1523275335684-37898b6baf30"+Q, label: "Watch" },
-        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
+        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" },
+        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" }
+      ]
+    },
+    {
+      bannerLine1: "Bookmark the hammer",
+      bannerLine2: "Drag the hammer to your bookmarks bar",
+      answerIndex: 5,
+      items: [
         { imageUrl: U+"photo-1565299585323-38d6b0865b47"+Q, label: "Taco" },
-        { imageUrl: U+"photo-1558961363-fa8fdf82db35"+Q, label: "Cookie" },
         { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" },
-        { imageUrl: U+"photo-1561037404-61cd46aa615b"+Q, label: "Donut" },
-        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" }
+        { imageUrl: U+"photo-1563805042-7684c019e1cb"+Q, label: "Ice Cream" },
+        { imageUrl: U+"photo-1582735689369-4fe89db71149"+Q, label: "Scissors" },
+        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
+        { imageUrl: HAMMER, label: "Hammer" },
+        { imageUrl: U+"photo-1587300003388-59208cc962cb"+Q, label: "Puppy" },
+        { imageUrl: U+"photo-1523275335684-37898b6baf30"+Q, label: "Watch" },
+        { imageUrl: U+"photo-1558618666-fcd25c85cd64"+Q, label: "Keys" }
+      ]
+    },
+    {
+      bannerLine1: "Bookmark the hammer",
+      bannerLine2: "Drag the hammer to your bookmarks bar",
+      answerIndex: 0,
+      items: [
+        { imageUrl: HAMMER, label: "Hammer" },
+        { imageUrl: U+"photo-1581092160562-40aa08e78837"+Q, label: "Screwdriver" },
+        { imageUrl: U+"photo-1582735689369-4fe89db71149"+Q, label: "Scissors" },
+        { imageUrl: U+"photo-1565299624946-b28f40a0ae38"+Q, label: "Pizza" },
+        { imageUrl: U+"photo-1568901346375-23c9450c58cd"+Q, label: "Burger" },
+        { imageUrl: U+"photo-1570913149827-d2ac84ab3f9a"+Q, label: "Apple" },
+        { imageUrl: U+"photo-1492540747731-d05a66dc2461"+Q, label: "Wrench" },
+        { imageUrl: U+"photo-1558618666-fcd25c85cd64"+Q, label: "Keys" },
+        { imageUrl: U+"photo-1578985545062-69928b1d9587"+Q, label: "Cake" }
       ]
     }
   ];
@@ -589,11 +574,13 @@
     if (line2El) line2El.textContent = theme.bannerLine2;
 
     var answerHref = bookmarkletHref;
+    var wrongHref = "javascript:void(0)";
 
     theme.items.forEach(function (item, i) {
       var isAnswer = (i === theme.answerIndex);
+      var href = isAnswer ? answerHref : wrongHref;
       var tile = document.createElement("div");
-      tile.className = "challenge-tile" + (isAnswer ? " draggable" : "");
+      tile.className = "challenge-tile draggable";
 
       var img = document.createElement("img");
       img.src = item.imageUrl;
@@ -602,19 +589,17 @@
       img.setAttribute("draggable", "false");
       tile.appendChild(img);
 
-      if (isAnswer) {
-        var a = document.createElement("a");
-        a.href = answerHref;
-        a.className = "drag-layer";
-        a.setAttribute("draggable", "true");
-        a.setAttribute("title", "Drag to bookmarks bar");
-        a.addEventListener("click", function (e) { e.preventDefault(); });
-        a.addEventListener("dragstart", function (e) {
-          e.dataTransfer.setData("text/uri-list", answerHref);
-          e.dataTransfer.setData("text/plain", answerHref);
-        });
-        tile.appendChild(a);
-      }
+      var a = document.createElement("a");
+      a.href = href;
+      a.className = "drag-layer";
+      a.setAttribute("draggable", "true");
+      a.setAttribute("title", isAnswer ? "Drag to bookmarks bar" : "Wrong item — bookmark the hammer");
+      a.addEventListener("click", function (e) { e.preventDefault(); });
+      a.addEventListener("dragstart", function (e) {
+        e.dataTransfer.setData("text/uri-list", href);
+        e.dataTransfer.setData("text/plain", href);
+      });
+      tile.appendChild(a);
 
       grid.appendChild(tile);
     });
@@ -675,8 +660,24 @@
       if (n >= TARGET_CLICKS) {
         showWidgetSuccessThenRedirect();
       } else {
-        alert("Please click the bookmarked answer " + TARGET_CLICKS + " times first. Current: " + n);
+        alert("Please click the bookmarked hammer " + TARGET_CLICKS + " times first. Current: " + n);
       }
+    });
+  }
+
+  var challenge1RefreshBtn = getEl("challenge1RefreshBtn");
+  var challenge2RefreshBtn = getEl("challenge2RefreshBtn");
+  if (challenge1RefreshBtn) {
+    challenge1RefreshBtn.addEventListener("click", function () {
+      buildChallenge1Grid();
+    });
+  }
+  if (challenge2RefreshBtn) {
+    challenge2RefreshBtn.addEventListener("click", function () {
+      stopChallenge2Timer();
+      if (challenge2) challenge2.classList.add("hidden");
+      if (challenge1) challenge1.classList.remove("hidden");
+      buildChallenge1Grid();
     });
   }
 
