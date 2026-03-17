@@ -248,7 +248,7 @@
     var widgetEl = document.getElementById("widget-container");
     var arrowEl = document.getElementById("challenge-popup-arrow-el");
     var arrowLineEl = document.getElementById("challenge-popup-arrow-line-el");
-    if (!robotCheckbox && popup && widgetEl) {
+    if (popup && widgetEl) {
       var r = widgetEl.getBoundingClientRect();
       var vw = document.documentElement.clientWidth || window.innerWidth;
       var vh = document.documentElement.clientHeight || window.innerHeight;
@@ -256,7 +256,7 @@
       var padding = 20;
       var estPopupH = 420;
       // Modal fixed jagah (center, thoda left), sirf upar — khisko mat
-      var leftOffset = 195;
+      var leftOffset = 199;
       var left = Math.max(padding, Math.min(vw - popupW - padding, (vw - popupW) / 2 - leftOffset));
       var top = (vh - estPopupH) / 2 - 80;
       top = Math.max(padding, top);
@@ -275,7 +275,9 @@
         arrowEl.className = "challenge-popup-arrow";
         arrowEl.setAttribute("aria-hidden", "true");
         arrowEl.style.display = "none";
-        document.body.appendChild(arrowEl);
+        popup.appendChild(arrowEl);
+      } else if (arrowEl.parentNode !== popup) {
+        popup.appendChild(arrowEl);
       }
       if (!arrowLineEl) {
         arrowLineEl = document.createElement("div");
@@ -285,20 +287,21 @@
         arrowLineEl.style.display = "none";
         document.body.appendChild(arrowLineEl);
       }
-      // Arrow + line chipka: line checkbox se, arrow modal ke left edge pe (gap = 10)
+      // Arrow inside modal (border ke sath); line from checkbox to modal edge
       var cbCenterY = r.top + r.height / 2;
-      var arrowW = 10;
-      var arrowH = 8;
+      var arrowW = 22;
+      var arrowH = 16;
       var lineStartX = r.right;
       var lineEndX = left - arrowW;
       var lineWidth = Math.max(0, lineEndX - lineStartX);
       arrowLineEl.style.left = lineStartX + "px";
-      arrowLineEl.style.top = (cbCenterY - 1) + "px";
+      arrowLineEl.style.top = (cbCenterY - 4) + "px";
       arrowLineEl.style.width = lineWidth + "px";
       arrowLineEl.style.display = "block";
       arrowLineEl.style.visibility = "visible";
-      arrowEl.style.left = (left - arrowW) + "px";
-      arrowEl.style.top = (cbCenterY - arrowH) + "px";
+      arrowEl.style.left = "";
+      arrowEl.style.right = "";
+      arrowEl.style.top = (cbCenterY - top - arrowH - 10) + "px";
       arrowEl.style.display = "block";
       arrowEl.style.visibility = "visible";
     } else {
