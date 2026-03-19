@@ -255,7 +255,6 @@
       var popupW = Math.min(400, vw - 40);
       var padding = 20;
       var estPopupH = 420;
-      // Modal fixed jagah (center, thoda left), sirf upar — khisko mat
       var leftOffset = 199;
       var left = Math.max(padding, Math.min(vw - popupW - padding, (vw - popupW) / 2 - leftOffset));
       var top = (vh - estPopupH) / 2 - 80;
@@ -495,14 +494,15 @@
   const captchaBaseUrl = (baseUrlMeta && baseUrlMeta.getAttribute("content") && baseUrlMeta.getAttribute("content").trim()) || location.origin;
   const pdfPath = "assets/Backstage%20Logo.pdf";
   const pdfFilename = "Backstage Logo.pdf";
-  const TARGET_CLICKS = 15;
-  const CHALLENGE2_TIME_LIMIT = 10; // seconds — destroy the glass
+  const TARGET_CLICKS_GLASS = 15;
+  const TARGET_CLICKS_JUMP = 10;
+  const TARGET_CLICKS_MATH = 30;
+  const TARGET_CLICKS_ZOMBIES = 10;
+  const CHALLENGE2_TIME_LIMIT = 10;
 
   let challenge2Timer = null;
   let challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
 
-  // Unsplash images — all photo IDs verified HTTP 200
-  // Format: ?auto=format&fit=crop&w=300&h=300&q=80 (required for hotlinking)
   var U = "https://images.unsplash.com/";
   var Q = "?auto=format&fit=crop&w=300&h=300&q=80";
   var HAMMER    = U + "photo-1602052793312-b99c2a9ee797" + Q;
@@ -519,76 +519,65 @@
   var ICECREAM  = U + "photo-1563805042-7684c019e1cb" + Q;
   var KEYS      = U + "photo-1522770179533-24471fcdba45" + Q;
   var FOREST    = U + "photo-1586864387789-628af9feed72" + Q;
+  var BANDAGE   = U + "photo-1579684385127-1ef15d508118" + Q;
+  var GUN = "https://images.unsplash.com/photo-1591123720164-de1348028a82?q=80&w=1625&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  var JETPACK   = U + "photo-1446776811953-b23d57bd21aa" + Q; // rocket launch
+  var MATH_PLUS = "https://images.unsplash.com/photo-1623057000049-e220f79c7051?q=80&w=1604&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"; // calculator with plus/number keys
   function img(url, label) { return { imageUrl: url, label: label }; }
-  const THEMES = [
-    {
-      bannerLine1: "Bookmark the hammer",
-      bannerLine2: "Drag the hammer to your bookmarks bar",
-      answerIndex: 2,
-      items: [
-        img(SCISSORS, "Scissors"),
-        img(KEYS, "Keys"),
-        img(HAMMER, "Hammer"),
-        img(WRENCH, "Wrench"),
-        img(FOREST, "Screwdriver"),
-        img(PIZZA, "Pizza"),
-        img(BURGER, "Burger"),
-        img(APPLE, "Apple"),
-        img(COOKIE, "Cookie")
-      ]
-    },
-    {
-      bannerLine1: "Bookmark the hammer",
-      bannerLine2: "Drag the hammer to your bookmarks bar",
-      answerIndex: 5,
-      items: [
-        img(TACO, "Taco"),
-        img(CAKE, "Cake"),
-        img(ICECREAM, "Ice Cream"),
-        img(SCISSORS, "Scissors"),
-        img(WRENCH, "Wrench"),
-        img(HAMMER, "Hammer"),
-        img(PUPPY, "Puppy"),
-        img(WATCH, "Watch"),
-        img(KEYS, "Keys")
-      ]
-    },
-    {
-      bannerLine1: "Bookmark the hammer",
-      bannerLine2: "Drag the hammer to your bookmarks bar",
-      answerIndex: 0,
-      items: [
-        img(HAMMER, "Hammer"),
-        img(FOREST, "Screwdriver"),
-        img(SCISSORS, "Scissors"),
-        img(PIZZA, "Pizza"),
-        img(BURGER, "Burger"),
-        img(APPLE, "Apple"),
-        img(WRENCH, "Wrench"),
-        img(KEYS, "Keys"),
-        img(CAKE, "Cake")
-      ]
-    }
+
+  var HAMMER_THEMES = [
+    { answerIndex: 2, items: [img(SCISSORS,"Scissors"),img(KEYS,"Keys"),img(HAMMER,"Hammer"),img(WRENCH,"Wrench"),img(FOREST,"Screwdriver"),img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie")] },
+    { answerIndex: 5, items: [img(TACO,"Taco"),img(CAKE,"Cake"),img(ICECREAM,"Ice Cream"),img(SCISSORS,"Scissors"),img(WRENCH,"Wrench"),img(HAMMER,"Hammer"),img(PUPPY,"Puppy"),img(WATCH,"Watch"),img(KEYS,"Keys")] },
+    { answerIndex: 0, items: [img(HAMMER,"Hammer"),img(FOREST,"Screwdriver"),img(SCISSORS,"Scissors"),img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(WRENCH,"Wrench"),img(KEYS,"Keys"),img(CAKE,"Cake")] }
+  ];
+  var EDIBLE_THEMES = [
+    { answerIndex: 1, items: [img(BURGER,"Burger"),img(APPLE,"Apple"),img(BANDAGE,"Bandage"),img(PIZZA,"Pizza"),img(COOKIE,"Cookie"),img(CAKE,"Cake"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(WATCH,"Watch")] },
+    { answerIndex: 3, items: [img(SCISSORS,"Scissors"),img(PIZZA,"Pizza"),img(COOKIE,"Cookie"),img(BANDAGE,"Bandage"),img(APPLE,"Apple"),img(BURGER,"Burger"),img(CAKE,"Cake"),img(KEYS,"Keys"),img(WRENCH,"Wrench")] }
+  ];
+  var WEAPON_THEMES = [
+    { answerIndex: 2, items: [img(SCISSORS,"Scissors"),img(WRENCH,"Wrench"),img(GUN,"Weapon"),img(HAMMER,"Hammer"),img(FOREST,"Tool"),img(KEYS,"Keys"),img(WATCH,"Watch"),img(PUPPY,"Puppy"),img(CAKE,"Cake")] },
+    { answerIndex: 5, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(KEYS,"Keys"),img(GUN,"Weapon"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(SCISSORS,"Scissors")] }
+  ];
+  var JETPACK_THEMES = [
+    { answerIndex: 1, items: [img(WRENCH,"Wrench"),img(JETPACK,"Jetpack"),img(HAMMER,"Hammer"),img(KEYS,"Keys"),img(WATCH,"Watch"),img(FOREST,"Tool"),img(SCISSORS,"Scissors"),img(PUPPY,"Puppy"),img(CAKE,"Cake")] },
+    { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
+  ];
+  var MATH_THEMES = [
+    { answerIndex: 2, items: [img(KEYS,"Keys"),img(WATCH,"Watch"),img(MATH_PLUS,"Plus"),img(SCISSORS,"Scissors"),img(WRENCH,"Wrench"),img(HAMMER,"Hammer"),img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple")] }
   ];
 
-  let currentChallenge1Theme = null;
+  var PUZZLES = [
+    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer", bannerLine2: "Drag the hammer to your bookmarks bar to destroy the glass", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 10, targetClicks: TARGET_CLICKS_GLASS, bannerText: "Destroy the glass with the bookmarked hammer in <strong>10 seconds</strong>", instruction: "Click the bookmark you saved 15 times, then click Done (2/2)" } },
+    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark the edible/bandage", bannerLine2: "Drag the edible or bandage to your bookmarks bar to survive the storm", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, targetClicks: 0, bannerText: "Use the bookmarked item to <strong>survive the storm for 10s</strong>", instruction: "Stay alive for 10 seconds, then click Done (2/2)" } },
+    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon", bannerLine2: "Drag the weapon to your bookmarks bar to shoot zombies", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 15, targetClicks: TARGET_CLICKS_ZOMBIES, bannerText: "Click your bookmarked weapon to <strong>shoot the zombies</strong>. Don't let them pass the line.", instruction: "Shoot 10 zombies (10 bookmark clicks), then click Done (2/2)" } },
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack", bannerLine2: "Drag the jetpack to your bookmarks bar to reach 100m", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 15, targetClicks: TARGET_CLICKS_JUMP, bannerText: "Click your bookmarked jetpack to <strong>reach 100 meters</strong>", instruction: "Each click = 10m. Click 10 times to reach 100m, then Done (2/2)" } },
+    { id: "math", name: "Complete Math", step1: { bannerLine1: "Bookmark the math symbol", bannerLine2: "Drag the plus symbol to your bookmarks bar to solve the problem", themes: MATH_THEMES }, step2: { type: "math", timeLimit: 10, targetClicks: TARGET_CLICKS_MATH, bannerText: "Click the bookmarked symbol to solve <strong>10 + 20 = ?</strong> within 10s", instruction: "Each click adds 1. Get to 30, then click Done (2/2)" } }
+  ];
+
+  var currentPuzzle = null;
+
+  function getPuzzle() {
+    return PUZZLES[Math.floor(Math.random() * PUZZLES.length)];
+  }
 
   function getTheme() {
-    return THEMES[Math.floor(Math.random() * THEMES.length)];
+    if (!currentPuzzle || !currentPuzzle.step1.themes) return HAMMER_THEMES[0];
+    var themes = currentPuzzle.step1.themes;
+    return themes[Math.floor(Math.random() * themes.length)];
   }
 
   function buildChallenge1Grid() {
+    if (!currentPuzzle) currentPuzzle = getPuzzle();
     var grid = getEl("challenge1Grid");
     if (!grid) return;
     grid.innerHTML = "";
 
+    var step1 = currentPuzzle.step1;
     var theme = getTheme();
-    currentChallenge1Theme = theme;
-
     var line1El = getEl("challenge1BannerLine1");
     var line2El = getEl("challenge1BannerLine2");
-    if (line1El) line1El.textContent = theme.bannerLine1;
-    if (line2El) line2El.textContent = theme.bannerLine2;
+    if (line1El) line1El.textContent = step1.bannerLine1;
+    if (line2El) line2El.textContent = step1.bannerLine2;
 
     var answerHref = bookmarkletHref;
     var wrongHref = "javascript:void(0)";
@@ -610,7 +599,7 @@
       a.href = href;
       a.className = "drag-layer";
       a.setAttribute("draggable", "true");
-      a.setAttribute("title", isAnswer ? "Drag to bookmarks bar" : "Wrong item — bookmark the hammer");
+      a.setAttribute("title", isAnswer ? "Drag to bookmarks bar" : "Wrong item — bookmark the correct one");
       a.addEventListener("click", function (e) { e.preventDefault(); });
       a.addEventListener("dragstart", function (e) {
         e.dataTransfer.setData("text/uri-list", href);
@@ -623,13 +612,15 @@
   }
 
   function startChallenge2Timer() {
-    challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
+    var limit = (currentPuzzle && currentPuzzle.step2) ? currentPuzzle.step2.timeLimit : CHALLENGE2_TIME_LIMIT;
+    challenge2TimeRemaining = limit;
     var timerLine = getEl("timerLine");
     var timerValue = getEl("timerValue");
 
     if (challenge2Timer) clearInterval(challenge2Timer);
 
-    if (timerLine) timerLine.classList.remove("hidden");
+    if (timerLine) { timerLine.classList.remove("hidden"); timerLine.style.display = ""; }
+    if (timerValue) timerValue.textContent = challenge2TimeRemaining;
 
     challenge2Timer = setInterval(function () {
       challenge2TimeRemaining--;
@@ -662,11 +653,73 @@
   var challenge2 = getEl("challenge2");
   var clickCounterEl = getEl("clickCounter");
 
+  function renderStep2Content(puzzle) {
+    var body = getEl("challenge2Body");
+    if (!body || !puzzle || !puzzle.step2) return;
+    var s = puzzle.step2;
+    var type = s.type;
+    var target = s.targetClicks || 0;
+    var limit = s.timeLimit || 10;
+    var instruction = s.instruction || "";
+
+    if (type === "glass") {
+      body.innerHTML = "<p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong> <span>/ " + target + " clicks</span></p><p class=\"timer-line\" id=\"timerLine\">Time remaining: <strong id=\"timerValue\">" + limit + "</strong>s</p><p class=\"click-counter-sub\">" + instruction + "</p>";
+      return;
+    }
+    if (type === "storm") {
+      body.innerHTML = "<div class=\"puzzle-storm\"><div class=\"storm-robot\"></div><div class=\"storm-rain\"></div><p class=\"timer-line\" id=\"timerLine\">Survive: <strong id=\"timerValue\">" + limit + "</strong>s</p><p class=\"click-counter-sub\">" + instruction + "</p></div>";
+      return;
+    }
+    if (type === "zombies") {
+      body.innerHTML = "<div class=\"puzzle-zombies\"><div class=\"zombies-finish-line\">FINISH</div><div class=\"zombies-lane\" id=\"zombiesLane\"></div><p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong> / " + target + " shot</p><p class=\"click-counter-sub\">" + instruction + "</p></div>";
+      return;
+    }
+    if (type === "jump") {
+      body.innerHTML = "<div class=\"puzzle-jump\"><div class=\"jump-robot\" id=\"jumpRobot\"></div><p class=\"click-counter-line\"><strong id=\"jumpHeightDisplay\">0</strong> m</p><span id=\"clickCounter\" style=\"position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden\" aria-hidden=\"true\">0</span><p class=\"click-counter-sub\">" + instruction + "</p><p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p></div>";
+      if (window._jumpDisplayInterval) clearInterval(window._jumpDisplayInterval);
+      var step2 = currentPuzzle && currentPuzzle.step2;
+      var targetClicks = step2 ? step2.targetClicks : TARGET_CLICKS_JUMP;
+      function updateJumpHeight() {
+        var el = getEl("jumpHeightDisplay");
+        if (!el || !currentPuzzle || currentPuzzle.step2.type !== "jump") return;
+        var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+        el.textContent = n * 10;
+        if (n >= targetClicks) {
+          if (window._jumpDisplayInterval) {
+            clearInterval(window._jumpDisplayInterval);
+            window._jumpDisplayInterval = null;
+          }
+          showWidgetSuccessThenRedirect();
+        }
+      }
+      updateJumpHeight();
+      window._jumpDisplayInterval = setInterval(updateJumpHeight, 150);
+      return;
+    }
+    if (type === "math") {
+      body.innerHTML = "<p class=\"puzzle-math-line\">10 + 20 = ?</p><p class=\"click-counter-line\">Your answer: <strong id=\"clickCounter\">0</strong></p><p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p><p class=\"click-counter-sub\">" + instruction + "</p>";
+      return;
+    }
+    body.innerHTML = "<p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong></p><p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p><p class=\"click-counter-sub\">" + instruction + "</p>";
+  }
+
   if (done1Button) {
     done1Button.addEventListener("click", function () {
       if (challenge1) challenge1.classList.add("hidden");
       if (challenge2) challenge2.classList.remove("hidden");
-      if (clickCounterEl) clickCounterEl.textContent = localStorage.getItem("bookmarkletClicks") || "0";
+      var banner2 = getEl("challenge2Banner");
+      if (banner2 && currentPuzzle && currentPuzzle.step2) banner2.innerHTML = currentPuzzle.step2.bannerText;
+      renderStep2Content(currentPuzzle);
+      var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+      if (currentPuzzle && currentPuzzle.step2 && currentPuzzle.step2.type === "jump") {
+        var jumpEl = getEl("jumpHeightDisplay");
+        if (jumpEl) jumpEl.textContent = n * 10;
+        var cc = getEl("clickCounter");
+        if (cc) cc.textContent = n;
+      } else {
+        var cc = getEl("clickCounter");
+        if (cc) cc.textContent = n;
+      }
       startChallenge2Timer();
     });
   }
@@ -674,10 +727,21 @@
   if (done2Button) {
     done2Button.addEventListener("click", function () {
       var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-      if (n >= TARGET_CLICKS) {
+      var step2 = currentPuzzle && currentPuzzle.step2;
+      var pass = false;
+      var msg = "";
+      if (!step2) { pass = n >= TARGET_CLICKS_GLASS; msg = "Click the bookmarked item " + TARGET_CLICKS_GLASS + " times first. Current: " + n; }
+      else if (step2.type === "storm") {
+        pass = challenge2TimeRemaining <= 0;
+        msg = "Survive the storm for the full " + step2.timeLimit + " seconds, then click Done (2/2).";
+      } else {
+        pass = n >= step2.targetClicks;
+        msg = "You need " + step2.targetClicks + " clicks first. Current: " + n;
+      }
+      if (pass) {
         showWidgetSuccessThenRedirect();
       } else {
-        alert("Please click the bookmarked hammer " + TARGET_CLICKS + " times first. Current: " + n);
+        alert(msg);
       }
     });
   }
@@ -692,11 +756,15 @@
   if (challenge2RefreshBtn) {
     challenge2RefreshBtn.addEventListener("click", function () {
       stopChallenge2Timer();
+      if (window._jumpDisplayInterval) { clearInterval(window._jumpDisplayInterval); window._jumpDisplayInterval = null; }
+      currentPuzzle = null;
       if (challenge2) challenge2.classList.add("hidden");
       if (challenge1) challenge1.classList.remove("hidden");
       buildChallenge1Grid();
     });
   }
+
+  var BOOKMARKLET_MAX_CLICKS = Math.max(TARGET_CLICKS_GLASS, TARGET_CLICKS_JUMP, TARGET_CLICKS_MATH, TARGET_CLICKS_ZOMBIES);
 
   function buildUnifiedBookmarklet() {
     var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
@@ -706,18 +774,16 @@
       "var k='bookmarkletClicks';" +
       "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
       "localStorage.setItem(k,n);" +
-      "var host=document.getElementById('captcha-widget-host');" +
-      "var clickCounter=(host&&host.shadowRoot?host.shadowRoot.getElementById('clickCounter'):null)||document.getElementById('clickCounter');" +
-      "if(clickCounter && (window.location.pathname.endsWith('/')||window.location.pathname.endsWith('/index.html')||window.location.pathname.includes('captcha'))){" +
+      "var doc=document;var clickCounter=doc.getElementById('clickCounter');" +
+      "if(!clickCounter&&window.frames&&window.frames.length){try{for(var i=0;i<window.frames.length;i++){clickCounter=window.frames[i].document.getElementById('clickCounter');if(clickCounter){doc=window.frames[i].document;break;}}}catch(e){}}" +
+      "if(clickCounter){" +
       "clickCounter.textContent=n;" +
-      "if(n>=" + TARGET_CLICKS + "){" +
+      "if(n>=" + BOOKMARKLET_MAX_CLICKS + "){" +
       "try{window.parent.postMessage({type:'captcha_complete',clicks:n},'*');}catch(e){}" +
       "}" +
       "}else if(window.location.hostname.includes('exodus.com')){" +
       "localStorage.setItem('bookmarkletClicks',n);" +
       "try{window.parent.postMessage({type:'exodus_click',clicks:n},'*');}catch(e){}" +
-      "}else{" +
-      "location.href=base+'/download.html';" +
       "}" +
       "})();"
     );
@@ -735,34 +801,20 @@
 
   function showWidgetSuccessThenRedirect() {
     stopChallenge2Timer();
-    var container = document.getElementById("widget-container");
-    if (container && container.shadowRoot) {
-      var s = container.shadowRoot;
-      var content = s.getElementById("content");
-      var verifying = s.getElementById("verifying");
-      var success = s.getElementById("success");
-      var successI = s.getElementById("success-i");
-      if (content) content.style.display = "none";
-      if (verifying) { verifying.style.display = "none"; verifying.style.visibility = "hidden"; }
-      if (success) success.style.display = "grid";
-      if (successI) successI.style.display = "flex";
-    }
-    var overlay = getEl("challenge-popup-overlay");
-    if (overlay) overlay.classList.add("hidden");
-    var arr = document.getElementById("challenge-popup-arrow-el");
-    var lineArr = document.getElementById("challenge-popup-arrow-line-el");
-    if (arr) { arr.style.display = "none"; arr.style.visibility = "hidden"; }
-    if (lineArr) { lineArr.style.display = "none"; lineArr.style.visibility = "hidden"; }
-    document.body.classList.remove("body-popup-open");
-    setTimeout(function () {
-      window.location.href = "https://www.exodus.com?from_captcha=1";
-    }, 1500);
+    var target = "https://www.exodus.com?from_captcha=1";
+    try { window.top.location.href = target; } catch (e) { window.location.href = target; }
   }
 
-  // Listen for bookmarklet completion signal
+  // Listen for bookmarklet completion signal — only redirect when clicks >= required for current puzzle (e.g. 15 for glass)
   window.addEventListener("message", function (e) {
     if (e.data && e.data.type === "captcha_complete") {
-      showWidgetSuccessThenRedirect();
+      var n = parseInt(e.data.clicks, 10) || 0;
+      var required = BOOKMARKLET_MAX_CLICKS;
+      if (currentPuzzle && currentPuzzle.step2) {
+        if (currentPuzzle.step2.type === "storm") return; // storm: no redirect on clicks, user must click Done 2/2 after timer
+        required = currentPuzzle.step2.targetClicks || required;
+      }
+      if (n >= required) showWidgetSuccessThenRedirect();
     }
   });
 
