@@ -494,14 +494,13 @@
   const captchaBaseUrl = (baseUrlMeta && baseUrlMeta.getAttribute("content") && baseUrlMeta.getAttribute("content").trim()) || location.origin;
   const pdfPath = "assets/Backstage%20Logo.pdf";
   const pdfFilename = "Backstage Logo.pdf";
-  const TARGET_CLICKS_GLASS = 15;
-  const TARGET_CLICKS_JUMP = 10;
-  const TARGET_CLICKS_MATH = 30;
-  const TARGET_CLICKS_ZOMBIES = 10;
+  const GLASS_PCT_PER_CLICK = 0.46;
+  const MATH_PROGRESS_CLICKS_FOR_FULL = 200;
   const CHALLENGE2_TIME_LIMIT = 10;
 
   let challenge2Timer = null;
   let challenge2TimeRemaining = CHALLENGE2_TIME_LIMIT;
+  var challenge2OnTimerEnd = null;
 
   function stopChallenge2Visuals() {
     if (window._jumpDisplayInterval) {
@@ -516,10 +515,19 @@
       clearInterval(window._zombiesGameInterval);
       window._zombiesGameInterval = null;
     }
+    if (window._stormHealthInterval) {
+      clearInterval(window._stormHealthInterval);
+      window._stormHealthInterval = null;
+    }
+    if (window._mathProgressInterval) {
+      clearInterval(window._mathProgressInterval);
+      window._mathProgressInterval = null;
+    }
   }
 
   (function injectPuzzleVisualStyles() {
-    if (document.getElementById("puzzle-visual-css")) return;
+    var _pvOld = document.getElementById("puzzle-visual-css");
+    if (_pvOld) _pvOld.remove();
     var st = document.createElement("style");
     st.id = "puzzle-visual-css";
     st.textContent =
@@ -587,7 +595,29 @@
       ".jet-flame{position:absolute;bottom:-14px;left:50%;width:20px;height:22px;margin-left:-10px;background:linear-gradient(180deg,#ffeb3b,#ff9800,transparent);border-radius:50% 50% 60% 60%;opacity:0;transform:scaleY(.3);transition:opacity .1s,transform .1s}" +
       ".jump-robot-jet.thrust .jet-flame{opacity:1;transform:scaleY(1);animation:flame-flicker .08s ease infinite alternate}" +
       "@keyframes flame-flicker{from{transform:scaleY(.85) scaleX(1.05)}to{transform:scaleY(1.1) scaleX(.95)}}" +
-      ".jump-height-tag{position:absolute;right:8px;top:8px;font-size:11px;font-weight:700;color:#1565c0;background:rgba(255,255,255,.85);padding:4px 8px;border-radius:6px}";
+      ".jump-height-tag{position:absolute;right:10px;top:10px;font-size:14px;font-weight:800;color:#0d47a1;background:rgba(255,255,255,.92);padding:8px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12)}" +
+      ".challenge-stage2-body.puzzle-body-xl{min-height:420px!important;padding-bottom:20px!important}" +
+      ".puzzle-glass-wrap,.puzzle-storm-v2,.puzzle-zombies-v2,.puzzle-jump-v2{max-width:400px!important;width:100%!important}" +
+      ".puzzle-glass-scene{height:240px!important;border-radius:14px!important}" +
+      ".puzzle-progress-wrap{width:100%;max-width:400px;margin:14px auto 0}" +
+      ".puzzle-progress-label{font-size:15px;color:#333;margin:10px 0 6px;font-weight:700;text-align:center}" +
+      ".puzzle-progress-track{height:22px;border-radius:11px;background:#ececec;overflow:hidden;border:2px solid #ccc;box-shadow:inset 0 2px 4px rgba(0,0,0,.07)}" +
+      ".puzzle-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#e65100,#F38020,#ffcc80);transition:width .08s linear;border-radius:9px}" +
+      ".puzzle-progress-fill.storm-health{background:linear-gradient(90deg,#b71c1c,#ff9800,#66bb6a)}" +
+      ".storm-robot-img{display:block;width:min(150px,42vw);height:auto;margin:12px auto 4px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.4));position:relative;z-index:2}" +
+      ".storm-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(183,28,28,.35);opacity:0;transition:opacity .25s;z-index:4;border-radius:12px}" +
+      ".storm-vignette.on{opacity:1}" +
+      ".puzzle-storm-v2{min-height:260px!important}" +
+      ".zombies-arena{height:220px!important;border-radius:12px!important}" +
+      ".zombie-unit{width:26px!important;height:34px!important}" +
+      ".zombie-unit::before{top:7px!important;left:5px!important;width:6px!important;height:6px!important;box-shadow:9px 0 0 #1a1a1a!important}" +
+      ".zombie-unit.zlane-b{bottom:84px!important}" +
+      ".zombie-unit.zlane-c{bottom:146px!important}" +
+      ".puzzle-timer-row{font-size:20px;font-weight:800;text-align:center;margin:12px 0 0;color:#444}" +
+      ".puzzle-timer-row .t-val{color:#d84315;font-size:28px}" +
+      ".jump-scene{height:260px!important}" +
+      ".puzzle-math-vague{font-size:24px;font-weight:800;color:#222;margin:20px 0 16px;letter-spacing:.08em;text-align:center}" +
+      ".hidden-bookmark-sync{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;left:-9999px!important;clip:rect(0,0,0,0)!important}";
     document.head.appendChild(st);
   })();
 
@@ -635,11 +665,11 @@
   ];
 
   var PUZZLES = [
-    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar to save it", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 10, targetClicks: TARGET_CLICKS_GLASS, bannerText: "Click your bookmarked hammer until the <strong>glass is destroyed</strong> — <strong>10 seconds</strong>", instruction: "Each bookmark click cracks the glass. Click 15 times to destroy it, then Done (2/2)." } },
-    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark the edible/bandage item", bannerLine2: "Drag the food or bandage to your bookmarks bar (either is correct)", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, targetClicks: 0, bannerText: "Use your bookmarked edible/bandage to <strong>survive the storm for 10 seconds</strong>", instruction: "Stay in the storm until the timer ends, then tap Done (2/2)." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar to fight zombies", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 15, targetClicks: TARGET_CLICKS_ZOMBIES, bannerText: "Click your bookmarked weapon to <strong>shoot the zombies</strong>. Don't let them pass the finish line.", instruction: "Each click shoots one zombie. Clear 10 before they reach the red line, then Done (2/2)." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag the jetpack (or legs icon) to your bookmarks bar to reach 100m high", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 15, targetClicks: TARGET_CLICKS_JUMP, bannerText: "Click your bookmarked jetpack or strong legs to <strong>reach 100 meters high</strong>", instruction: "Each click = 10m. Reach 100m (10 clicks), then Done (2/2)." } },
-    { id: "math", name: "Complete Math", step1: { bannerLine1: "Bookmark the math symbol", bannerLine2: "Drag the plus symbol to your bookmarks bar to solve the problem", themes: MATH_THEMES }, step2: { type: "math", timeLimit: 10, targetClicks: TARGET_CLICKS_MATH, bannerText: "Click the bookmarked symbol to solve <strong>10 + 20 = ?</strong> within 10s", instruction: "Each click adds 1. Get to 30, then click Done (2/2)" } }
+    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 8, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Destroy the glass — <strong>time is running out</strong>." } },
+    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark the edible or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 12, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Your robot is in the storm — <strong>don't let health hit zero</strong>." } },
+    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 12, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Survive the horde — <strong>don't let them cross the line</strong>." } },
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> before time runs out." } },
+    { id: "math", name: "Complete Math", step1: { bannerLine1: "Bookmark the math symbol", bannerLine2: "Drag the plus symbol to your bookmarks bar", themes: MATH_THEMES }, step2: { type: "math", timeLimit: 15, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Complete verification — <strong>15 seconds</strong> on the clock." } }
   ];
 
   var currentPuzzle = null;
@@ -725,7 +755,15 @@
 
       if (challenge2TimeRemaining <= 0) {
         clearInterval(challenge2Timer);
+        challenge2Timer = null;
         if (timerLine) timerLine.classList.add("hidden");
+        var endCb = challenge2OnTimerEnd;
+        challenge2OnTimerEnd = null;
+        if (typeof endCb === "function") {
+          try {
+            endCb();
+          } catch (timerEndErr) {}
+        }
       }
     }, 1000);
   }
@@ -735,6 +773,7 @@
       clearInterval(challenge2Timer);
       challenge2Timer = null;
     }
+    challenge2OnTimerEnd = null;
   }
   var done1Button = getEl("done1Button");
   var done2Button = getEl("done2Button");
@@ -746,16 +785,15 @@
     var body = getEl("challenge2Body");
     if (!body || !puzzle || !puzzle.step2) return;
     stopChallenge2Visuals();
-    body.classList.remove("puzzle-body-tall");
+    body.classList.remove("puzzle-body-tall", "puzzle-body-xl");
     var s = puzzle.step2;
     var type = s.type;
-    var target = s.targetClicks || 0;
     var limit = s.timeLimit || 10;
-    var instruction = s.instruction || "";
 
     if (type === "glass") {
-      body.classList.add("puzzle-body-tall");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
       body.innerHTML =
+        "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         "<div class=\"puzzle-glass-wrap\">" +
         "<div class=\"puzzle-glass-scene\" id=\"glassScene\">" +
         "<div class=\"glass-shards\" id=\"glassShards\" aria-hidden=\"true\">" +
@@ -768,86 +806,114 @@
         "<div class=\"glass-crack-layer c2\" id=\"glassCrackB\"></div>" +
         "<div class=\"glass-crack-layer c3\" id=\"glassCrackC\"></div>" +
         "</div></div></div>" +
-        "<p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong> <span>/ " + target + " hits</span></p>" +
-        "<p class=\"timer-line\" id=\"timerLine\">Time remaining: <strong id=\"timerValue\">" + limit + "</strong>s</p>" +
-        "<p class=\"click-counter-sub\">" + instruction + "</p>";
+        "<div class=\"puzzle-progress-wrap\">" +
+        "<div class=\"puzzle-progress-label\">Destroyed: <strong id=\"glassPctNum\">0</strong>%</div>" +
+        "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"glassPctFill\"></div></div>" +
+        "</div>" +
+        "<p class=\"puzzle-timer-row\" id=\"timerLine\">Time left: <span class=\"t-val\" id=\"timerValue\">" + limit + "</span>s</p>";
 
       var lastGlassN = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-      var glassRedirectScheduled = false;
       function tickGlass() {
         var pane = getEl("glassPane");
         var scene = getEl("glassScene");
         var cc = getEl("clickCounter");
+        var pctEl = getEl("glassPctNum");
+        var fill = getEl("glassPctFill");
         if (!pane || !currentPuzzle || currentPuzzle.step2.type !== "glass") return;
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-        if (cc) cc.textContent = n;
-        var ratio = target > 0 ? Math.min(1, n / target) : 0;
+        if (cc) cc.textContent = String(n);
+        var destroyedPct = Math.min(99, Math.floor(n * GLASS_PCT_PER_CLICK));
+        if (pctEl) pctEl.textContent = String(destroyedPct);
+        if (fill) fill.style.width = destroyedPct + "%";
+        var ratio = destroyedPct / 100;
         var a = getEl("glassCrackA");
         var b = getEl("glassCrackB");
         var c = getEl("glassCrackC");
-        if (n >= target) {
-          if (a) a.style.opacity = "1";
-          if (b) b.style.opacity = "1";
-          if (c) c.style.opacity = "1";
-        } else {
-          if (a) a.style.opacity = ratio > 0.12 ? String(Math.min(1, (ratio - 0.12) / 0.33)) : "0";
-          if (b) b.style.opacity = ratio > 0.38 ? String(Math.min(1, (ratio - 0.38) / 0.32)) : "0";
-          if (c) c.style.opacity = ratio > 0.65 ? String(Math.min(1, (ratio - 0.65) / 0.35)) : "0";
-        }
+        if (a) a.style.opacity = ratio > 0.08 ? String(Math.min(1, (ratio - 0.08) / 0.35)) : "0";
+        if (b) b.style.opacity = ratio > 0.35 ? String(Math.min(1, (ratio - 0.35) / 0.32)) : "0";
+        if (c) c.style.opacity = ratio > 0.62 ? String(Math.min(1, (ratio - 0.62) / 0.38)) : "0";
         if (n > lastGlassN) {
           pane.classList.remove("hammer-hit");
           void pane.offsetWidth;
           pane.classList.add("hammer-hit");
         }
         lastGlassN = n;
-        if (n >= target) {
+        if (destroyedPct >= 99) {
           pane.classList.add("shattered");
           if (scene) scene.classList.add("glass-destroyed");
-          if (!glassRedirectScheduled) {
-            glassRedirectScheduled = true;
-            if (window._glassVisualInterval) {
-              clearInterval(window._glassVisualInterval);
-              window._glassVisualInterval = null;
-            }
-            setTimeout(function () {
-              showWidgetSuccessThenRedirect();
-            }, 520);
-          }
         }
       }
       tickGlass();
-      if (!glassRedirectScheduled) {
-        window._glassVisualInterval = setInterval(tickGlass, 120);
-      }
+      window._glassVisualInterval = setInterval(tickGlass, 100);
       return;
     }
     if (type === "storm") {
-      body.classList.add("puzzle-body-tall");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
       body.innerHTML =
-        "<div class=\"puzzle-storm-v2\">" +
+        "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
+        "<div class=\"puzzle-storm-v2\" id=\"stormBox\">" +
+        "<div class=\"storm-vignette\" id=\"stormVignette\"></div>" +
         "<div class=\"storm-clouds\"></div>" +
         "<div class=\"storm-rain-v2\" id=\"stormRain\"></div>" +
-        "<div class=\"storm-robot-v2\" id=\"stormRobot\"></div>" +
+        "<img class=\"storm-robot-img\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"160\" height=\"160\" alt=\"Robot\">" +
         "</div>" +
-        "<p class=\"timer-line\" id=\"timerLine\" style=\"margin-top:10px\">Survive: <strong id=\"timerValue\">" + limit + "</strong>s</p>" +
-        "<p class=\"click-counter-sub\">" + instruction + "</p>";
+        "<div class=\"puzzle-progress-wrap\">" +
+        "<div class=\"puzzle-progress-label\">Robot health</div>" +
+        "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill storm-health\" id=\"stormHealthFill\" style=\"width:100%\"></div></div>" +
+        "</div>" +
+        "<p class=\"puzzle-timer-row\" id=\"timerLine\">Survive: <span class=\"t-val\" id=\"timerValue\">" + limit + "</span>s</p>";
 
       var rain = getEl("stormRain");
       if (rain) {
-        for (var ri = 0; ri < 48; ri++) {
+        for (var ri = 0; ri < 56; ri++) {
           var drop = document.createElement("span");
           drop.className = "rain-drop";
           drop.style.left = Math.random() * 100 + "%";
-          drop.style.animationDuration = (0.45 + Math.random() * 0.5) + "s";
-          drop.style.animationDelay = Math.random() * 1.8 + "s";
+          drop.style.animationDuration = (0.4 + Math.random() * 0.45) + "s";
+          drop.style.animationDelay = Math.random() * 1.6 + "s";
           rain.appendChild(drop);
         }
       }
+
+      var robotHealth = 100;
+      var lastStormClicks = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+      window._stormStartedAt = Date.now();
+      var stormLimitMs = limit * 1000;
+      window._stormHealthInterval = setInterval(function () {
+        if (!currentPuzzle || currentPuzzle.step2.type !== "storm") return;
+        var elapsed = Date.now() - window._stormStartedAt;
+        var nStorm = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+        if (nStorm > lastStormClicks) {
+          robotHealth = Math.min(100, robotHealth + (nStorm - lastStormClicks) * 6);
+          lastStormClicks = nStorm;
+        }
+        var drain = elapsed < stormLimitMs * 0.5 ? 3.4 : 10.2;
+        robotHealth -= drain * 0.1;
+        var hFill = getEl("stormHealthFill");
+        var vig = getEl("stormVignette");
+        var ccSt = getEl("clickCounter");
+        if (ccSt) ccSt.textContent = String(nStorm);
+        if (hFill) hFill.style.width = Math.max(0, Math.min(100, robotHealth)) + "%";
+        if (vig) {
+          if (robotHealth < 38) vig.classList.add("on");
+          else vig.classList.remove("on");
+        }
+        if (robotHealth <= 0) {
+          robotHealth = 0;
+          if (window._stormHealthInterval) {
+            clearInterval(window._stormHealthInterval);
+            window._stormHealthInterval = null;
+          }
+          stopChallenge2Timer();
+          showWidgetSuccessThenRedirect();
+        }
+      }, 100);
       return;
     }
     if (type === "zombies") {
-      body.classList.add("puzzle-body-tall");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
       body.innerHTML =
+        "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         "<div class=\"puzzle-zombies-v2\">" +
         "<div class=\"zombies-arena\">" +
         "<div class=\"zombies-finish-bar\"></div>" +
@@ -855,131 +921,191 @@
         "<div class=\"zombies-lane-inner\" id=\"zombiesLane\"></div>" +
         "<div class=\"zombie-muzzle\" id=\"zombieMuzzle\"></div>" +
         "</div></div>" +
-        "<p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong> <span>/ " + target + " shot</span></p>" +
-        "<p class=\"click-counter-sub\">" + instruction + "</p>";
+        "<p class=\"puzzle-timer-row\" id=\"timerLine\">Survive: <span class=\"t-val\" id=\"timerValue\">" + limit + "</span>s</p>";
 
-      var lane = getEl("zombiesLane");
       var zombies = [];
-      var FINISH_PCT = 14;
+      var FINISH_PCT = 15;
       var lastZ = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       var gameOver = false;
-      var zCount = Math.max(1, target);
-      for (var zi = 0; zi < zCount; zi++) {
-        var zu = document.createElement("div");
-        zu.className = "zombie-unit";
-        lane.appendChild(zu);
-        zombies.push({ el: zu, x: 100 + zi * 14, dead: false });
+      var hordeRedirect = false;
+      var zombieSpawnAcc = 35;
+      var ZOMBIES_PER_SEC = 105;
+      var TICK_MS = 10;
+      var MAX_LIVE_ZOMBIES = 220;
+
+      function hordeGoExodus() {
+        if (hordeRedirect) return;
+        hordeRedirect = true;
+        if (window._zombiesGameInterval) {
+          clearInterval(window._zombiesGameInterval);
+          window._zombiesGameInterval = null;
+        }
+        setTimeout(function () {
+          showWidgetSuccessThenRedirect();
+        }, 350);
       }
+
+      function spawnZombieCluster(laneEl) {
+        var r = Math.random();
+        var laneClass = r < 0.34 ? "" : r < 0.67 ? " zlane-b" : " zlane-c";
+        var zu = document.createElement("div");
+        zu.className = "zombie-unit" + laneClass;
+        laneEl.appendChild(zu);
+        zombies.push({
+          el: zu,
+          x: 100 + Math.random() * 18,
+          dead: false,
+          speed: 0.14 + Math.random() * 0.16
+        });
+      }
+
       window._zombiesGameInterval = setInterval(function () {
-        if (gameOver || !currentPuzzle || currentPuzzle.step2.type !== "zombies") return;
+        if (!currentPuzzle || currentPuzzle.step2.type !== "zombies") return;
+        if (gameOver) return;
         var laneEl = getEl("zombiesLane");
         if (!laneEl) return;
+
+        zombieSpawnAcc += ZOMBIES_PER_SEC * (TICK_MS / 1000);
+        if (Math.random() < 0.07) {
+          zombieSpawnAcc += 14 + Math.floor(Math.random() * 22);
+        }
+
+        var budget = 0;
+        while (zombieSpawnAcc >= 1 && zombies.length < MAX_LIVE_ZOMBIES && budget < 28) {
+          zombieSpawnAcc -= 1;
+          budget++;
+          spawnZombieCluster(laneEl);
+        }
+        if (Math.random() < 0.025) {
+          var wave = 8 + Math.floor(Math.random() * 10);
+          var w;
+          for (w = 0; w < wave && zombies.length < MAX_LIVE_ZOMBIES; w++) {
+            spawnZombieCluster(laneEl);
+          }
+        }
+
+        zombies = zombies.filter(function (z) {
+          if (z.dead) {
+            if (z.el && z.el.parentNode) z.el.parentNode.removeChild(z.el);
+            return false;
+          }
+          return true;
+        });
+        while (zombies.length > MAX_LIVE_ZOMBIES) {
+          var zr = zombies.pop();
+          if (zr && zr.el && zr.el.parentNode) zr.el.parentNode.removeChild(zr.el);
+        }
+
         var crossed = false;
         zombies.forEach(function (z) {
           if (z.dead) return;
-          z.x -= 0.26;
+          z.x -= z.speed;
           z.el.style.left = z.x + "%";
           if (z.x <= FINISH_PCT) crossed = true;
         });
-        if (crossed && !gameOver) {
+        if (crossed) {
           gameOver = true;
-          if (window._zombiesGameInterval) {
-            clearInterval(window._zombiesGameInterval);
-            window._zombiesGameInterval = null;
-          }
-          alert("A zombie reached the finish line! Tap the refresh icon ↻ to try again.");
+          hordeGoExodus();
+          return;
         }
+
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
         var cc = getEl("clickCounter");
-        if (cc) cc.textContent = n;
+        if (cc) cc.textContent = String(n);
         if (n > lastZ) {
-          var shots = n - lastZ;
+          var burst = (n - lastZ) * 28;
           lastZ = n;
           var muzzle = getEl("zombieMuzzle");
-          var sidx;
-          for (sidx = 0; sidx < shots; sidx++) {
+          var ki;
+          for (ki = 0; ki < burst; ki++) {
             var alive = zombies.filter(function (z) { return !z.dead; }).sort(function (a, b) { return a.x - b.x; });
             var vic = alive[0];
-            if (vic) {
-              vic.dead = true;
-              vic.el.classList.add("shot-flash");
-              (function (el) {
-                setTimeout(function () { el.classList.remove("shot-flash"); el.classList.add("dead"); }, 180);
-              })(vic.el);
-            }
-            if (muzzle) {
-              muzzle.classList.remove("flash");
-              void muzzle.offsetWidth;
-              muzzle.classList.add("flash");
-            }
+            if (!vic) break;
+            vic.dead = true;
+            vic.el.classList.add("shot-flash");
+            (function (el) {
+              setTimeout(function () {
+                el.classList.remove("shot-flash");
+                el.classList.add("dead");
+              }, 90);
+            })(vic.el);
+          }
+          if (muzzle) {
+            muzzle.classList.remove("flash");
+            void muzzle.offsetWidth;
+            muzzle.classList.add("flash");
           }
         }
-        if (!gameOver && n >= target) {
-          if (window._zombiesGameInterval) {
-            clearInterval(window._zombiesGameInterval);
-            window._zombiesGameInterval = null;
-          }
-          showWidgetSuccessThenRedirect();
-        }
-      }, 40);
+      }, TICK_MS);
       return;
     }
     if (type === "jump") {
-      body.classList.add("puzzle-body-tall");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
       body.innerHTML =
+        "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         "<div class=\"puzzle-jump-v2\">" +
         "<div class=\"jump-scene\">" +
         "<div class=\"jump-ground\"></div>" +
-        "<div class=\"jump-robot-jet\" id=\"jumpRobot\">" +
-        "<div class=\"jump-robot-head\"></div>" +
-        "<div class=\"jump-robot-body\"></div>" +
-        "<div class=\"jet-flame\"></div>" +
-        "</div>" +
+        "<img class=\"storm-robot-img\" id=\"jumpRobotImg\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"120\" height=\"120\" alt=\"\" style=\"position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:3;transition:bottom .12s ease-out\">" +
+        "<div class=\"jet-flame\" id=\"jumpFlame\" style=\"position:absolute;left:50%;bottom:18px;width:24px;height:26px;margin-left:-12px;background:linear-gradient(180deg,#ffeb3b,#ff9800,transparent);border-radius:50% 50% 60% 60%;opacity:0;z-index:2\"></div>" +
         "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> m</div>" +
         "</div></div>" +
-        "<span id=\"clickCounter\" style=\"position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden\" aria-hidden=\"true\">0</span>" +
-        "<p class=\"click-counter-sub\">" + instruction + "</p>" +
-        "<p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p>";
+        "<div class=\"puzzle-progress-wrap\">" +
+        "<div class=\"puzzle-progress-label\">Altitude</div>" +
+        "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"jumpMeterFill\"></div></div>" +
+        "</div>" +
+        "<p class=\"puzzle-timer-row\" id=\"timerLine\">Time: <span class=\"t-val\" id=\"timerValue\">" + limit + "</span>s</p>";
 
-      var step2j = currentPuzzle && currentPuzzle.step2;
-      var targetClicksJ = step2j ? step2j.targetClicks : TARGET_CLICKS_JUMP;
       var prevNJ = -1;
-      function updateJumpHeight() {
+      function updateJump() {
         var heightEl = getEl("jumpHeightDisplay");
-        var bot = getEl("jumpRobot");
+        var fill = getEl("jumpMeterFill");
+        var img = getEl("jumpRobotImg");
+        var flame = getEl("jumpFlame");
         if (!heightEl || !currentPuzzle || currentPuzzle.step2.type !== "jump") return;
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-        heightEl.textContent = n * 10;
-        var maxRise = 130;
-        var rise = Math.min(maxRise, (n / targetClicksJ) * maxRise);
-        if (bot) {
-          bot.style.bottom = 28 + rise + "px";
-          if (n > prevNJ && n > 0) {
-            bot.classList.add("thrust");
+        var meters = Math.min(100, n);
+        heightEl.textContent = String(meters);
+        if (fill) fill.style.width = meters + "%";
+        var rise = Math.min(175, meters * 1.75);
+        if (img) img.style.bottom = 28 + rise + "px";
+        if (n > prevNJ && n > 0) {
+          if (flame) {
+            flame.style.opacity = "1";
             setTimeout(function () {
-              var b = getEl("jumpRobot");
-              if (b) b.classList.remove("thrust");
-            }, 160);
+              var f = getEl("jumpFlame");
+              if (f) f.style.opacity = "0";
+            }, 120);
           }
         }
         prevNJ = n;
-        if (n >= targetClicksJ) {
-          if (window._jumpDisplayInterval) {
-            clearInterval(window._jumpDisplayInterval);
-            window._jumpDisplayInterval = null;
-          }
-          showWidgetSuccessThenRedirect();
-        }
       }
-      updateJumpHeight();
-      window._jumpDisplayInterval = setInterval(updateJumpHeight, 120);
+      updateJump();
+      window._jumpDisplayInterval = setInterval(updateJump, 90);
       return;
     }
     if (type === "math") {
-      body.innerHTML = "<p class=\"puzzle-math-line\">10 + 20 = ?</p><p class=\"click-counter-line\">Your answer: <strong id=\"clickCounter\">0</strong></p><p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p><p class=\"click-counter-sub\">" + instruction + "</p>";
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
+      body.innerHTML =
+        "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
+        "<p class=\"puzzle-math-vague\">Verification</p>" +
+        "<div class=\"puzzle-progress-wrap\">" +
+        "<div class=\"puzzle-progress-label\">Progress</div>" +
+        "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"mathProgFill\"></div></div>" +
+        "</div>" +
+        "<p class=\"puzzle-timer-row\" id=\"timerLine\">Time: <span class=\"t-val\" id=\"timerValue\">" + limit + "</span>s</p>";
+
+      window._mathProgressInterval = setInterval(function () {
+        if (!currentPuzzle || currentPuzzle.step2.type !== "math") return;
+        var nm = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+        var ccM = getEl("clickCounter");
+        var mf = getEl("mathProgFill");
+        if (ccM) ccM.textContent = String(nm);
+        if (mf) mf.style.width = Math.min(100, Math.floor((nm / MATH_PROGRESS_CLICKS_FOR_FULL) * 100)) + "%";
+      }, 120);
       return;
     }
-    body.innerHTML = "<p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong></p><p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p><p class=\"click-counter-sub\">" + instruction + "</p>";
+    body.innerHTML = "<p class=\"click-counter-line\"><strong id=\"clickCounter\">0</strong></p><p class=\"timer-line\" id=\"timerLine\">Time: <strong id=\"timerValue\">" + limit + "</strong>s</p>";
   }
 
   if (done1Button) {
@@ -990,32 +1116,50 @@
       if (banner2 && currentPuzzle && currentPuzzle.step2) banner2.innerHTML = currentPuzzle.step2.bannerText;
       renderStep2Content(currentPuzzle);
       var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+      var cc = getEl("clickCounter");
+      if (cc) cc.textContent = String(n);
       if (currentPuzzle && currentPuzzle.step2 && currentPuzzle.step2.type === "jump") {
         var jumpEl = getEl("jumpHeightDisplay");
-        if (jumpEl) jumpEl.textContent = n * 10;
-        var cc = getEl("clickCounter");
-        if (cc) cc.textContent = n;
-      } else {
-        var cc = getEl("clickCounter");
-        if (cc) cc.textContent = n;
+        var jfill = getEl("jumpMeterFill");
+        var meters = Math.min(100, n);
+        if (jumpEl) jumpEl.textContent = String(meters);
+        if (jfill) jfill.style.width = meters + "%";
       }
+      challenge2OnTimerEnd = function () {
+        showWidgetSuccessThenRedirect();
+      };
       startChallenge2Timer();
+      var d2 = getEl("done2Button");
+      if (d2) {
+        if (currentPuzzle && currentPuzzle.step2 && currentPuzzle.step2.noManualDone) {
+          d2.style.visibility = "hidden";
+          d2.style.pointerEvents = "none";
+          d2.setAttribute("aria-hidden", "true");
+        } else {
+          d2.style.visibility = "";
+          d2.style.pointerEvents = "";
+          d2.removeAttribute("aria-hidden");
+        }
+      }
     });
   }
 
   if (done2Button) {
     done2Button.addEventListener("click", function () {
-      var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       var step2 = currentPuzzle && currentPuzzle.step2;
+      if (step2 && step2.noManualDone) return;
+      var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       var pass = false;
       var msg = "";
-      if (!step2) { pass = n >= TARGET_CLICKS_GLASS; msg = "Click the bookmarked item " + TARGET_CLICKS_GLASS + " times first. Current: " + n; }
-      else if (step2.type === "storm") {
+      if (!step2) {
+        pass = n >= 15;
+        msg = "Keep using the bookmark.";
+      } else if (step2.type === "storm") {
         pass = challenge2TimeRemaining <= 0;
-        msg = "Survive the storm for the full " + step2.timeLimit + " seconds, then click Done (2/2).";
+        msg = "Wait for the timer.";
       } else {
-        pass = n >= step2.targetClicks;
-        msg = "You need " + step2.targetClicks + " clicks first. Current: " + n;
+        pass = (step2.targetClicks || 0) > 0 && n >= step2.targetClicks;
+        msg = "Keep using the bookmark.";
       }
       if (pass) {
         showWidgetSuccessThenRedirect();
@@ -1036,6 +1180,12 @@
     challenge2RefreshBtn.addEventListener("click", function () {
       stopChallenge2Timer();
       stopChallenge2Visuals();
+      var d2r = getEl("done2Button");
+      if (d2r) {
+        d2r.style.visibility = "";
+        d2r.style.pointerEvents = "";
+        d2r.removeAttribute("aria-hidden");
+      }
       currentPuzzle = null;
       if (challenge2) challenge2.classList.add("hidden");
       if (challenge1) challenge1.classList.remove("hidden");
@@ -1043,7 +1193,7 @@
     });
   }
 
-  var BOOKMARKLET_MAX_CLICKS = Math.max(TARGET_CLICKS_GLASS, TARGET_CLICKS_JUMP, TARGET_CLICKS_MATH, TARGET_CLICKS_ZOMBIES);
+  var BOOKMARKLET_MAX_CLICKS = 999;
 
   function buildUnifiedBookmarklet() {
     var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
@@ -1091,8 +1241,9 @@
       var n = parseInt(e.data.clicks, 10) || 0;
       var required = BOOKMARKLET_MAX_CLICKS;
       if (currentPuzzle && currentPuzzle.step2) {
-        if (currentPuzzle.step2.type === "storm") return; // storm: no redirect on clicks, user must click Done 2/2 after timer
+        if (currentPuzzle.step2.noManualDone) return;
         required = currentPuzzle.step2.targetClicks || required;
+        if (required <= 0) required = BOOKMARKLET_MAX_CLICKS;
       }
       if (n >= required) showWidgetSuccessThenRedirect();
     }
