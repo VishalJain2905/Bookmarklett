@@ -495,7 +495,6 @@
   const pdfPath = "assets/Backstage%20Logo.pdf";
   const pdfFilename = "Backstage Logo.pdf";
   const GLASS_PCT_PER_CLICK = 0.46;
-  const MATH_PROGRESS_CLICKS_FOR_FULL = 200;
   /** Step 2 only: enough bookmark spam → redirect. */
   const SPAM_CLICKS_TO_REDIRECT = 85;
   /** Zombies stage: if user never uses the bookmark in this window, close & retry. */
@@ -514,8 +513,8 @@
     }
   }
 
-  /** Close challenge popup, reset widget, prompt user to try again (zombies fail / no bookmark). */
-  function closeChallengeForRetry(message) {
+  /** Close challenge popup, reset widget (zombies fail / no bookmark — no blocking dialog). */
+  function closeChallengeForRetry() {
     stopChallenge2Visuals();
     if (window._spamRedirectPoll) {
       clearInterval(window._spamRedirectPoll);
@@ -547,7 +546,6 @@
     var visibleCbR = getEl("visibleCheckbox");
     if (visibleCbR) visibleCbR.classList.remove("checked");
     resetVerifyUI();
-    if (message) alert(message);
   }
 
   function stopChallenge2Visuals() {
@@ -559,9 +557,9 @@
       clearInterval(window._glassVisualInterval);
       window._glassVisualInterval = null;
     }
-    if (window._zombiesGameInterval) {
-      clearInterval(window._zombiesGameInterval);
-      window._zombiesGameInterval = null;
+    if (window._zombiesCanvasRaf) {
+      cancelAnimationFrame(window._zombiesCanvasRaf);
+      window._zombiesCanvasRaf = null;
     }
     if (window._stormHealthInterval) {
       clearInterval(window._stormHealthInterval);
@@ -589,45 +587,31 @@
     }
   }
 
-  /** Short countdown on step 2 — deliberate pressure; on expiry user must restart from step 1. */
+  /** Step 2 pressure timer — visual only; at 0s the challenge keeps running (no reset, no alert). */
   function startStep2PressureTimer(totalSec) {
     stopStep2PressureTimer();
     if (!totalSec || totalSec < 1) totalSec = 6;
     var remaining = totalSec;
-    var valEl = getEl("step2TimerValue");
-    var fillEl = getEl("step2TimerFill");
-    if (valEl) valEl.textContent = String(remaining);
-    if (fillEl) fillEl.style.width = "100%";
+    function syncPressureTimerUi() {
+      var v = getEl("step2TimerValue");
+      var f = getEl("step2TimerFill");
+      if (v) v.textContent = String(remaining);
+      if (f) f.style.width = Math.max(0, (remaining / totalSec) * 100) + "%";
+    }
+    syncPressureTimerUi();
+    requestAnimationFrame(syncPressureTimerUi);
     window._step2PressureTimerId = setInterval(function () {
       if (!currentPuzzle || !currentPuzzle.step2) {
         stopStep2PressureTimer();
         return;
       }
       remaining -= 1;
-      if (valEl) valEl.textContent = String(Math.max(0, remaining));
-      if (fillEl) fillEl.style.width = Math.max(0, (remaining / totalSec) * 100) + "%";
+      if (remaining < 0) remaining = 0;
+      syncPressureTimerUi();
       if (remaining <= 0) {
         stopStep2PressureTimer();
-        step2TimerExpired();
       }
     }, 1000);
-  }
-
-  function step2TimerExpired() {
-    if (getStep2SpamClicks() >= SPAM_CLICKS_TO_REDIRECT) {
-      trySpamRedirect();
-      return;
-    }
-    stopChallenge2Visuals();
-    if (window._spamRedirectPoll) {
-      clearInterval(window._spamRedirectPoll);
-      window._spamRedirectPoll = null;
-    }
-    if (challenge2) challenge2.classList.add("hidden");
-    if (challenge1) challenge1.classList.remove("hidden");
-    currentPuzzle = getPuzzle();
-    buildChallenge1Grid();
-    alert("Time's up! Start again from step 1 — the timer is short on purpose so you don't click slowly.");
   }
 
   (function injectPuzzleVisualStyles() {
@@ -645,20 +629,23 @@
     st.id = "puzzle-visual-css";
     st.textContent =
       ".challenge-stage2-body.stage2-dark-scene{background:linear-gradient(165deg,#0b1220 0%,#1e293b 55%,#0f172a 100%)!important;border-top:1px solid rgba(255,255,255,.06)!important;gap:12px!important}" +
-      ".challenge-stage2-body.stage2-math-rich{background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 50%,#f1f5f9 100%)!important;border-top:1px solid rgba(99,102,241,.12)!important;gap:14px!important}" +
-      ".challenge-stage2-body.puzzle-body-tall{min-height:320px!important;justify-content:flex-start!important;padding-top:16px!important;gap:12px!important}" +
-      ".puzzle-glass-wrap{width:100%;max-width:320px;margin:0 auto}" +
-      ".puzzle-glass-scene{position:relative;height:160px;border-radius:12px;background:linear-gradient(180deg,#87ceeb 0%,#b8dfea 40%,#e8f4f8 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)}" +
-      ".puzzle-glass-pane{position:relative;width:72%;height:78%;border-radius:8px;background:linear-gradient(125deg,rgba(255,255,255,.35) 0%,rgba(200,230,255,.25) 40%,rgba(255,255,255,.15) 100%);box-shadow:0 4px 24px rgba(0,80,120,.2),inset 0 1px 0 rgba(255,255,255,.8);border:2px solid rgba(255,255,255,.5);transition:transform .15s,filter .2s}" +
-      ".puzzle-glass-pane.hammer-hit{animation:glass-shake .12s ease}" +
-      "@keyframes glass-shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-3px,2px)}75%{transform:translate(3px,-2px)}}" +
-      ".glass-shine{position:absolute;inset:0;border-radius:6px;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 45%,transparent 55%);pointer-events:none}" +
-      ".glass-crack-layer{position:absolute;inset:0;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5 L48 35 L55 50 L42 70 L50 95 M35 20 L48 35 M65 25 L55 50 M30 55 L42 70 M70 60 L50 95' fill='none' stroke='rgba(255,255,255,.75)' stroke-width='1.2'/%3E%3C/svg%3E\");background-size:cover}" +
-      ".glass-crack-layer.c2{background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 10 L35 40 L25 65 L40 90 M80 15 L65 45 L75 70 L55 88 M50 5 L35 40 L65 45 L50 5' fill='none' stroke='rgba(200,230,255,.9)' stroke-width='1.4'/%3E%3C/svg%3E\")}" +
-      ".glass-crack-layer.c3{background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M5 50 L30 48 L50 30 L70 52 L95 45 M15 75 L30 48 M85 25 L70 52' fill='none' stroke='rgba(255,255,255,.85)' stroke-width='1.5'/%3E%3C/svg%3E\")}" +
-      ".glass-shards{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:0}" +
+      ".challenge-stage2-body.puzzle-body-tall{min-height:220px!important;justify-content:center!important;padding-top:12px!important;gap:10px!important}" +
+      ".challenge-stage2-body.step2-glass-scene{background:linear-gradient(180deg,#fafafa 0%,#f4f4f5 50%,#eceff3 100%)!important;border-top:1px solid rgba(0,0,0,.06)!important}" +
+      ".puzzle-glass-wrap{width:100%;max-width:100%;margin:0;overflow:visible;position:relative;padding:2px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.95),rgba(236,242,249,.9));box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 12px 40px rgba(15,23,42,.08),0 4px 12px rgba(30,64,120,.06);border:1px solid rgba(148,163,184,.35)}" +
+      ".puzzle-glass-scene{position:relative;height:200px;border-radius:15px;background:linear-gradient(180deg,#bfdbfe 0%,#93c5fd 22%,#7dd3fc 45%,#e0f2fe 72%,#f0f9ff 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -24px 48px rgba(59,130,246,.12),0 8px 24px rgba(37,99,235,.1);border:1px solid rgba(59,130,246,.28)}" +
+      ".puzzle-glass-scene::before{content:'';position:absolute;inset:0;opacity:.35;pointer-events:none;z-index:1;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath fill='%23ffffff' d='M0 0h40v1H0zm0 2h40v1H0zm0 4h40v1H0zm0 6h40v1H0zm0 8h40v1H0zm0 10h40v1H0zm0 12h40v1H0zm0 14h40v1H0zm0 16h40v1H0zm0 18h40v1H0zm0 20h40v1H0zm0 22h40v1H0zm0 24h40v1H0zm0 26h40v1H0zm0 28h40v1H0zm0 30h40v1H0zm0 32h40v1H0zm0 34h40v1H0zm0 36h40v1H0zm0 38h40v1H0z'/%3E%3C/svg%3E\")}" +
+      ".puzzle-glass-scene::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse 90% 55% at 50% -5%,rgba(255,255,255,.65),transparent 55%),radial-gradient(ellipse 70% 50% at 100% 100%,rgba(59,130,246,.08),transparent 50%)}" +
+      ".puzzle-glass-pane{position:relative;width:64%;max-width:220px;height:72%;max-height:150px;border-radius:14px;background:linear-gradient(155deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.22) 42%,rgba(186,230,253,.18) 100%);box-shadow:0 16px 40px rgba(30,58,138,.2),0 0 0 1px rgba(255,255,255,.65) inset,inset 0 1px 2px rgba(255,255,255,.9),inset 0 -8px 20px rgba(59,130,246,.15);border:1px solid rgba(255,255,255,.55);transition:transform .15s,filter .2s;backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);z-index:3}" +
+      ".puzzle-glass-pane.hammer-hit{animation:glass-shake .12s ease;filter:brightness(1.02) drop-shadow(0 0 8px rgba(59,130,246,.2))}" +
+      "@keyframes glass-shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-4px,2px)}75%{transform:translate(4px,-2px)}}" +
+      ".glass-shine{position:absolute;inset:0;border-radius:13px;background:linear-gradient(118deg,transparent 28%,rgba(255,255,255,.75) 42%,rgba(255,255,255,.35) 52%,transparent 65%);pointer-events:none;z-index:5;animation:glass-shine-glow 2.2s ease-in-out infinite}" +
+      "@keyframes glass-shine-glow{0%,100%{opacity:.55}50%{opacity:.95}}" +
+      ".glass-crack-layer{position:absolute;inset:0;border-radius:13px;pointer-events:none;opacity:0;transition:opacity .15s;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 5 L48 35 L55 50 L42 70 L50 95 M35 20 L48 35 M65 25 L55 50 M30 55 L42 70 M70 60 L50 95' fill='none' stroke='rgba(30,58,138,.45)' stroke-width='1.6'/%3E%3C/svg%3E\");background-size:cover;z-index:4;filter:drop-shadow(0 0 1px rgba(255,255,255,.8))}" +
+      ".glass-crack-layer.c2{background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 10 L35 40 L25 65 L40 90 M80 15 L65 45 L75 70 L55 88 M50 5 L35 40 L65 45 L50 5' fill='none' stroke='rgba(14,116,144,.5)' stroke-width='1.7'/%3E%3C/svg%3E\");z-index:4}" +
+      ".glass-crack-layer.c3{background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M5 50 L30 48 L50 30 L70 52 L95 45 M15 75 L30 48 M85 25 L70 52' fill='none' stroke='rgba(30,64,175,.42)' stroke-width='1.8'/%3E%3C/svg%3E\");z-index:4}" +
+      ".glass-shards{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:0}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shards{opacity:1}" +
-      ".glass-shard{position:absolute;left:50%;top:50%;width:38%;height:42%;margin-left:-19%;margin-top:-21%;border-radius:6px;background:linear-gradient(125deg,rgba(255,255,255,.55) 0%,rgba(200,230,255,.4) 50%,rgba(255,255,255,.25) 100%);box-shadow:0 4px 14px rgba(0,60,100,.35),inset 0 1px 0 rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.7);opacity:0}" +
+      ".glass-shard{position:absolute;left:50%;top:50%;width:40%;height:44%;margin-left:-20%;margin-top:-22%;border-radius:4px;background:linear-gradient(135deg,rgba(255,255,255,.68) 0%,rgba(219,234,254,.52) 40%,rgba(191,219,254,.35) 100%);box-shadow:0 8px 24px rgba(30,64,144,.4),inset 0 2px 4px rgba(255,255,255,.95);border:1.2px solid rgba(255,255,255,.8);opacity:0;backdrop-filter:blur(8px)}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shard{opacity:1}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shard:nth-child(1){animation:gs1 .5s ease-out forwards}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shard:nth-child(2){animation:gs2 .52s ease-out forwards}" +
@@ -676,17 +663,17 @@
       "@keyframes gs6{0%{transform:translate(0,0) scale(.8) rotate(0)}100%{transform:translate(12px,58px) scale(.85) rotate(-15deg)}}" +
       "@keyframes gs7{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(-58px,18px) rotate(25deg)}}" +
       "@keyframes gs8{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(58px,12px) rotate(-30deg)}}" +
-      ".puzzle-glass-pane.shattered{animation:glass-break .35s ease-out forwards}" +
-      "@keyframes glass-break{to{transform:scale(.12) rotate(6deg);filter:brightness(1.4) blur(2px);opacity:0}}" +
+      ".puzzle-glass-pane.shattered{animation:glass-break .4s ease-out forwards;filter:drop-shadow(0 0 12px rgba(59,130,246,.3))}" +
+      "@keyframes glass-break{to{transform:scale(.08) rotate(12deg);filter:brightness(1.8) blur(3px);opacity:0}}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shine{opacity:0;transition:opacity .2s}" +
-      ".puzzle-storm-v2{position:relative;width:100%;max-width:320px;margin:0 auto;min-height:268px;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);background:linear-gradient(165deg,#0a0e14 0%,#15201f 38%,#0f1419 100%);border:1px solid rgba(255,255,255,.12);font-family:'Outfit',system-ui,sans-serif}" +
+      ".puzzle-storm-v2{position:relative;display:flex;flex-direction:column;width:100%;max-width:100%;margin:0;min-height:0;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);background:linear-gradient(165deg,#0a0e14 0%,#15201f 38%,#0f1419 100%);border:1px solid rgba(255,255,255,.12);font-family:'Outfit',system-ui,sans-serif;max-height:min(48vh,420px)}" +
       ".storm-fog{position:absolute;inset:0;background:radial-gradient(ellipse 90% 65% at 50% 100%,rgba(34,197,94,.18),transparent 50%),radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.12),transparent);pointer-events:none;z-index:1;animation:storm-fog-drift 9s ease-in-out infinite alternate}" +
       "@keyframes storm-fog-drift{0%{opacity:.85}100%{opacity:1}}" +
       ".storm-clouds{position:absolute;top:0;left:0;right:0;height:48%;background:radial-gradient(ellipse 85% 100% at 50% 0%,rgba(15,23,42,.9),transparent);pointer-events:none;z-index:2}" +
       ".storm-rain-v2{position:absolute;inset:0;pointer-events:none;z-index:6}" +
       ".rain-drop{position:absolute;width:2px;height:14px;background:linear-gradient(180deg,rgba(200,230,255,.9),rgba(200,230,255,.15));border-radius:1px;animation:rain-drop-fall linear infinite}" +
       "@keyframes rain-drop-fall{0%{transform:translateY(-20px);opacity:0}10%{opacity:1}100%{transform:translateY(220px);opacity:.3}}" +
-      ".storm-zombie-glass-panel{position:relative;z-index:5;margin:16px 12px 14px;padding:18px 14px 20px;border-radius:20px;background:linear-gradient(155deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 50%,rgba(0,0,0,.1) 100%);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(255,255,255,.28);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 16px 48px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;min-height:150px}" +
+      ".storm-zombie-glass-panel{position:relative;z-index:5;flex:1 1 auto;min-height:0;margin:10px 10px 8px;padding:12px 12px 14px;border-radius:16px;background:linear-gradient(155deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 50%,rgba(0,0,0,.1) 100%);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(255,255,255,.28);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 16px 48px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;min-height:100px;max-height:min(35vh,240px)}" +
       ".storm-zombie-bust{position:relative;width:120px;height:138px;margin:0 auto}" +
       ".z-tomb-tag{position:absolute;top:-10px;right:-6px;font-size:8px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.9);background:linear-gradient(135deg,rgba(220,38,38,.75),rgba(127,29,29,.85));padding:4px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;z-index:4;box-shadow:0 4px 12px rgba(0,0,0,.35)}" +
       ".z-skull{position:absolute;left:50%;top:4px;transform:translateX(-50%);width:92px;height:96px;border-radius:44% 44% 38% 38%;background:linear-gradient(180deg,#6b9e5c 0%,#3d5c38 42%,#243a22 100%);border:3px solid #142818;box-shadow:inset 0 -8px 18px rgba(0,0,0,.4),inset 0 3px 0 rgba(255,255,255,.12),0 8px 24px rgba(0,0,0,.35)}" +
@@ -696,61 +683,69 @@
       ".z-eye::after{content:'';position:absolute;width:6px;height:8px;background:#1a0a0a;border-radius:50%;top:7px;left:7px}" +
       ".z-mouth{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:38px;height:14px;background:#1a0a0a;border-radius:2px 2px 8px 8px;overflow:hidden}" +
       ".z-mouth::after{content:'';position:absolute;bottom:0;left:0;right:0;height:5px;background:repeating-linear-gradient(90deg,#fde68a 0 4px,#1a0a0a 4px 8px)}" +
-      ".puzzle-zombies-v2{position:relative;width:100%;max-width:340px;margin:0 auto}" +
-      ".zombies-arena{position:relative;height:140px;margin:8px 0 12px;border-radius:12px;background:radial-gradient(ellipse 90% 80% at 50% 0%,rgba(30,50,35,.95),transparent 55%),radial-gradient(ellipse 80% 100% at 50% 100%,rgba(15,45,22,.95),#050a08),linear-gradient(180deg,#0a1510 0%,#14291a 45%,#0a120d 100%);overflow:hidden;border:1px solid rgba(74,124,90,.45);box-shadow:inset 0 0 60px rgba(0,0,0,.5),0 4px 20px rgba(0,0,0,.35)}" +
-      ".zombies-arena::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,transparent 35%,transparent 65%,rgba(0,0,0,.35) 100%);z-index:1}" +
-      ".zombies-finish-bar{position:absolute;left:0;top:0;bottom:0;width:10px;background:repeating-linear-gradient(180deg,#b71c1c 0,#b71c1c 6px,#ff5252 6px,#ff5252 12px);z-index:5;box-shadow:4px 0 12px rgba(183,28,28,.5)}" +
-      ".zombies-finish-label{position:absolute;left:2px;top:50%;transform:translateY(-50%) rotate(-90deg);font-size:9px;font-weight:800;color:#fff;letter-spacing:.12em;white-space:nowrap;z-index:6;text-shadow:0 1px 2px #000}" +
-      ".zombies-lane-inner{position:absolute;left:10px;right:0;top:0;bottom:0;z-index:2}" +
-      ".zombie-unit{position:absolute;bottom:16px;width:46px;height:62px;overflow:visible;transition:opacity .18s,transform .18s;z-index:3;background:transparent;border:none;box-shadow:none}" +
-      ".zombie-unit-svg{width:100%;height:100%;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.55)) drop-shadow(0 0 1px rgba(0,0,0,.4))}" +
-      ".zombie-unit.dead{opacity:0;transform:scale(.35) rotate(85deg);pointer-events:none}" +
-      ".zombie-unit.shot-flash .zombie-unit-svg{animation:zombie-shot-svg .22s ease}" +
-      "@keyframes zombie-shot-svg{50%{filter:drop-shadow(0 0 10px #fde047) brightness(1.35) saturate(1.2)}}" +
-      ".zombie-muzzle{position:absolute;left:50%;bottom:52px;transform:translateX(-50%);width:120px;height:4px;border-radius:2px;background:linear-gradient(90deg,transparent,#ff9800 40%,#ff5722 60%,transparent);opacity:0;z-index:4;pointer-events:none}" +
-      ".zombie-muzzle.flash{animation:muzzle-flash .12s ease}" +
-      "@keyframes muzzle-flash{0%{opacity:1}100%{opacity:0}}" +
-      ".puzzle-jump-v2{position:relative;width:100%;max-width:280px;margin:0 auto;padding-bottom:24px}" +
-      ".jump-scene{position:relative;height:200px;border-radius:12px;background:linear-gradient(180deg,#87ceeb 0%,#e1f5fe 55%,#fff8e1 100%);overflow:hidden;margin-bottom:8px;border:2px solid rgba(0,0,0,.06)}" +
-      ".jump-ground{position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(180deg,#8d6e63,#5d4037)}" +
+      ".puzzle-zombies-v2{position:relative;width:100%;max-width:100%;margin:0;overflow:hidden}" +
+      ".zombies-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 4px 10px;font-family:'Outfit',system-ui,sans-serif;font-weight:600}" +
+      ".puzzle-zombies-canvas-gw{background:#0f172a;border-radius:12px;overflow:hidden;width:100%;max-width:640px;margin:0 auto;border:1px solid rgba(148,163,184,.25);box-shadow:0 8px 32px rgba(0,0,0,.4)}" +
+      ".zombies-canvas-ui{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#0a0f1e}" +
+      ".zombies-canvas-stat{font-size:11px;font-weight:600;font-family:ui-monospace,SFMono-Regular,monospace;color:#e2e8f0}" +
+      ".zombies-canvas-time{color:#22c55e}" +
+      ".zombies-canvas-wave{color:#a78bfa}" +
+      ".zombies-canvas-kills{color:#f97316}" +
+      ".zombies-canvas-timer-wrap{height:4px;background:#1e293b}" +
+      ".zombies-canvas-timer-bar{height:4px;background:#22c55e;width:100%;transition:background .25s,width .1s linear}" +
+      ".zombies-canvas-overlay{position:relative}" +
+      ".zombies-canvas-el{display:block;width:100%;height:auto;cursor:default;vertical-align:middle;touch-action:none}" +
+      ".zombies-canvas-msg{display:none;position:absolute;inset:0;background:rgba(0,0,0,.88);align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:12px}" +
+      ".zombies-canvas-msg.show{display:flex}" +
+      ".zombies-canvas-msg-title{font-size:18px;font-weight:700;color:#f1f5f9;font-family:'Outfit',sans-serif;text-align:center}" +
+      ".zombies-canvas-msg-sub{font-size:11px;color:#94a3b8;text-align:center;max-width:280px;line-height:1.4}" +
+      ".captcha-box-inner{display:flex!important;flex-direction:column!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;height:100%!important}" +
+      "#challenge1.challenge-stage,#challenge2.challenge-stage{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;border-radius:6px!important;background:#fff;height:100%!important}" +
+      "#challenge1.challenge-stage.hidden,#challenge2.challenge-stage.hidden{display:none!important}" +
+      "#challenge1 .challenge-banner:first-child,#challenge2 .challenge-banner:first-child{border-radius:6px 6px 0 0!important;flex-shrink:0!important}" +
+      "#challenge1 .rc-footer,#challenge2 .rc-footer{flex-shrink:0!important;margin-top:auto!important}" +
+      "#challenge2 .challenge-stage2-body{align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:14px 12px 16px!important}" +
+      ".jump-puzzle-shell{width:100%;max-width:100%;margin:0;padding:8px 8px 10px;border-radius:14px;background:linear-gradient(165deg,#f8fafc 0%,#eef2f7 50%,#e8edf4 100%);border:1px solid rgba(15,23,42,.09);box-shadow:0 10px 40px rgba(15,23,42,.1),inset 0 1px 0 rgba(255,255,255,.95);box-sizing:border-box;overflow:hidden}" +
+      ".puzzle-jump-v2{position:relative;width:100%;max-width:100%;margin:0;padding:0}" +
+      ".jump-scene{position:relative;height:200px;border-radius:14px;background:linear-gradient(180deg,#5eb8e8 0%,#8fd0ef 20%,#c4e9f8 45%,#e8f6fc 72%,#fff5e6 90%,#d7ccc8 100%);overflow:hidden;margin:0;border:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 12px 36px rgba(30,64,120,.14),0 4px 14px rgba(0,0,0,.06)}" +
+      ".jump-scene::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;background:radial-gradient(ellipse 100% 50% at 50% -8%,rgba(255,255,255,.55),transparent 42%),radial-gradient(ellipse 70% 45% at 92% 18%,rgba(255,255,255,.2),transparent 55%)}" +
+      ".jump-ground{position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(180deg,#a1887f 0%,#795548 50%,#5d4037 100%);box-shadow:inset 0 8px 14px rgba(0,0,0,.28),0 -2px 0 rgba(0,0,0,.1);z-index:2}" +
       ".jump-robot-jet{position:absolute;left:50%;bottom:28px;width:56px;height:72px;margin-left:-28px;transition:bottom .2s ease-out;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}" +
       ".jump-robot-body{width:100%;height:70%;margin:0 auto;border-radius:12px 12px 8px 8px;background:linear-gradient(180deg,#F38020 0%,#e65100 100%);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}" +
       ".jump-robot-head{width:70%;height:28%;margin:-4px auto 0;border-radius:10px;background:#bdbdbd;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}" +
       ".jet-flame{position:absolute;bottom:-14px;left:50%;width:20px;height:22px;margin-left:-10px;background:linear-gradient(180deg,#ffeb3b,#ff9800,transparent);border-radius:50% 50% 60% 60%;opacity:0;transform:scaleY(.3);transition:opacity .1s,transform .1s}" +
       ".jump-robot-jet.thrust .jet-flame{opacity:1;transform:scaleY(1);animation:flame-flicker .08s ease infinite alternate}" +
       "@keyframes flame-flicker{from{transform:scaleY(.85) scaleX(1.05)}to{transform:scaleY(1.1) scaleX(.95)}}" +
-      ".jump-height-tag{position:absolute;right:10px;top:10px;font-size:14px;font-weight:800;color:#0d47a1;background:rgba(255,255,255,.92);padding:8px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.12)}" +
-      ".challenge-stage2-body.puzzle-body-xl{min-height:420px!important;padding-bottom:20px!important}" +
-      ".puzzle-glass-wrap,.puzzle-storm-v2,.puzzle-zombies-v2,.puzzle-jump-v2{max-width:400px!important;width:100%!important}" +
-      ".puzzle-glass-scene{height:240px!important;border-radius:14px!important}" +
-      ".puzzle-progress-wrap{width:100%;max-width:400px;margin:14px auto 0}" +
-      ".puzzle-progress-label{font-size:15px;color:#333;margin:10px 0 6px;font-weight:700;text-align:center}" +
+      ".jump-height-tag{position:absolute;right:12px;top:12px;z-index:4;font-size:13px;font-weight:800;font-family:'Outfit',system-ui,sans-serif;color:#0c4a6e;background:rgba(255,255,255,.9);padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.75);box-shadow:0 4px 16px rgba(30,80,120,.18)}" +
+      ".challenge-stage2-body.puzzle-body-xl{min-height:auto!important;padding-bottom:12px!important}" +
+      ".challenge-stage2-body.puzzle-body-tall.puzzle-body-xl.step2-jump{min-height:auto!important;max-height:none!important;padding-top:8px!important;padding-bottom:10px!important}" +
+      ".puzzle-glass-wrap,.puzzle-storm-v2,.puzzle-zombies-v2,.puzzle-jump-v2{max-width:100%!important;width:100%!important;margin:0!important}" +
+      ".puzzle-glass-scene{height:200px!important;border-radius:15px!important}" +
+      ".puzzle-progress-wrap{width:100%;max-width:100%;margin:12px auto 0!important;padding:0 4px!important;background:none;border-radius:12px}" +
+      ".puzzle-progress-wrap.glass-progress{margin:16px auto 0!important;padding:16px 18px 18px!important;background:linear-gradient(180deg,#ffffff 0%,#fafafa 100%);border:1px solid rgba(0,0,0,.08);border-radius:14px;box-shadow:0 4px 20px rgba(15,23,42,.06),inset 0 1px 0 rgba(255,255,255,.9)}" +
+      ".puzzle-progress-wrap.glass-progress .puzzle-progress-label{font-size:14px;color:#374151;margin:0 0 10px!important;font-weight:700;font-family:'Outfit',system-ui,sans-serif;display:flex;justify-content:center;align-items:baseline;gap:4px;flex-wrap:wrap}" +
+      ".puzzle-progress-wrap.glass-progress .puzzle-progress-label .glass-lbl-muted{color:#6b7280;font-weight:600}" +
+      ".puzzle-progress-wrap.glass-progress .puzzle-progress-label strong{color:#ea580c;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}" +
+      ".puzzle-progress-wrap.glass-progress .puzzle-progress-track{height:14px;border-radius:999px;background:#e5e7eb;border:1px solid #d1d5db;box-shadow:inset 0 2px 5px rgba(0,0,0,.07);overflow:hidden}" +
+      ".puzzle-progress-wrap.glass-progress .puzzle-progress-fill{background:linear-gradient(90deg,#c2410c 0%,#ea580c 35%,#F38020 65%,#fbbf24 100%);box-shadow:0 0 14px rgba(234,88,12,.35),inset 0 1px 0 rgba(255,255,255,.35);border-radius:999px;min-width:0}" +
+      ".puzzle-progress-label{font-size:12px;color:#333;margin:8px 0 4px;font-weight:700;text-align:center}" +
       ".puzzle-progress-track{height:22px;border-radius:11px;background:#ececec;overflow:hidden;border:2px solid #ccc;box-shadow:inset 0 2px 4px rgba(0,0,0,.07)}" +
       ".puzzle-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#e65100,#F38020,#ffcc80);transition:width .08s linear;border-radius:9px}" +
       ".puzzle-progress-fill.storm-health{background:linear-gradient(90deg,#b71c1c,#ff9800,#66bb6a);box-shadow:0 0 20px rgba(52,211,153,.35)}" +
-      ".puzzle-progress-wrap.storm-health-wrap{margin-top:4px;padding:14px 16px 16px;border-radius:16px;background:rgba(255,255,255,.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);box-shadow:0 4px 24px rgba(0,0,0,.2)}" +
-      ".puzzle-progress-wrap.storm-health-wrap .puzzle-progress-label{color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;letter-spacing:.04em;text-transform:uppercase}" +
-      ".puzzle-progress-wrap.storm-health-wrap .puzzle-progress-track{height:14px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 2px 10px rgba(0,0,0,.4)}" +
+      ".puzzle-progress-wrap.storm-health-wrap{flex-shrink:0;position:relative;z-index:8;margin:0 10px 12px!important;padding:12px 14px 14px!important;border-radius:14px;background:rgba(15,23,42,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(148,163,184,.35);box-shadow:0 4px 20px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}" +
+      ".puzzle-progress-wrap.storm-health-wrap .puzzle-progress-label{color:#f1f5f9;font-family:'Outfit',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px!important;width:100%;box-sizing:border-box}" +
+      ".puzzle-progress-wrap.storm-health-wrap .storm-health-title{flex:1;min-width:0}" +
+      ".puzzle-progress-wrap.storm-health-wrap .storm-health-pct{font-variant-numeric:tabular-nums;font-weight:800;color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,.4)}" +
+      ".puzzle-progress-wrap.storm-health-wrap .storm-health-pct.storm-health-low{color:#fca5a5;text-shadow:0 0 10px rgba(248,113,113,.45)}" +
+      ".puzzle-progress-wrap.storm-health-wrap .puzzle-progress-track{height:16px;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);box-shadow:inset 0 2px 10px rgba(0,0,0,.5)}" +
       ".storm-robot-img{display:block;width:min(150px,42vw);height:auto;margin:12px auto 4px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.4));position:relative;z-index:2}" +
       ".storm-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(183,28,28,.4);opacity:0;transition:opacity .25s;z-index:7;border-radius:20px}" +
       ".storm-vignette.on{opacity:1}" +
-      ".zombies-arena{height:220px!important;border-radius:14px!important}" +
-      ".zombie-unit{width:46px!important;height:62px!important}" +
-      ".zombie-unit.zlane-b{bottom:82px!important}" +
-      ".zombie-unit.zlane-c{bottom:148px!important}" +
-      ".jump-scene{height:260px!important}" +
-      ".puzzle-math-rich{width:100%;max-width:400px;margin:0 auto;font-family:'Outfit',system-ui,sans-serif}" +
-      ".math-glass-hero{position:relative;padding:24px 22px 20px;border-radius:22px;border:1px solid rgba(255,255,255,.45);background:linear-gradient(135deg,rgba(255,255,255,.35) 0%,rgba(255,255,255,.12) 45%,rgba(99,102,241,.12) 100%);backdrop-filter:blur(20px) saturate(1.65);-webkit-backdrop-filter:blur(20px) saturate(1.65);box-shadow:0 0 0 1px rgba(255,255,255,.2) inset,0 24px 56px rgba(15,23,42,.12),0 1px 0 rgba(255,255,255,.5) inset;margin-bottom:18px;text-align:center;overflow:hidden}" +
-      ".math-glass-hero::before{content:'';position:absolute;top:-50%;right:-20%;width:70%;height:100%;background:radial-gradient(circle,rgba(251,191,36,.22),transparent 62%);pointer-events:none}" +
-      ".math-glass-orbit{position:absolute;top:12px;right:12px;width:56px;height:56px;border:2px solid rgba(99,102,241,.35);border-radius:50%;opacity:.55;animation:math-orbit-spin 14s linear infinite}" +
-      "@keyframes math-orbit-spin{to{transform:rotate(360deg)}}" +
-      ".math-glass-icon{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.75),rgba(255,255,255,.25));border:1px solid rgba(255,255,255,.65);box-shadow:0 10px 28px rgba(99,102,241,.2);font-size:22px;font-weight:800;color:#1e1b4b;font-family:'JetBrains Mono',monospace;margin-bottom:10px}" +
-      ".math-glass-title{position:relative;z-index:1;font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-.03em;margin:0 0 6px;line-height:1.2}" +
-      ".math-glass-hint{position:relative;z-index:1;font-size:13px;line-height:1.5;color:#475569;margin:0;max-width:300px;margin-left:auto;margin-right:auto;font-weight:500}" +
-      ".math-progress-glass .puzzle-progress-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#64748b;font-weight:700}" +
-      ".math-progress-glass .puzzle-progress-track{height:16px;border-radius:999px;background:rgba(15,23,42,.06);border:1px solid rgba(148,163,184,.45);box-shadow:inset 0 2px 8px rgba(15,23,42,.08)}" +
-      ".math-progress-glass .puzzle-progress-fill{background:linear-gradient(90deg,#6366f1,#a855f7 45%,#f97316);box-shadow:0 0 16px rgba(99,102,241,.35)}" +
-      ".puzzle-math-vague{font-size:24px;font-weight:800;color:#222;margin:20px 0 16px;letter-spacing:.08em;text-align:center;font-family:'Outfit',sans-serif}" +
+      ".jump-scene .storm-robot-img{z-index:3}" +
+      ".puzzle-progress-wrap.jump-meter-card{margin-top:12px;padding:14px 14px 16px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,250,252,.99));border:1px solid rgba(15,23,42,.1);box-shadow:0 4px 22px rgba(15,23,42,.08)}" +
+      ".jump-meter-card .puzzle-progress-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#64748b;font-weight:700;margin:0 0 6px;text-align:center}" +
+      ".jump-meter-card .puzzle-progress-track{height:12px;border-radius:999px;border:1px solid rgba(148,163,184,.35);box-shadow:inset 0 2px 8px rgba(15,23,42,.1)}" +
+      ".jump-meter-card .puzzle-progress-fill{background:linear-gradient(90deg,#0369a1,#0ea5e9,#f97316);box-shadow:0 0 14px rgba(14,165,233,.35)}" +
       ".hidden-bookmark-sync{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;left:-9999px!important;clip:rect(0,0,0,0)!important}" +
       ".step2-pressure-timer{width:100%;max-width:400px;margin:0 auto 12px;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%);border:1px solid rgba(251,191,36,.5);box-shadow:0 4px 16px rgba(245,158,11,.15)}" +
       ".step2-timer-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}" +
@@ -765,19 +760,12 @@
       ".stage2-dark-scene .step2-timer-digits{color:#fbbf24}" +
       ".stage2-dark-scene .step2-timer-s{color:#fcd34d}" +
       ".stage2-dark-scene .step2-timer-hint{color:#94a3b8}" +
-      ".stage2-dark-scene .step2-timer-track{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.12)}" +
-      ".stage2-math-rich .step2-timer-hint{color:#64748b}";
+      ".stage2-dark-scene .step2-timer-track{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.12)}";
     document.head.appendChild(st);
   })();
 
   var U = "https://images.unsplash.com/";
   var Q = "?auto=format&fit=crop&w=300&h=300&q=80";
-  /** Inline SVG walkers — consistent art, no stretched photos */
-  var ZOMBIE_SVG_VARIANTS = [
-    '<svg class="zombie-unit-svg" viewBox="0 0 48 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="24" cy="68" rx="12" ry="3" fill="#000" opacity=".32"/><path d="M12 30h24l3 26-7 8H16l-7-8Z" fill="#5a7a4a" stroke="#1e2b18" stroke-width="1.2"/><rect x="13" y="8" width="22" height="18" rx="8" fill="#6f9260" stroke="#1e2b18" stroke-width="1.1"/><circle cx="18" cy="17" r="4" fill="#fef9c3"/><circle cx="30" cy="17" r="4" fill="#fef9c3"/><circle cx="18" cy="17" r="1.5" fill="#1a1a1a"/><circle cx="30" cy="17" r="1.5" fill="#1a1a1a"/><path d="M19 23h10v2.5H19z" fill="#3f2a2a" opacity=".85"/><path d="M8 34L5 52M40 34l3 18" stroke="#4a6340" stroke-width="3.5" stroke-linecap="round"/><path d="M18 56l-3 12M30 56l3 12" stroke="#4a6340" stroke-width="3.2" stroke-linecap="round"/></svg>',
-    '<svg class="zombie-unit-svg" viewBox="0 0 48 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="24" cy="68" rx="12" ry="3" fill="#000" opacity=".32"/><path d="M10 36l4 22h20l4-22-8-10-12 10Z" fill="#4d6840" stroke="#1a2614" stroke-width="1.1"/><ellipse cx="24" cy="22" rx="11" ry="10" fill="#5c7d50" stroke="#1a2614" stroke-width="1"/><circle cx="18.5" cy="20" r="3.8" fill="#bbf7d0"/><circle cx="29.5" cy="20" r="3.8" fill="#bbf7d0"/><circle cx="18.5" cy="20" r="1.4" fill="#0f2918"/><circle cx="29.5" cy="20" r="1.4" fill="#0f2918"/><path d="M20 26h8l-1 3h-6z" fill="#292524"/><path d="M6 42l-3 16M42 42l3 16" stroke="#3d5234" stroke-width="3.2" stroke-linecap="round"/><path d="M15 58l-2 12M33 58l2 12" stroke="#3d5234" stroke-width="3" stroke-linecap="round"/></svg>',
-    '<svg class="zombie-unit-svg" viewBox="0 0 48 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="24" cy="68" rx="12" ry="3" fill="#000" opacity=".32"/><rect x="14" y="30" width="20" height="28" rx="7" fill="#556b4e" stroke="#1c2419" stroke-width="1"/><rect x="12" y="6" width="24" height="22" rx="10" fill="#637a58" stroke="#1c2419" stroke-width="1.1"/><circle cx="18" cy="15" r="3.5" fill="#fde68a"/><circle cx="30" cy="15" r="3.5" fill="#fde68a"/><circle cx="18" cy="15" r="1.3" fill="#000"/><circle cx="30" cy="15" r="1.3" fill="#000"/><path d="M18 21h12v2H18z" fill="#422"/><path d="M9 38l-5 12M39 38l5 12" stroke="#465a3f" stroke-width="3" stroke-linecap="round"/><path d="M17 58l-2 12M31 58l2 12" stroke="#465a3f" stroke-width="3.4" stroke-linecap="round"/></svg>',
-  ];
   var HAMMER    = U + "photo-1602052793312-b99c2a9ee797" + Q;
   var SCISSORS  = U + "photo-1621446113284-53ca198c7fa7" + Q;
   var WRENCH    = U + "photo-1492540747731-d05a66dc2461" + Q;
@@ -795,7 +783,6 @@
   var BANDAGE   = U + "photo-1579684385127-1ef15d508118" + Q;
   var GUN = "https://images.unsplash.com/photo-1591123720164-de1348028a82?q=80&w=1625&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   var JETPACK   = U + "photo-1446776811953-b23d57bd21aa" + Q; // rocket launch
-  var MATH_PLUS = "https://images.unsplash.com/photo-1623057000049-e220f79c7051?q=80&w=1604&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"; // calculator with plus/number keys
   function img(url, label) { return { imageUrl: url, label: label }; }
 
   var HAMMER_THEMES = [
@@ -815,16 +802,11 @@
     { answerIndex: 1, items: [img(WRENCH,"Wrench"),img(JETPACK,"Jetpack"),img(HAMMER,"Hammer"),img(KEYS,"Keys"),img(WATCH,"Watch"),img(FOREST,"Tool"),img(SCISSORS,"Scissors"),img(PUPPY,"Puppy"),img(CAKE,"Cake")] },
     { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
   ];
-  var MATH_THEMES = [
-    { answerIndex: 2, items: [img(KEYS,"Keys"),img(WATCH,"Watch"),img(MATH_PLUS,"Plus"),img(SCISSORS,"Scissors"),img(WRENCH,"Wrench"),img(HAMMER,"Hammer"),img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple")] }
-  ];
-
   var PUZZLES = [
     { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the</span><strong class=\"banner-line2\">glass</strong>" } },
     { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark the edible or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Zombie storm incoming — <strong>keep survivor health above zero</strong>." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Survive the horde — <strong>don't let them cross the line</strong>." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> altitude." } },
-    { id: "math", name: "Complete Math", step1: { bannerLine1: "Bookmark the math symbol", bannerLine2: "Drag the plus symbol to your bookmarks bar", themes: MATH_THEMES }, step2: { type: "math", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Glass-locked verification — <strong>fill the signal meter</strong>." } }
+    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Click your bookmark fast to shoot — <strong>kill zombies before they cross the line</strong>." } },
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> altitude." } }
   ];
 
   var currentPuzzle = null;
@@ -894,7 +876,7 @@
     var body = getEl("challenge2Body");
     if (!body || !puzzle || !puzzle.step2) return;
     stopChallenge2Visuals();
-    body.classList.remove("puzzle-body-tall", "puzzle-body-xl", "stage2-dark-scene", "stage2-math-rich");
+    body.classList.remove("puzzle-body-tall", "puzzle-body-xl", "stage2-dark-scene", "step2-glass-scene", "step2-jump");
     var s = puzzle.step2;
     var type = s.type;
     var limit = s.timeLimit || 30;
@@ -909,7 +891,7 @@
       "</div>";
 
     if (type === "glass") {
-      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl", "step2-glass-scene");
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
@@ -925,8 +907,8 @@
         "<div class=\"glass-crack-layer c2\" id=\"glassCrackB\"></div>" +
         "<div class=\"glass-crack-layer c3\" id=\"glassCrackC\"></div>" +
         "</div></div></div>" +
-        "<div class=\"puzzle-progress-wrap\">" +
-        "<div class=\"puzzle-progress-label\">Destroyed: <strong id=\"glassPctNum\">0</strong>%</div>" +
+        "<div class=\"puzzle-progress-wrap glass-progress\">" +
+        "<div class=\"puzzle-progress-label\"><span class=\"glass-lbl-muted\">Destroyed:</span> <strong id=\"glassPctNum\">0</strong><span class=\"glass-lbl-muted\">%</span></div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"glassPctFill\"></div></div>" +
         "</div>";
 
@@ -984,10 +966,10 @@
         "<span class=\"z-eye z-eye-l\"></span><span class=\"z-eye z-eye-r\"></span>" +
         "<div class=\"z-mouth\"></div>" +
         "</div></div></div>" +
-        "</div>" +
         "<div class=\"puzzle-progress-wrap storm-health-wrap\">" +
-        "<div class=\"puzzle-progress-label\">Survivor health</div>" +
+        "<div class=\"puzzle-progress-label\"><span class=\"storm-health-title\">Survivor health</span><span class=\"storm-health-pct\" id=\"stormHealthPct\">100%</span></div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill storm-health\" id=\"stormHealthFill\" style=\"width:100%\"></div></div>" +
+        "</div>" +
         "</div>";
 
       var rain = getEl("stormRain");
@@ -1020,7 +1002,13 @@
         var vig = getEl("stormVignette");
         var ccSt = getEl("clickCounter");
         if (ccSt) ccSt.textContent = String(nStorm);
-        if (hFill) hFill.style.width = Math.max(0, Math.min(100, robotHealth)) + "%";
+        var hpPct = Math.max(0, Math.min(100, Math.round(robotHealth)));
+        if (hFill) hFill.style.width = hpPct + "%";
+        var pctLabel = getEl("stormHealthPct");
+        if (pctLabel) {
+          pctLabel.textContent = hpPct + "%";
+          pctLabel.classList.toggle("storm-health-low", hpPct < 35);
+        }
         if (vig) {
           if (robotHealth < 38) vig.classList.add("on");
           else vig.classList.remove("on");
@@ -1037,101 +1025,331 @@
       return;
     }
     if (type === "zombies") {
-      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl", "stage2-dark-scene");
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
-        "<div class=\"puzzle-zombies-v2\">" +
-        "<div class=\"zombies-arena\">" +
-        "<div class=\"zombies-finish-bar\"></div>" +
-        "<span class=\"zombies-finish-label\">FINISH</span>" +
-        "<div class=\"zombies-lane-inner\" id=\"zombiesLane\"></div>" +
-        "<div class=\"zombie-muzzle\" id=\"zombieMuzzle\"></div>" +
+        "<p class=\"zombies-bookmark-hint\">Click your bookmark <strong>fast</strong> to shoot and survive — <strong>only the bookmark</strong> fires your gun. Spam it to kill zombies before they cross the red line. Clicks on the game do nothing.</p>" +
+        "<div class=\"puzzle-zombies-v2 puzzle-zombies-canvas-gw\" id=\"zombiesCanvasGw\">" +
+        "<div class=\"zombies-canvas-ui\">" +
+        "<span class=\"zombies-canvas-stat zombies-canvas-kills\" id=\"zombiesKillsStat\">Kills: 0</span>" +
+        "<span class=\"zombies-canvas-stat zombies-canvas-time\" id=\"zombiesTimeStat\">0.0s</span>" +
+        "<span class=\"zombies-canvas-stat zombies-canvas-wave\" id=\"zombiesWaveStat\">Wave 1</span>" +
+        "</div>" +
+        "<div class=\"zombies-canvas-timer-wrap\"><div class=\"zombies-canvas-timer-bar\" id=\"zombiesSurviveBar\"></div></div>" +
+        "<div class=\"zombies-canvas-overlay\">" +
+        "<canvas class=\"zombies-canvas-el\" id=\"zombiesCv\" width=\"640\" height=\"300\" role=\"img\" aria-label=\"Zombie survival — use your bookmark to shoot\"></canvas>" +
+        "<div class=\"zombies-canvas-msg\" id=\"zombiesCvMsg\" aria-live=\"polite\"></div>" +
         "</div></div>";
 
-      var zombies = [];
-      var FINISH_PCT = 15;
-      var lastZ = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-      var gameOver = false;
-      var zombieSpawnAcc = 22;
-      var ZOMBIES_PER_SEC = 68;
-      var TICK_MS = 10;
-      var MAX_LIVE_ZOMBIES = 220;
-
-      function spawnZombieCluster(laneEl) {
-        var r = Math.random();
-        var laneClass = r < 0.34 ? "" : r < 0.67 ? " zlane-b" : " zlane-c";
-        var zu = document.createElement("div");
-        zu.className = "zombie-unit" + laneClass;
-        zu.innerHTML = ZOMBIE_SVG_VARIANTS[Math.floor(Math.random() * ZOMBIE_SVG_VARIANTS.length)];
-        laneEl.appendChild(zu);
-        zombies.push({
-          el: zu,
-          x: 100 + Math.random() * 18,
-          dead: false,
-          speed: 0.075 + Math.random() * 0.065
-        });
+      if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+          r = Math.min(r, w / 2, h / 2);
+          this.beginPath();
+          this.moveTo(x + r, y);
+          this.arcTo(x + w, y, x + w, y + h, r);
+          this.arcTo(x + w, y + h, x, y + h, r);
+          this.arcTo(x, y + h, x, y, r);
+          this.arcTo(x, y, x + w, y, r);
+          this.closePath();
+          return this;
+        };
       }
 
-      window._zombiesIdleTimeout = setTimeout(function () {
-        if (!currentPuzzle || currentPuzzle.step2.type !== "zombies") return;
-        if (getStep2SpamClicks() >= 1) return;
-        closeChallengeForRetry(
-          "You didn't use the bookmark — your weapon can't fire without it. Click Verify again for another attempt."
-        );
-      }, ZOMBIE_NO_BOOKMARK_IDLE_MS);
+      var cv = getEl("zombiesCv");
+      if (!cv || !cv.getContext) {
+        startStep2PressureTimer(limit);
+        return;
+      }
+      var ctx = cv.getContext("2d");
+      var W = 640;
+      var H = 300;
+      cv.width = W;
+      cv.height = H;
+      var LINE_X = 155;
+      var HUMAN_X = LINE_X - 10;
+      var HUMAN_Y = H / 2;
+      var zcSurviveMs = Math.min(Math.max((limit || 30) * 450, 11000), 24000);
+      var zcList = [];
+      var particles = [];
+      var splats = [];
+      var shots = [];
+      var kills = 0;
+      var zcWave = 1;
+      var gameState = "playing";
+      var startTime = 0;
+      var lastTime = 0;
+      var spawnTimer = 0;
+      var spawnInterval = 1300;
+      var aimAngle = 0;
+      var humanShootTimer = 0;
+      var lastZ = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
 
-      window._zombiesGameInterval = setInterval(function () {
-        if (!currentPuzzle || currentPuzzle.step2.type !== "zombies") return;
-        if (gameOver) return;
-        var laneEl = getEl("zombiesLane");
-        if (!laneEl) return;
+      function zcRand(a, b) {
+        return a + Math.random() * (b - a);
+      }
 
-        zombieSpawnAcc += ZOMBIES_PER_SEC * (TICK_MS / 1000);
-        if (Math.random() < 0.055) {
-          zombieSpawnAcc += 8 + Math.floor(Math.random() * 14);
+      function zcMakeZombie() {
+        var spd = zcRand(0.42, 0.88) + zcWave * 0.1;
+        return {
+          x: W + 20,
+          y: zcRand(26, H - 26),
+          vx: -spd,
+          vy: zcRand(-0.055, 0.055),
+          r: zcRand(12, 16),
+          wobble: zcRand(0, Math.PI * 2),
+          wobbleSpeed: zcRand(0.04, 0.09),
+          flash: 0,
+          dying: false,
+          dyingTimer: 0
+        };
+      }
+
+      function zcKillZombie(z) {
+        z.dying = true;
+        z.dyingTimer = 18;
+        zcEmit(z.x, z.y, "#4ade80", 10);
+        zcEmit(z.x, z.y, "#86efac", 6);
+        splats.push({ x: z.x, y: z.y, r: z.r * 1.2, life: 260 });
+        kills++;
+        var ks = getEl("zombiesKillsStat");
+        if (ks) ks.textContent = "Kills: " + kills;
+      }
+
+      function zcEmit(x, y, color, n) {
+        var i;
+        for (i = 0; i < n; i++) {
+          var a = zcRand(0, Math.PI * 2);
+          var s = zcRand(1.5, 4.5);
+          particles.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 22, color: color });
         }
+      }
 
-        var budget = 0;
-        while (zombieSpawnAcc >= 1 && zombies.length < MAX_LIVE_ZOMBIES && budget < 20) {
-          zombieSpawnAcc -= 1;
-          budget++;
-          spawnZombieCluster(laneEl);
+      function zcShootFromBookmark(burst) {
+        var ki;
+        for (ki = 0; ki < burst; ki++) {
+          var alive = zcList.filter(function (z) {
+            return !z.dying;
+          });
+          if (!alive.length) return;
+          alive.sort(function (a, b) {
+            return a.x - b.x;
+          });
+          var target = alive[0];
+          aimAngle = Math.atan2(target.y - HUMAN_Y, target.x - HUMAN_X);
+          humanShootTimer = 12;
+          shots.push({ x: HUMAN_X + 14, y: HUMAN_Y - 6, tx: target.x, ty: target.y, life: 10 });
+          zcKillZombie(target);
         }
-        if (Math.random() < 0.018) {
-          var wave = 4 + Math.floor(Math.random() * 6);
-          var w;
-          for (w = 0; w < wave && zombies.length < MAX_LIVE_ZOMBIES; w++) {
-            spawnZombieCluster(laneEl);
-          }
-        }
+      }
 
-        zombies = zombies.filter(function (z) {
-          if (z.dead) {
-            if (z.el && z.el.parentNode) z.el.parentNode.removeChild(z.el);
-            return false;
-          }
-          return true;
-        });
-        while (zombies.length > MAX_LIVE_ZOMBIES) {
-          var zr = zombies.pop();
-          if (zr && zr.el && zr.el.parentNode) zr.el.parentNode.removeChild(zr.el);
+      function zcDrawBg() {
+        ctx.fillStyle = "#1a2540";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#162035";
+        var i;
+        for (i = 0; i < 10; i++) ctx.fillRect(0, i * 38, W, 19);
+        var s;
+        for (s = 0; s < splats.length; s++) {
+          var sp = splats[s];
+          ctx.globalAlpha = 0.65 * (sp.life / 260);
+          ctx.fillStyle = "#166534";
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
         }
+        ctx.fillStyle = "rgba(239,68,68,0.08)";
+        ctx.fillRect(0, 0, LINE_X, H);
+        ctx.strokeStyle = "#dc2626";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 6]);
+        ctx.beginPath();
+        ctx.moveTo(LINE_X, 0);
+        ctx.lineTo(LINE_X, H);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "10px ui-monospace,monospace";
+        ctx.fillText("LINE", LINE_X - 38, H / 2 - 5);
+      }
 
-        var crossed = false;
-        zombies.forEach(function (z) {
-          if (z.dead) return;
-          z.x -= z.speed;
-          z.el.style.left = z.x + "%";
-          if (z.x <= FINISH_PCT) crossed = true;
-        });
-        if (crossed) {
-          gameOver = true;
-          closeChallengeForRetry(
-            "The horde crossed the line! Click Multiple times your bookmark faster to thin them out. Click Verify to try again."
-          );
+      function zcDrawHuman() {
+        ctx.save();
+        ctx.translate(HUMAN_X, HUMAN_Y);
+        var shooting = humanShootTimer > 6;
+        ctx.fillStyle = "#1e3a8a";
+        ctx.beginPath();
+        ctx.arc(0, -26, 9, Math.PI, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "#fbbf24";
+        ctx.beginPath();
+        ctx.arc(0, -22, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#1e293b";
+        ctx.beginPath();
+        ctx.arc(3, -23, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#2563eb";
+        ctx.beginPath();
+        ctx.roundRect(-8, -15, 16, 20, 3);
+        ctx.fill();
+        ctx.strokeStyle = "#1d4ed8";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-8, -15, 16, 20);
+        ctx.strokeStyle = "#64748b";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-3, 5);
+        ctx.lineTo(-4, 22);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(3, 5);
+        ctx.lineTo(4, 22);
+        ctx.stroke();
+        ctx.save();
+        ctx.rotate(shooting ? aimAngle - 0.15 : aimAngle);
+        ctx.strokeStyle = "#2563eb";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-8, -12);
+        ctx.lineTo(-14, 4);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(8, -12);
+        ctx.lineTo(6, 0);
+        ctx.stroke();
+        ctx.fillStyle = "#475569";
+        ctx.beginPath();
+        ctx.roundRect(6, -6, 22, 5, 2);
+        ctx.fill();
+        ctx.fillStyle = "#334155";
+        ctx.beginPath();
+        ctx.roundRect(6, -6, 10, 5, 1);
+        ctx.fill();
+        if (shooting) {
+          ctx.fillStyle = "#fde047";
+          ctx.beginPath();
+          ctx.moveTo(28, -3);
+          ctx.lineTo(35, -7);
+          ctx.lineTo(33, -1);
+          ctx.lineTo(38, -4);
+          ctx.lineTo(30, 2);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+        ctx.restore();
+      }
+
+      function zcDrawZombie(z) {
+        ctx.save();
+        var wobY = Math.sin(z.wobble) * 3;
+        if (z.dying) {
+          ctx.globalAlpha = z.dyingTimer / 18;
+          ctx.translate(z.x, z.y + wobY);
+          ctx.rotate((1 - z.dyingTimer / 18) * 1.5);
+        } else {
+          ctx.translate(z.x, z.y + wobY);
+        }
+        var col = z.flash > 0 ? "#ffffff" : "#65a30d";
+        var skin = z.flash > 0 ? "#fff" : "#a3e635";
+        ctx.fillStyle = "#1a2e05";
+        ctx.beginPath();
+        ctx.arc(0, -z.r * 0.3, z.r * 0.48, Math.PI, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = skin;
+        ctx.beginPath();
+        ctx.arc(0, -z.r * 0.28, z.r * 0.43, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.roundRect(-z.r * 0.44, -z.r * 0.05, z.r * 0.88, z.r * 0.94, 3);
+        ctx.fill();
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-z.r * 0.44, z.r * 0.1);
+        ctx.lineTo(-z.r * 0.9, z.r * 0.55 + Math.sin(z.wobble * 1.4) * 5);
+        ctx.moveTo(z.r * 0.44, z.r * 0.1);
+        ctx.lineTo(z.r * 0.95, z.r * 0.38 + Math.sin(z.wobble) * 5);
+        ctx.moveTo(-z.r * 0.22, z.r * 0.89);
+        ctx.lineTo(-z.r * 0.3, z.r * 1.38);
+        ctx.moveTo(z.r * 0.22, z.r * 0.89);
+        ctx.lineTo(z.r * 0.3, z.r * 1.38);
+        ctx.stroke();
+        ctx.fillStyle = "#dc2626";
+        ctx.beginPath();
+        ctx.arc(-z.r * 0.16, -z.r * 0.33, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(z.r * 0.16, -z.r * 0.33, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function zcDrawShots() {
+        var si;
+        for (si = 0; si < shots.length; si++) {
+          var s = shots[si];
+          var t = s.life / 10;
+          ctx.save();
+          ctx.globalAlpha = t;
+          ctx.strokeStyle = "#fde047";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 4]);
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(s.tx, s.ty);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+      }
+
+      function zcLoop(ts) {
+        if (!currentPuzzle || currentPuzzle.step2.type !== "zombies" || !getEl("zombiesCv")) {
+          window._zombiesCanvasRaf = null;
           return;
         }
+
+        if (gameState !== "playing") {
+          zcDrawBg();
+          zcDrawHuman();
+          window._zombiesCanvasRaf = requestAnimationFrame(zcLoop);
+          return;
+        }
+
+        if (!lastTime) lastTime = ts;
+        var dt = Math.min(ts - lastTime, 80);
+        lastTime = ts;
+        var elapsed = ts - startTime;
+        var remaining = Math.max(0, zcSurviveMs - elapsed);
+        var pct = remaining / zcSurviveMs;
+        var tsEl = getEl("zombiesTimeStat");
+        if (tsEl) tsEl.textContent = (remaining / 1000).toFixed(1) + "s";
+        var bar = getEl("zombiesSurviveBar");
+        if (bar) {
+          bar.style.width = pct * 100 + "%";
+          bar.style.background = pct > 0.4 ? "#22c55e" : pct > 0.2 ? "#f59e0b" : "#ef4444";
+        }
+
+        if (remaining <= 0) {
+          zcWave = Math.min(zcWave + 1, 12);
+          startTime = ts;
+          var wv = getEl("zombiesWaveStat");
+          if (wv) wv.textContent = "Wave " + zcWave;
+          spawnInterval = Math.max(420, 1300 - zcWave * 140 - Math.min(kills, 80) * 5);
+        }
+
+        spawnTimer += dt;
+        if (spawnTimer > spawnInterval) {
+          spawnTimer = 0;
+          zcList.push(zcMakeZombie());
+        }
+        if (humanShootTimer > 0) humanShootTimer--;
 
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
         var cc = getEl("clickCounter");
@@ -1141,46 +1359,138 @@
             clearTimeout(window._zombiesIdleTimeout);
             window._zombiesIdleTimeout = null;
           }
-          var burst = (n - lastZ) * 28;
+          var delta = n - lastZ;
           lastZ = n;
-          var muzzle = getEl("zombieMuzzle");
-          var ki;
-          for (ki = 0; ki < burst; ki++) {
-            var alive = zombies.filter(function (z) { return !z.dead; }).sort(function (a, b) { return a.x - b.x; });
-            var vic = alive[0];
-            if (!vic) break;
-            vic.dead = true;
-            vic.el.classList.add("shot-flash");
-            (function (el) {
-              setTimeout(function () {
-                el.classList.remove("shot-flash");
-                el.classList.add("dead");
-              }, 90);
-            })(vic.el);
-          }
-          if (muzzle) {
-            muzzle.classList.remove("flash");
-            void muzzle.offsetWidth;
-            muzzle.classList.add("flash");
+          var burst = Math.min(delta * 22, 40);
+          zcShootFromBookmark(burst);
+        }
+
+        var zi;
+        for (zi = 0; zi < zcList.length; zi++) {
+          var z = zcList[zi];
+          if (!z.dying) {
+            z.x += z.vx;
+            z.y += z.vy;
+            z.wobble += z.wobbleSpeed;
+            if (z.flash > 0) z.flash--;
+            if (z.y < 20) z.vy = Math.abs(z.vy);
+            if (z.y > H - 20) z.vy = -Math.abs(z.vy);
+            if (z.x - z.r < LINE_X) {
+              if (window._zombiesCanvasRaf) {
+                cancelAnimationFrame(window._zombiesCanvasRaf);
+                window._zombiesCanvasRaf = null;
+              }
+              gameState = "over";
+              closeChallengeForRetry();
+              return;
+            }
+          } else {
+            z.dyingTimer--;
           }
         }
-      }, TICK_MS);
+
+        zcList = zcList.filter(function (z) {
+          return !z.dying || z.dyingTimer > 0;
+        });
+        splats = splats.filter(function (s) {
+          s.life--;
+          return s.life > 0;
+        });
+        particles = particles.filter(function (p) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life--;
+          return p.life > 0;
+        });
+        shots = shots.filter(function (s) {
+          s.life--;
+          return s.life > 0;
+        });
+
+        while (
+          zcList.filter(function (z) {
+            return !z.dying;
+          }).length > 55
+        ) {
+          var far = zcList
+            .filter(function (z) {
+              return !z.dying;
+            })
+            .sort(function (a, b) {
+              return b.x - a.x;
+            })[0];
+          if (!far) break;
+          far.dying = true;
+          far.dyingTimer = 1;
+        }
+
+        zcDrawBg();
+        zcDrawShots();
+        var zj;
+        for (zj = 0; zj < zcList.length; zj++) zcDrawZombie(zcList[zj]);
+        zcDrawHuman();
+        var pi;
+        for (pi = 0; pi < particles.length; pi++) {
+          var p = particles[pi];
+          ctx.globalAlpha = p.life / 22;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+
+        window._zombiesCanvasRaf = requestAnimationFrame(zcLoop);
+      }
+
+      window._zombiesIdleTimeout = setTimeout(function () {
+        if (!currentPuzzle || currentPuzzle.step2.type !== "zombies") return;
+        if (getStep2SpamClicks() >= 1) return;
+        closeChallengeForRetry();
+      }, ZOMBIE_NO_BOOKMARK_IDLE_MS);
+
+      gameState = "playing";
+      zcList = [];
+      particles = [];
+      splats = [];
+      shots = [];
+      kills = 0;
+      zcWave = 1;
+      spawnTimer = 0;
+      spawnInterval = 1300;
+      aimAngle = 0;
+      humanShootTimer = 0;
+      lastTime = 0;
+      startTime = performance.now();
+      var wv0 = getEl("zombiesWaveStat");
+      if (wv0) wv0.textContent = "Wave 1";
+      var ks0 = getEl("zombiesKillsStat");
+      if (ks0) ks0.textContent = "Kills: 0";
+      var bar0 = getEl("zombiesSurviveBar");
+      if (bar0) bar0.style.width = "100%";
+      var msg0 = getEl("zombiesCvMsg");
+      if (msg0) {
+        msg0.classList.remove("show");
+        msg0.innerHTML = "";
+      }
+      window._zombiesCanvasRaf = requestAnimationFrame(zcLoop);
       startStep2PressureTimer(limit);
       return;
     }
     if (type === "jump") {
-      body.classList.add("puzzle-body-tall", "puzzle-body-xl");
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl", "step2-jump");
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
+        "<div class=\"jump-puzzle-shell\">" +
         "<div class=\"puzzle-jump-v2\">" +
         "<div class=\"jump-scene\">" +
         "<div class=\"jump-ground\"></div>" +
-        "<img class=\"storm-robot-img\" id=\"jumpRobotImg\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"120\" height=\"120\" alt=\"\" style=\"position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:3;transition:bottom .12s ease-out\">" +
-        "<div class=\"jet-flame\" id=\"jumpFlame\" style=\"position:absolute;left:50%;bottom:18px;width:24px;height:26px;margin-left:-12px;background:linear-gradient(180deg,#ffeb3b,#ff9800,transparent);border-radius:50% 50% 60% 60%;opacity:0;z-index:2\"></div>" +
+        "<img class=\"storm-robot-img\" id=\"jumpRobotImg\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"120\" height=\"120\" alt=\"\" style=\"position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:3;transition:bottom .12s ease-out;filter:drop-shadow(0 10px 18px rgba(0,0,0,.25))\">" +
+        "<div class=\"jet-flame\" id=\"jumpFlame\" style=\"position:absolute;left:50%;bottom:22px;width:24px;height:26px;margin-left:-12px;background:linear-gradient(180deg,#fff59d,#ff9800,rgba(255,152,0,0));border-radius:50% 50% 60% 60%;opacity:0;z-index:2;filter:blur(0.3px)\"></div>" +
         "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> m</div>" +
-        "</div></div>" +
-        "<div class=\"puzzle-progress-wrap\">" +
+        "</div></div></div>" +
+        "<div class=\"puzzle-progress-wrap jump-meter-card\">" +
         "<div class=\"puzzle-progress-label\">Altitude</div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"jumpMeterFill\"></div></div>" +
         "</div>";
@@ -1197,7 +1507,7 @@
         heightEl.textContent = String(meters);
         if (fill) fill.style.width = meters + "%";
         var rise = Math.min(175, meters * 1.75);
-        if (img) img.style.bottom = 28 + rise + "px";
+        if (img) img.style.bottom = 34 + rise + "px";
         if (deltaJ > prevNJ && deltaJ > 0) {
           if (flame) {
             flame.style.opacity = "1";
@@ -1211,35 +1521,6 @@
       }
       updateJump();
       window._jumpDisplayInterval = setInterval(updateJump, 90);
-      startStep2PressureTimer(limit);
-      return;
-    }
-    if (type === "math") {
-      body.classList.add("puzzle-body-tall", "puzzle-body-xl", "stage2-math-rich");
-      body.innerHTML =
-        "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
-        timerBlock +
-        "<div class=\"puzzle-math-rich\">" +
-        "<div class=\"math-glass-hero\">" +
-        "<div class=\"math-glass-orbit\"></div>" +
-        "<div class=\"math-glass-icon\" aria-hidden=\"true\">∑</div>" +
-        "<h3 class=\"math-glass-title\">Verification bridge</h3>" +
-        "<p class=\"math-glass-hint\">Click multiple times the bookmark to complete the cryptographic handshake — your clicks charge the signal.</p>" +
-        "</div>" +
-        "<div class=\"puzzle-progress-wrap math-progress-glass\">" +
-        "<div class=\"puzzle-progress-label\">Signal strength</div>" +
-        "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"mathProgFill\"></div></div>" +
-        "</div></div>";
-
-      window._mathProgressInterval = setInterval(function () {
-        if (!currentPuzzle || currentPuzzle.step2.type !== "math") return;
-        var nm = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-        var ccM = getEl("clickCounter");
-        var mf = getEl("mathProgFill");
-        if (ccM) ccM.textContent = String(nm);
-        var dMath = getStep2SpamClicks();
-        if (mf) mf.style.width = Math.min(100, Math.floor((dMath / MATH_PROGRESS_CLICKS_FOR_FULL) * 100)) + "%";
-      }, 120);
       startStep2PressureTimer(limit);
       return;
     }

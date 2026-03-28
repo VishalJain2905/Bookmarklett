@@ -142,7 +142,7 @@
           body.theme-dark .initial-load-screen:hover { background-color: #3a3a3a; }
           .captcha-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; overflow-y: auto; }
           .captcha-popup-overlay.hidden { display: none !important; }
-          .challenge-popup { background: #fff; border-radius: 4px; width: 100%; max-width: 400px; max-height: calc(100vh - 40px); overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #dadce0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: auto; }
+          .challenge-popup { background: #fff; border-radius: 4px; width: 100%; max-width: 380px; max-height: calc(100vh - 40px); height: auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 40px rgba(0,0,0,0.15); border: 1px solid #dadce0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: auto; }
           .captcha-box-inner { padding: 0; }
           .challenge-stage { display: block; }
           .challenge-stage.hidden { display: none !important; }
@@ -252,8 +252,8 @@
                   </div>
                 </div>
                 <div class="challenge-stage hidden" id="challenge2">
-                  <div class="challenge-banner">Click the saved bookmark <strong>15 times to verify</strong></div>
-                  <div class="challenge-stage2-body">
+                  <div class="challenge-banner" id="challenge2Banner">Click the saved bookmark <strong>15 times to verify</strong></div>
+                  <div class="challenge-stage2-body" id="challenge2Body">
                     <p class="click-counter-line"><strong id="clickCounter">0</strong> <span>/ 15 clicks</span></p>
                     <p class="timer-line hidden" id="timerLine">Time remaining: <strong id="timerValue">30</strong>s</p>
                     <p class="click-counter-sub">Click the bookmarklet you just saved in your bookmarks bar</p>
