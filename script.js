@@ -674,8 +674,8 @@
       ".puzzle-glass-pane.shattered{animation:glass-break .4s ease-out forwards;filter:drop-shadow(0 0 12px rgba(59,130,246,.3))}" +
       "@keyframes glass-break{to{transform:scale(.08) rotate(12deg);filter:brightness(1.8) blur(3px);opacity:0}}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shine{opacity:0;transition:opacity .2s}" +
-      ".puzzle-storm-v2{position:relative;display:flex;flex-direction:column;width:100%;max-width:100%;margin:0;min-height:0;border-radius:16px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);background:linear-gradient(165deg,#0a1628 0%,#0f172a 42%,#0c1220 100%);border:1px solid rgba(251,191,36,.38);font-family:'Outfit',system-ui,sans-serif;max-height:min(52vh,440px)}" +
-      ".storm-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 6px 12px;font-family:'Outfit',system-ui,sans-serif;font-weight:600;max-width:420px}" +
+      ".puzzle-storm-v2{position:relative;display:flex;flex-direction:column;width:100%;max-width:100%;margin:0;min-height:0;border-radius:16px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);background:linear-gradient(165deg,#0a1628 0%,#0f172a 42%,#0c1220 100%);border:1px solid rgba(251,191,36,.38);font-family:'Outfit',system-ui,sans-serif;max-height:min(42vh,340px);contain:layout}" +
+      ".storm-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 6px 8px;font-family:'Outfit',system-ui,sans-serif;font-weight:600;max-width:420px}" +
       ".storm-fog{position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 100%,rgba(56,189,248,.14),transparent 52%),radial-gradient(ellipse 75% 55% at 15% 25%,rgba(99,102,241,.1),transparent),radial-gradient(ellipse 60% 50% at 85% 20%,rgba(14,165,233,.08),transparent);pointer-events:none;z-index:1;animation:storm-fog-drift 9s ease-in-out infinite alternate}" +
       "@keyframes storm-fog-drift{0%{opacity:.88}100%{opacity:1}}" +
       ".storm-clouds{position:absolute;top:0;left:0;right:0;height:50%;background:radial-gradient(ellipse 88% 100% at 50% 0%,rgba(15,23,42,.95),transparent);pointer-events:none;z-index:2}" +
@@ -684,13 +684,12 @@
       ".rain-drop.rain-wide{width:3px;height:22px;opacity:.85}" +
       ".rain-drop.rain-fast{height:20px}" +
       "@keyframes rain-drop-fall{0%{transform:translateY(-28px);opacity:0}8%{opacity:1}100%{transform:translateY(340px);opacity:.22}}" +
-      ".storm-robot-panel{position:relative;z-index:5;flex:1 1 auto;min-height:0;margin:10px 10px 8px;border-radius:16px;border:1px solid rgba(148,163,184,.28);background:linear-gradient(180deg,#0c1929 0%,#1e293b 45%,#0f172a 100%);box-shadow:0 16px 48px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;min-height:188px;max-height:min(36vh,268px);overflow:hidden}" +
+      ".storm-robot-panel{position:relative;z-index:5;flex:1 1 auto;min-height:0;margin:8px 8px 4px;border-radius:14px;border:1px solid rgba(148,163,184,.28);background:linear-gradient(180deg,#0c1929 0%,#1e293b 45%,#0f172a 100%);box-shadow:0 8px 28px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;min-height:120px;max-height:min(26vh,198px);overflow:hidden}" +
       ".storm-robot-panel::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(180deg,transparent,transparent 20px,rgba(0,0,0,.18) 20px,rgba(0,0,0,.18) 21px);opacity:.9}" +
       ".storm-robot-panel::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(15,23,42,.25) 0%,transparent 40%,transparent 65%,rgba(15,23,42,.45) 100%)}" +
       ".storm-status-tag{position:absolute;top:12px;right:12px;z-index:8;font-size:8px;font-weight:800;letter-spacing:.11em;color:#fff;background:linear-gradient(135deg,rgba(234,179,8,.95),rgba(180,83,9,.95));padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.35);text-transform:uppercase;box-shadow:0 4px 16px rgba(0,0,0,.4)}" +
-      ".storm-robot-stage{position:relative;z-index:4;padding:16px 20px;background:linear-gradient(180deg,#fff,#f8fafc);border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.4),0 0 0 1px rgba(15,23,42,.06),inset 0 1px 0 #fff}" +
-      ".storm-hero-robot{display:block;width:min(108px,30vw);height:auto;margin:0;filter:drop-shadow(0 10px 20px rgba(30,58,138,.4));animation:storm-robot-bob 3.2s ease-in-out infinite}" +
-      "@keyframes storm-robot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
+      ".storm-hero-human{position:relative;z-index:4;display:block;width:auto;height:auto;max-width:min(76px,22vw);max-height:min(22vh,150px);margin:0;padding:0;background:transparent;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55));animation:storm-survivor-bob 3.2s ease-in-out infinite}" +
+      "@keyframes storm-survivor-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
       ".puzzle-zombies-v2{position:relative;width:100%;max-width:100%;margin:0;overflow:hidden}" +
       ".zombies-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 4px 10px;font-family:'Outfit',system-ui,sans-serif;font-weight:600}" +
       ".puzzle-zombies-canvas-gw{background:#0f172a;border-radius:14px;overflow:hidden;width:100%;max-width:640px;margin:0 auto;border:1px solid rgba(251,191,36,.35);box-shadow:0 10px 36px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}" +
@@ -733,8 +732,7 @@
       "@keyframes flame-flicker{from{transform:scaleY(.85) scaleX(1.05)}to{transform:scaleY(1.1) scaleX(.95)}}" +
       ".jump-height-tag{position:absolute;right:6px;top:6px;z-index:5;font-size:11px;font-weight:800;font-family:'Outfit',system-ui,sans-serif;color:#0c4a6e;background:rgba(255,255,255,.95);padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.85);box-shadow:0 2px 10px rgba(15,23,42,.1),inset 0 1px 0 #fff}" +
       ".jump-robot-stack{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;transition:bottom .14s ease-out;pointer-events:none}" +
-      ".jump-robot-pad{background:linear-gradient(165deg,#fff 0%,#f8fafc 100%);border-radius:12px;padding:4px 8px 6px;box-shadow:0 6px 20px rgba(15,23,42,.14),0 0 0 1px rgba(15,23,42,.06),inset 0 1px 0 #fff}" +
-      ".jump-robot-canvas{display:block;width:min(64px,17vw);height:auto;margin:0 auto;vertical-align:bottom;filter:drop-shadow(0 4px 12px rgba(15,23,42,.2))}" +
+      ".jump-robot-canvas{display:block;width:min(72px,19vw);height:auto;margin:0 auto;vertical-align:bottom;background:transparent;filter:drop-shadow(0 6px 14px rgba(15,23,42,.28))}" +
       ".jump-jet{width:22px;height:24px;margin-top:-3px;margin-left:0;left:auto;bottom:auto;position:relative;background:linear-gradient(180deg,#fef9c3,#f97316,rgba(249,115,22,0));border-radius:50% 50% 60% 60%;opacity:0;z-index:3;filter:blur(.35px);transition:opacity .1s}" +
       ".challenge-stage2-body.puzzle-body-xl{min-height:auto!important;padding-bottom:12px!important}" +
       ".challenge-stage2-body.puzzle-body-tall.puzzle-body-xl.step2-jump{min-height:0!important;max-height:none!important;padding-top:4px!important;padding-bottom:4px!important}" +
@@ -751,7 +749,7 @@
       ".puzzle-progress-track{height:22px;border-radius:11px;background:#ececec;overflow:hidden;border:2px solid #ccc;box-shadow:inset 0 2px 4px rgba(0,0,0,.07)}" +
       ".puzzle-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#e65100,#F38020,#ffcc80);transition:width .08s linear;border-radius:9px}" +
       ".puzzle-progress-fill.storm-health{background:linear-gradient(90deg,#b71c1c,#ff9800,#66bb6a);box-shadow:0 0 20px rgba(52,211,153,.35)}" +
-      ".puzzle-progress-wrap.storm-health-wrap{flex-shrink:0;position:relative;z-index:8;margin:0 10px 12px!important;padding:12px 14px 14px!important;border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(12,18,32,.92));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(251,191,36,.28);box-shadow:0 4px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}" +
+      ".puzzle-progress-wrap.storm-health-wrap{flex-shrink:0;position:relative;z-index:8;margin:0 8px 8px!important;padding:10px 12px 12px!important;border-radius:12px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(12,18,32,.92));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(251,191,36,.28);box-shadow:0 4px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}" +
       ".puzzle-progress-wrap.storm-health-wrap .puzzle-progress-label{color:#f1f5f9;font-family:'Outfit',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px!important;width:100%;box-sizing:border-box}" +
       ".puzzle-progress-wrap.storm-health-wrap .storm-health-title{flex:1;min-width:0}" +
       ".puzzle-progress-wrap.storm-health-wrap .storm-health-pct{font-variant-numeric:tabular-nums;font-weight:800;color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,.4)}" +
@@ -1245,9 +1243,23 @@
         "<div class=\"storm-rain-v2\" id=\"stormRain\"></div>" +
         "<div class=\"storm-robot-panel\">" +
         "<span class=\"storm-status-tag\">Heavy rain</span>" +
-        "<div class=\"storm-robot-stage\" aria-hidden=\"true\">" +
-        "<img class=\"storm-hero-robot\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"112\" height=\"112\" alt=\"\">" +
-        "</div></div>" +
+        "<svg class=\"storm-hero-human\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 168\" aria-hidden=\"true\">" +
+        "<path fill=\"#1e293b\" d=\"M60 4c14 0 26 10 28 24 1 9-2 18-9 24 2 4 3 9 2 14H39c-1-5 0-10 2-14-7-6-10-15-9-24C34 14 46 4 60 4z\"/>" +
+        "<ellipse cx=\"60\" cy=\"34\" rx=\"17\" ry=\"19\" fill=\"#fdbcb4\"/>" +
+        "<ellipse cx=\"51\" cy=\"32\" rx=\"2.8\" ry=\"3.5\" fill=\"#0f172a\"/>" +
+        "<ellipse cx=\"69\" cy=\"32\" rx=\"2.8\" ry=\"3.5\" fill=\"#0f172a\"/>" +
+        "<path fill=\"none\" stroke=\"#be123c\" stroke-width=\"1.8\" stroke-linecap=\"round\" d=\"M48 44c8 5 16 5 24 0\"/>" +
+        "<path fill=\"#ea580c\" d=\"M26 54c8-6 52-6 60 0l10 58H26l10-58z\"/>" +
+        "<line x1=\"60\" y1=\"54\" x2=\"60\" y2=\"112\" stroke=\"#9a3412\" stroke-width=\"1.4\" opacity=\".4\"/>" +
+        "<path fill=\"#ea580c\" d=\"M26 56L6 80l8 10 20-18 8-6zm68 0l20 24-8 10-20-18-8-6z\"/>" +
+        "<circle cx=\"6\" cy=\"86\" r=\"7\" fill=\"#fdbcb4\"/>" +
+        "<circle cx=\"114\" cy=\"86\" r=\"7\" fill=\"#fdbcb4\"/>" +
+        "<rect x=\"40\" y=\"108\" width=\"14\" height=\"46\" rx=\"4\" fill=\"#1d4ed8\"/>" +
+        "<rect x=\"66\" y=\"108\" width=\"14\" height=\"46\" rx=\"4\" fill=\"#1d4ed8\"/>" +
+        "<ellipse cx=\"47\" cy=\"156\" rx=\"12\" ry=\"5\" fill=\"#334155\"/>" +
+        "<ellipse cx=\"73\" cy=\"156\" rx=\"12\" ry=\"5\" fill=\"#334155\"/>" +
+        "</svg>" +
+        "</div>" +
         "<div class=\"puzzle-progress-wrap storm-health-wrap\">" +
         "<div class=\"puzzle-progress-label\"><span class=\"storm-health-title\">Survivor health</span><span class=\"storm-health-pct\" id=\"stormHealthPct\">100%</span></div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill storm-health\" id=\"stormHealthFill\" style=\"width:100%\"></div></div>" +
@@ -1777,9 +1789,7 @@
         "<div class=\"jump-scene\">" +
         "<div class=\"jump-ground\"></div>" +
         "<div class=\"jump-robot-stack\" id=\"jumpRobotStack\">" +
-        "<div class=\"jump-robot-pad\">" +
         "<canvas class=\"jump-robot-canvas\" id=\"jumpRobotCanvas\" width=\"300\" height=\"380\" aria-hidden=\"true\"></canvas>" +
-        "</div>" +
         "<div class=\"jet-flame jump-jet\" id=\"jumpFlame\"></div>" +
         "</div>" +
         "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> m</div>" +
@@ -1821,6 +1831,7 @@
         window._jumpRobotRaf = requestAnimationFrame(jumpRobotFrame);
       }
       if (jumpCtx) {
+        jumpCanvasDrawRobot(jumpCtx, 0, "idle");
         window._jumpRobotRaf = requestAnimationFrame(jumpRobotFrame);
       }
 
