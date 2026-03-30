@@ -569,6 +569,14 @@
       clearInterval(window._mathProgressInterval);
       window._mathProgressInterval = null;
     }
+    if (window._jumpRobotRaf) {
+      cancelAnimationFrame(window._jumpRobotRaf);
+      window._jumpRobotRaf = null;
+    }
+    if (window._quizCaptchaInterval) {
+      clearInterval(window._quizCaptchaInterval);
+      window._quizCaptchaInterval = null;
+    }
     if (window._spamRedirectPoll) {
       clearInterval(window._spamRedirectPoll);
       window._spamRedirectPoll = null;
@@ -666,33 +674,33 @@
       ".puzzle-glass-pane.shattered{animation:glass-break .4s ease-out forwards;filter:drop-shadow(0 0 12px rgba(59,130,246,.3))}" +
       "@keyframes glass-break{to{transform:scale(.08) rotate(12deg);filter:brightness(1.8) blur(3px);opacity:0}}" +
       ".puzzle-glass-scene.glass-destroyed .glass-shine{opacity:0;transition:opacity .2s}" +
-      ".puzzle-storm-v2{position:relative;display:flex;flex-direction:column;width:100%;max-width:100%;margin:0;min-height:0;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.1);background:linear-gradient(165deg,#0a0e14 0%,#15201f 38%,#0f1419 100%);border:1px solid rgba(255,255,255,.12);font-family:'Outfit',system-ui,sans-serif;max-height:min(48vh,420px)}" +
-      ".storm-fog{position:absolute;inset:0;background:radial-gradient(ellipse 90% 65% at 50% 100%,rgba(34,197,94,.18),transparent 50%),radial-gradient(ellipse 80% 60% at 20% 30%,rgba(139,92,246,.12),transparent);pointer-events:none;z-index:1;animation:storm-fog-drift 9s ease-in-out infinite alternate}" +
-      "@keyframes storm-fog-drift{0%{opacity:.85}100%{opacity:1}}" +
-      ".storm-clouds{position:absolute;top:0;left:0;right:0;height:48%;background:radial-gradient(ellipse 85% 100% at 50% 0%,rgba(15,23,42,.9),transparent);pointer-events:none;z-index:2}" +
+      ".puzzle-storm-v2{position:relative;display:flex;flex-direction:column;width:100%;max-width:100%;margin:0;min-height:0;border-radius:16px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);background:linear-gradient(165deg,#0a1628 0%,#0f172a 42%,#0c1220 100%);border:1px solid rgba(251,191,36,.38);font-family:'Outfit',system-ui,sans-serif;max-height:min(52vh,440px)}" +
+      ".storm-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 6px 12px;font-family:'Outfit',system-ui,sans-serif;font-weight:600;max-width:420px}" +
+      ".storm-fog{position:absolute;inset:0;background:radial-gradient(ellipse 95% 70% at 50% 100%,rgba(56,189,248,.14),transparent 52%),radial-gradient(ellipse 75% 55% at 15% 25%,rgba(99,102,241,.1),transparent),radial-gradient(ellipse 60% 50% at 85% 20%,rgba(14,165,233,.08),transparent);pointer-events:none;z-index:1;animation:storm-fog-drift 9s ease-in-out infinite alternate}" +
+      "@keyframes storm-fog-drift{0%{opacity:.88}100%{opacity:1}}" +
+      ".storm-clouds{position:absolute;top:0;left:0;right:0;height:50%;background:radial-gradient(ellipse 88% 100% at 50% 0%,rgba(15,23,42,.95),transparent);pointer-events:none;z-index:2}" +
       ".storm-rain-v2{position:absolute;inset:0;pointer-events:none;z-index:6}" +
-      ".rain-drop{position:absolute;width:2px;height:14px;background:linear-gradient(180deg,rgba(200,230,255,.9),rgba(200,230,255,.15));border-radius:1px;animation:rain-drop-fall linear infinite}" +
-      "@keyframes rain-drop-fall{0%{transform:translateY(-20px);opacity:0}10%{opacity:1}100%{transform:translateY(220px);opacity:.3}}" +
-      ".storm-zombie-glass-panel{position:relative;z-index:5;flex:1 1 auto;min-height:0;margin:10px 10px 8px;padding:12px 12px 14px;border-radius:16px;background:linear-gradient(155deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 50%,rgba(0,0,0,.1) 100%);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(255,255,255,.28);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 16px 48px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;min-height:100px;max-height:min(35vh,240px)}" +
-      ".storm-zombie-bust{position:relative;width:120px;height:138px;margin:0 auto}" +
-      ".z-tomb-tag{position:absolute;top:-10px;right:-6px;font-size:8px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.9);background:linear-gradient(135deg,rgba(220,38,38,.75),rgba(127,29,29,.85));padding:4px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.25);text-transform:uppercase;z-index:4;box-shadow:0 4px 12px rgba(0,0,0,.35)}" +
-      ".z-skull{position:absolute;left:50%;top:4px;transform:translateX(-50%);width:92px;height:96px;border-radius:44% 44% 38% 38%;background:linear-gradient(180deg,#6b9e5c 0%,#3d5c38 42%,#243a22 100%);border:3px solid #142818;box-shadow:inset 0 -8px 18px rgba(0,0,0,.4),inset 0 3px 0 rgba(255,255,255,.12),0 8px 24px rgba(0,0,0,.35)}" +
-      ".z-skull::before{content:'';position:absolute;top:18px;left:14px;width:14px;height:5px;background:rgba(0,0,0,.25);border-radius:2px;box-shadow:48px 0 0 rgba(0,0,0,.25)}" +
-      ".z-eye{position:absolute;top:34px;width:20px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fef3c7 0%,#f59e0b 50%,#b45309 100%);box-shadow:0 0 16px #f97316,0 0 28px rgba(249,115,22,.45);border:2px solid #422006}" +
-      ".z-eye-l{left:14px}.z-eye-r{right:14px}" +
-      ".z-eye::after{content:'';position:absolute;width:6px;height:8px;background:#1a0a0a;border-radius:50%;top:7px;left:7px}" +
-      ".z-mouth{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:38px;height:14px;background:#1a0a0a;border-radius:2px 2px 8px 8px;overflow:hidden}" +
-      ".z-mouth::after{content:'';position:absolute;bottom:0;left:0;right:0;height:5px;background:repeating-linear-gradient(90deg,#fde68a 0 4px,#1a0a0a 4px 8px)}" +
+      ".rain-drop{position:absolute;width:2px;height:16px;background:linear-gradient(180deg,rgba(186,230,253,.95),rgba(125,211,252,.25),transparent);border-radius:1px;animation:rain-drop-fall linear infinite}" +
+      ".rain-drop.rain-wide{width:3px;height:22px;opacity:.85}" +
+      ".rain-drop.rain-fast{height:20px}" +
+      "@keyframes rain-drop-fall{0%{transform:translateY(-28px);opacity:0}8%{opacity:1}100%{transform:translateY(340px);opacity:.22}}" +
+      ".storm-robot-panel{position:relative;z-index:5;flex:1 1 auto;min-height:0;margin:10px 10px 8px;border-radius:16px;border:1px solid rgba(148,163,184,.28);background:linear-gradient(180deg,#0c1929 0%,#1e293b 45%,#0f172a 100%);box-shadow:0 16px 48px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;min-height:188px;max-height:min(36vh,268px);overflow:hidden}" +
+      ".storm-robot-panel::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(180deg,transparent,transparent 20px,rgba(0,0,0,.18) 20px,rgba(0,0,0,.18) 21px);opacity:.9}" +
+      ".storm-robot-panel::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(15,23,42,.25) 0%,transparent 40%,transparent 65%,rgba(15,23,42,.45) 100%)}" +
+      ".storm-status-tag{position:absolute;top:12px;right:12px;z-index:8;font-size:8px;font-weight:800;letter-spacing:.11em;color:#fff;background:linear-gradient(135deg,rgba(234,179,8,.95),rgba(180,83,9,.95));padding:5px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.35);text-transform:uppercase;box-shadow:0 4px 16px rgba(0,0,0,.4)}" +
+      ".storm-robot-stage{position:relative;z-index:4;padding:16px 20px;background:linear-gradient(180deg,#fff,#f8fafc);border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.4),0 0 0 1px rgba(15,23,42,.06),inset 0 1px 0 #fff}" +
+      ".storm-hero-robot{display:block;width:min(108px,30vw);height:auto;margin:0;filter:drop-shadow(0 10px 20px rgba(30,58,138,.4));animation:storm-robot-bob 3.2s ease-in-out infinite}" +
+      "@keyframes storm-robot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
       ".puzzle-zombies-v2{position:relative;width:100%;max-width:100%;margin:0;overflow:hidden}" +
       ".zombies-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 4px 10px;font-family:'Outfit',system-ui,sans-serif;font-weight:600}" +
-      ".puzzle-zombies-canvas-gw{background:#0f172a;border-radius:12px;overflow:hidden;width:100%;max-width:640px;margin:0 auto;border:1px solid rgba(148,163,184,.25);box-shadow:0 8px 32px rgba(0,0,0,.4)}" +
-      ".zombies-canvas-ui{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#0a0f1e}" +
+      ".puzzle-zombies-canvas-gw{background:#0f172a;border-radius:14px;overflow:hidden;width:100%;max-width:640px;margin:0 auto;border:1px solid rgba(251,191,36,.35);box-shadow:0 10px 36px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}" +
+      ".zombies-canvas-ui{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(180deg,#0f172a 0%,#0c1322 100%);border-bottom:1px solid rgba(251,191,36,.2)}" +
       ".zombies-canvas-stat{font-size:11px;font-weight:600;font-family:ui-monospace,SFMono-Regular,monospace;color:#e2e8f0}" +
       ".zombies-canvas-time{color:#22c55e}" +
       ".zombies-canvas-wave{color:#a78bfa}" +
       ".zombies-canvas-kills{color:#f97316}" +
-      ".zombies-canvas-timer-wrap{height:4px;background:#1e293b}" +
-      ".zombies-canvas-timer-bar{height:4px;background:#22c55e;width:100%;transition:background .25s,width .1s linear}" +
+      ".zombies-canvas-timer-wrap{height:6px;background:#0a0f1a;overflow:hidden}" +
+      ".zombies-canvas-timer-bar{height:6px;background:linear-gradient(90deg,#ea580c,#f97316,#fbbf24);width:100%;transition:background .25s,width .1s linear;box-shadow:0 0 14px rgba(249,115,22,.4)}" +
       ".zombies-canvas-overlay{position:relative}" +
       ".zombies-canvas-el{display:block;width:100%;height:auto;cursor:default;vertical-align:middle;touch-action:none}" +
       ".zombies-canvas-msg{display:none;position:absolute;inset:0;background:rgba(0,0,0,.88);align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:12px}" +
@@ -705,20 +713,31 @@
       "#challenge1 .challenge-banner:first-child,#challenge2 .challenge-banner:first-child{border-radius:6px 6px 0 0!important;flex-shrink:0!important}" +
       "#challenge1 .rc-footer,#challenge2 .rc-footer{flex-shrink:0!important;margin-top:auto!important}" +
       "#challenge2 .challenge-stage2-body{align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:14px 12px 16px!important}" +
-      ".jump-puzzle-shell{width:100%;max-width:100%;margin:0;padding:8px 8px 10px;border-radius:14px;background:linear-gradient(165deg,#f8fafc 0%,#eef2f7 50%,#e8edf4 100%);border:1px solid rgba(15,23,42,.09);box-shadow:0 10px 40px rgba(15,23,42,.1),inset 0 1px 0 rgba(255,255,255,.95);box-sizing:border-box;overflow:hidden}" +
+      "#challenge2 .challenge-stage2-body.step2-jump{padding:6px 8px 8px!important;gap:4px!important;min-height:0!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump .step2-pressure-timer{margin:0 auto 4px!important;padding:7px 10px!important;border-radius:11px!important;max-width:100%!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-row{margin-bottom:3px!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-digits{font-size:21px!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-hint{margin:3px 0 0!important;font-size:9px!important;line-height:1.3!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-track{height:8px!important}" +
+      ".jump-puzzle-shell{width:100%;max-width:100%;margin:0;padding:0;border-radius:12px;background:#fff;border:1px solid rgba(15,23,42,.1);box-shadow:0 6px 24px rgba(15,23,42,.1),0 1px 4px rgba(15,23,42,.05);box-sizing:border-box;overflow:hidden;font-family:'Outfit',system-ui,sans-serif}" +
+      ".jump-scene-frame{padding:6px 6px 5px;background:linear-gradient(180deg,#f1f5f9,#e2e8f0)}" +
       ".puzzle-jump-v2{position:relative;width:100%;max-width:100%;margin:0;padding:0}" +
-      ".jump-scene{position:relative;height:200px;border-radius:14px;background:linear-gradient(180deg,#5eb8e8 0%,#8fd0ef 20%,#c4e9f8 45%,#e8f6fc 72%,#fff5e6 90%,#d7ccc8 100%);overflow:hidden;margin:0;border:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 12px 36px rgba(30,64,120,.14),0 4px 14px rgba(0,0,0,.06)}" +
-      ".jump-scene::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;background:radial-gradient(ellipse 100% 50% at 50% -8%,rgba(255,255,255,.55),transparent 42%),radial-gradient(ellipse 70% 45% at 92% 18%,rgba(255,255,255,.2),transparent 55%)}" +
-      ".jump-ground{position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(180deg,#a1887f 0%,#795548 50%,#5d4037 100%);box-shadow:inset 0 8px 14px rgba(0,0,0,.28),0 -2px 0 rgba(0,0,0,.1);z-index:2}" +
+      ".jump-scene{position:relative;height:158px;border-radius:10px;background:linear-gradient(180deg,#0ea5e9 0%,#7dd3fc 32%,#bae6fd 58%,#e0f2fe 82%,#d6d3d1 94%,#57534e 100%);overflow:hidden;margin:0;border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 1px 8px rgba(255,255,255,.45),inset 0 -6px 16px rgba(15,23,42,.08),0 4px 16px rgba(30,64,120,.1)}" +
+      ".jump-scene::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;background:radial-gradient(ellipse 90% 42% at 50% -8%,rgba(255,255,255,.7),transparent 46%),radial-gradient(ellipse 50% 35% at 90% 18%,rgba(255,255,255,.2),transparent 48%)}" +
+      ".jump-ground{position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(180deg,#a8a29e 0%,#44403c 55%,#292524 100%);box-shadow:inset 0 6px 10px rgba(0,0,0,.4),0 -2px 0 rgba(0,0,0,.12);z-index:2}" +
       ".jump-robot-jet{position:absolute;left:50%;bottom:28px;width:56px;height:72px;margin-left:-28px;transition:bottom .2s ease-out;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}" +
       ".jump-robot-body{width:100%;height:70%;margin:0 auto;border-radius:12px 12px 8px 8px;background:linear-gradient(180deg,#F38020 0%,#e65100 100%);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}" +
       ".jump-robot-head{width:70%;height:28%;margin:-4px auto 0;border-radius:10px;background:#bdbdbd;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)}" +
       ".jet-flame{position:absolute;bottom:-14px;left:50%;width:20px;height:22px;margin-left:-10px;background:linear-gradient(180deg,#ffeb3b,#ff9800,transparent);border-radius:50% 50% 60% 60%;opacity:0;transform:scaleY(.3);transition:opacity .1s,transform .1s}" +
       ".jump-robot-jet.thrust .jet-flame{opacity:1;transform:scaleY(1);animation:flame-flicker .08s ease infinite alternate}" +
       "@keyframes flame-flicker{from{transform:scaleY(.85) scaleX(1.05)}to{transform:scaleY(1.1) scaleX(.95)}}" +
-      ".jump-height-tag{position:absolute;right:12px;top:12px;z-index:4;font-size:13px;font-weight:800;font-family:'Outfit',system-ui,sans-serif;color:#0c4a6e;background:rgba(255,255,255,.9);padding:7px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.75);box-shadow:0 4px 16px rgba(30,80,120,.18)}" +
+      ".jump-height-tag{position:absolute;right:6px;top:6px;z-index:5;font-size:11px;font-weight:800;font-family:'Outfit',system-ui,sans-serif;color:#0c4a6e;background:rgba(255,255,255,.95);padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.85);box-shadow:0 2px 10px rgba(15,23,42,.1),inset 0 1px 0 #fff}" +
+      ".jump-robot-stack{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;transition:bottom .14s ease-out;pointer-events:none}" +
+      ".jump-robot-pad{background:linear-gradient(165deg,#fff 0%,#f8fafc 100%);border-radius:12px;padding:4px 8px 6px;box-shadow:0 6px 20px rgba(15,23,42,.14),0 0 0 1px rgba(15,23,42,.06),inset 0 1px 0 #fff}" +
+      ".jump-robot-canvas{display:block;width:min(64px,17vw);height:auto;margin:0 auto;vertical-align:bottom;filter:drop-shadow(0 4px 12px rgba(15,23,42,.2))}" +
+      ".jump-jet{width:22px;height:24px;margin-top:-3px;margin-left:0;left:auto;bottom:auto;position:relative;background:linear-gradient(180deg,#fef9c3,#f97316,rgba(249,115,22,0));border-radius:50% 50% 60% 60%;opacity:0;z-index:3;filter:blur(.35px);transition:opacity .1s}" +
       ".challenge-stage2-body.puzzle-body-xl{min-height:auto!important;padding-bottom:12px!important}" +
-      ".challenge-stage2-body.puzzle-body-tall.puzzle-body-xl.step2-jump{min-height:auto!important;max-height:none!important;padding-top:8px!important;padding-bottom:10px!important}" +
+      ".challenge-stage2-body.puzzle-body-tall.puzzle-body-xl.step2-jump{min-height:0!important;max-height:none!important;padding-top:4px!important;padding-bottom:4px!important}" +
       ".puzzle-glass-wrap,.puzzle-storm-v2,.puzzle-zombies-v2,.puzzle-jump-v2{max-width:100%!important;width:100%!important;margin:0!important}" +
       ".puzzle-glass-scene{height:200px!important;border-radius:15px!important}" +
       ".puzzle-progress-wrap{width:100%;max-width:100%;margin:12px auto 0!important;padding:0 4px!important;background:none;border-radius:12px}" +
@@ -732,7 +751,7 @@
       ".puzzle-progress-track{height:22px;border-radius:11px;background:#ececec;overflow:hidden;border:2px solid #ccc;box-shadow:inset 0 2px 4px rgba(0,0,0,.07)}" +
       ".puzzle-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#e65100,#F38020,#ffcc80);transition:width .08s linear;border-radius:9px}" +
       ".puzzle-progress-fill.storm-health{background:linear-gradient(90deg,#b71c1c,#ff9800,#66bb6a);box-shadow:0 0 20px rgba(52,211,153,.35)}" +
-      ".puzzle-progress-wrap.storm-health-wrap{flex-shrink:0;position:relative;z-index:8;margin:0 10px 12px!important;padding:12px 14px 14px!important;border-radius:14px;background:rgba(15,23,42,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(148,163,184,.35);box-shadow:0 4px 20px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08)}" +
+      ".puzzle-progress-wrap.storm-health-wrap{flex-shrink:0;position:relative;z-index:8;margin:0 10px 12px!important;padding:12px 14px 14px!important;border-radius:14px;background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(12,18,32,.92));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(251,191,36,.28);box-shadow:0 4px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}" +
       ".puzzle-progress-wrap.storm-health-wrap .puzzle-progress-label{color:#f1f5f9;font-family:'Outfit',sans-serif;font-size:12px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px!important;width:100%;box-sizing:border-box}" +
       ".puzzle-progress-wrap.storm-health-wrap .storm-health-title{flex:1;min-width:0}" +
       ".puzzle-progress-wrap.storm-health-wrap .storm-health-pct{font-variant-numeric:tabular-nums;font-weight:800;color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,.4)}" +
@@ -742,10 +761,36 @@
       ".storm-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(183,28,28,.4);opacity:0;transition:opacity .25s;z-index:7;border-radius:20px}" +
       ".storm-vignette.on{opacity:1}" +
       ".jump-scene .storm-robot-img{z-index:3}" +
-      ".puzzle-progress-wrap.jump-meter-card{margin-top:12px;padding:14px 14px 16px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,250,252,.99));border:1px solid rgba(15,23,42,.1);box-shadow:0 4px 22px rgba(15,23,42,.08)}" +
-      ".jump-meter-card .puzzle-progress-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#64748b;font-weight:700;margin:0 0 6px;text-align:center}" +
-      ".jump-meter-card .puzzle-progress-track{height:12px;border-radius:999px;border:1px solid rgba(148,163,184,.35);box-shadow:inset 0 2px 8px rgba(15,23,42,.1)}" +
-      ".jump-meter-card .puzzle-progress-fill{background:linear-gradient(90deg,#0369a1,#0ea5e9,#f97316);box-shadow:0 0 14px rgba(14,165,233,.35)}" +
+      ".puzzle-progress-wrap.jump-meter-card{margin:0;padding:8px 10px 10px;border-radius:0;border:none;border-top:1px solid rgba(15,23,42,.07);background:linear-gradient(180deg,#f8fafc,#fff);box-shadow:none}" +
+      ".jump-meter-card .puzzle-progress-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;font-weight:800;margin:0 0 5px;text-align:center}" +
+      ".jump-meter-card .puzzle-progress-track{height:11px;border-radius:999px;border:1px solid rgba(203,213,225,.85);background:#f1f5f9;box-shadow:inset 0 1px 4px rgba(15,23,42,.05)}" +
+      ".jump-meter-card .puzzle-progress-fill{background:linear-gradient(90deg,#0284c7,#0ea5e9,#f97316,#fb923c);box-shadow:0 0 16px rgba(14,165,233,.4),inset 0 1px 0 rgba(255,255,255,.35);border-radius:999px;min-width:0}" +
+      ".challenge-stage2-body.step2-quiz-scene{background:#f1f5f9!important;border-top:1px solid rgba(148,163,184,.25)!important}" +
+      ".quiz-cap-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;width:100%;max-width:400px;margin:0 auto;overflow:hidden;transition:transform .08s;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}" +
+      ".quiz-cap-header{background:#f8fafc;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0}" +
+      ".quiz-cap-title{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.06em;text-transform:uppercase}" +
+      ".quiz-cap-pill{font-size:12px;font-weight:600;font-family:ui-monospace,monospace;background:#fee2e2;color:#dc2626;padding:3px 11px;border-radius:99px}" +
+      ".quiz-cap-body{padding:18px 16px 16px}" +
+      ".quiz-cap-prog-wrap{height:4px;background:#f1f5f9;border-radius:2px;margin-bottom:16px;overflow:hidden}" +
+      ".quiz-cap-prog{height:4px;background:#22c55e;border-radius:2px;width:100%;transition:width 1s linear,background .3s}" +
+      ".quiz-cap-q{font-size:16px;font-weight:600;color:#0f172a;margin:0 0 6px;line-height:1.4}" +
+      ".quiz-cap-hint{font-size:11px;color:#94a3b8;margin:0 0 16px;line-height:1.4}" +
+      ".quiz-cap-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}" +
+      ".quiz-cap-opt{padding:12px 8px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#0f172a;font-size:14px;font-weight:500;cursor:pointer;text-align:center;transition:background .12s,border-color .12s;font-family:inherit}" +
+      ".quiz-cap-opt:hover{background:#f8fafc;border-color:#94a3b8}" +
+      ".quiz-cap-opt:active{transform:scale(.97)}" +
+      ".quiz-cap-opt.quiz-cap-opt-wrong{background:#fee2e2;border-color:#fca5a5;color:#dc2626}" +
+      ".quiz-cap-attempts{font-size:11px;color:#94a3b8;text-align:center;margin:0 0 12px}" +
+      ".quiz-cap-attempts span{font-weight:600;color:#ef4444}" +
+      ".quiz-cap-signal{border-top:1px solid #e2e8f0;padding-top:12px;margin-top:2px}" +
+      ".quiz-cap-signal-lbl{display:block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#64748b;margin-bottom:6px;text-align:center}" +
+      ".quiz-cap-signal-track{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;border:1px solid #cbd5e1}" +
+      ".quiz-cap-signal-fill{height:100%;width:0%;background:linear-gradient(90deg,#0ea5e9,#22c55e);border-radius:99px;transition:width .1s linear}" +
+      ".quiz-cap-roundend{display:none;padding:20px 16px 22px;text-align:center}" +
+      ".quiz-cap-roundend.show{display:block}" +
+      ".quiz-cap-body.is-hidden{display:none!important}" +
+      ".quiz-cap-roundend-title{font-size:17px;font-weight:600;color:#dc2626;margin:0 0 8px}" +
+      ".quiz-cap-roundend-sub{font-size:12px;color:#64748b;line-height:1.5;margin:0}" +
       ".hidden-bookmark-sync{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;left:-9999px!important;clip:rect(0,0,0,0)!important}" +
       ".step2-pressure-timer{width:100%;max-width:400px;margin:0 auto 12px;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 100%);border:1px solid rgba(251,191,36,.5);box-shadow:0 4px 16px rgba(245,158,11,.15)}" +
       ".step2-timer-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}" +
@@ -804,9 +849,9 @@
   ];
   var PUZZLES = [
     { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the</span><strong class=\"banner-line2\">glass</strong>" } },
-    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark the edible or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Zombie storm incoming — <strong>keep survivor health above zero</strong>." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Click your bookmark fast to shoot — <strong>kill zombies before they cross the line</strong>." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> altitude." } }
+    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Done (1/1) Bookmark the edible or bandage item (either bandage or food)", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Done (2/2) Use your bookmarked supplies in the storm — <strong>survive 10 seconds</strong> with health above zero." } },
+    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Protect the line until the timer runs out to survive. <strong>Do not let any zombie pass it</strong>." } },
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Get to <strong>100 m</strong> before the timer runs out." } }
   ];
 
   var currentPuzzle = null;
@@ -872,11 +917,249 @@
   var challenge2 = getEl("challenge2");
   var clickCounterEl = getEl("clickCounter");
 
+  function jumpCanvasRR(ctx, x, y, w, h, r, fill, stroke) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    if (fill) {
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  /** Canvas robot for 100 m jump puzzle (same visuals as standalone animated robot demo). */
+  function jumpCanvasDrawRobot(ctx, t, mood) {
+    var W = 300;
+    var H = 380;
+    ctx.clearRect(0, 0, W, H);
+    var C = {
+      body: "#1e40af",
+      bodyLight: "#3b82f6",
+      head: "#1e3a8a",
+      headLight: "#2563eb",
+      joint: "#0f172a",
+      panel: "#172554",
+      eye: "#22d3ee",
+      eyeAngry: "#ef4444",
+      eyeHappy: "#4ade80",
+      screenOn: "#0ea5e9",
+      antenna: "#94a3b8",
+      antennaTop: "#38bdf8",
+      leg: "#1d4ed8",
+      foot: "#1e3a8a",
+      arm: "#1d4ed8",
+      hand: "#1e3a8a",
+      bolt: "#334155"
+    };
+    var cx = W / 2;
+    var baseY = 310;
+    var bodyBob = 0;
+    var bodyTilt = 0;
+    var lArmA = -0.2;
+    var rArmA = -0.2;
+    var lForeA = 0.3;
+    var rForeA = 0.3;
+    var lLegOff = 0;
+    var rLegOff = 0;
+    var eyeCol = C.eye;
+    var screenCol = C.screenOn;
+    var mouthOpen = 0.3;
+    var antennaWobble = Math.sin(t * 0.05) * 3;
+    var headBob = Math.sin(t * 0.04) * 2;
+
+    if (mood === "idle") {
+      bodyBob = Math.sin(t * 0.03) * 4;
+      lArmA = -0.15 + Math.sin(t * 0.03) * 0.05;
+      rArmA = -0.15 - Math.sin(t * 0.03) * 0.05;
+    }
+    if (mood === "wave") {
+      bodyBob = Math.sin(t * 0.04) * 3;
+      rArmA = -1.1 + Math.sin(t * 0.15) * 0.5;
+      rForeA = 0.6 + Math.sin(t * 0.2) * 0.4;
+      lArmA = -0.15;
+      screenCol = "#0ea5e9";
+      mouthOpen = 0.5;
+    }
+    if (mood === "dance") {
+      bodyBob = Math.sin(t * 0.12) * 10;
+      bodyTilt = Math.sin(t * 0.12) * 0.15;
+      lArmA = -0.8 + Math.sin(t * 0.12) * 0.6;
+      rArmA = -0.8 - Math.sin(t * 0.12) * 0.6;
+      lLegOff = Math.sin(t * 0.12) * 8;
+      rLegOff = -Math.sin(t * 0.12) * 8;
+      screenCol = "#a855f7";
+      mouthOpen = 0.7;
+      eyeCol = "#facc15";
+    }
+    if (mood === "angry") {
+      bodyBob = Math.sin(t * 0.2) * 2;
+      bodyTilt = Math.sin(t * 0.18) * 0.06;
+      lArmA = 0.3;
+      rArmA = 0.3;
+      lForeA = 0.8;
+      rForeA = 0.8;
+      eyeCol = C.eyeAngry;
+      screenCol = "#dc2626";
+      mouthOpen = 0;
+      antennaWobble = Math.sin(t * 0.25) * 6;
+    }
+    if (mood === "happy") {
+      bodyBob = Math.sin(t * 0.08) * 6;
+      lArmA = -0.5 + Math.sin(t * 0.08) * 0.2;
+      rArmA = -0.5 - Math.sin(t * 0.08) * 0.2;
+      eyeCol = C.eyeHappy;
+      screenCol = "#22c55e";
+      mouthOpen = 0.8;
+      antennaWobble = Math.sin(t * 0.1) * 8;
+    }
+
+    ctx.save();
+    ctx.translate(cx, baseY + bodyBob);
+    ctx.rotate(bodyTilt);
+
+    var by = -160;
+
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.ellipse(0, 72, 50, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    [-1, 1].forEach(function (side) {
+      var lx = side * 22;
+      var ly = 10 + (side === -1 ? lLegOff : rLegOff);
+      jumpCanvasRR(ctx, lx - 11, ly, 22, 55, 6, C.leg, "#1e40af");
+      ctx.fillStyle = C.joint;
+      ctx.beginPath();
+      ctx.arc(lx, ly + 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lx, ly + 55, 6, 0, Math.PI * 2);
+      ctx.fill();
+      jumpCanvasRR(ctx, lx - 14, ly + 55, 28, 14, 5, C.foot, "#1e40af");
+    });
+
+    jumpCanvasRR(ctx, -36, by + 60, 72, 90, 10, C.body, C.bodyLight);
+    jumpCanvasRR(ctx, -28, by + 70, 56, 30, 6, C.panel, null);
+    ctx.globalAlpha = 0.85;
+    jumpCanvasRR(ctx, -22, by + 74, 44, 22, 4, screenCol, null);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
+    ctx.lineWidth = 1;
+    var i;
+    for (i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-22, by + 78 + i * 5);
+      ctx.lineTo(22, by + 78 + i * 5);
+      ctx.stroke();
+    }
+    [-28, 22].forEach(function (bx) {
+      ctx.fillStyle = C.bolt;
+      ctx.beginPath();
+      ctx.arc(bx, by + 120, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    jumpCanvasRR(ctx, -20, by + 148, 40, 14, 4, C.joint, "#0f172a");
+
+    [-1, 1].forEach(function (side) {
+      var angle = side === -1 ? lArmA : rArmA;
+      var foreAngle = side === -1 ? lForeA : rForeA;
+      ctx.save();
+      ctx.translate(side * 36, by + 70);
+      ctx.rotate(angle * side);
+      jumpCanvasRR(ctx, -7, 0, 14, 42, 6, C.arm, "#1e40af");
+      ctx.fillStyle = C.joint;
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 42, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.translate(0, 42);
+      ctx.rotate(foreAngle * side);
+      jumpCanvasRR(ctx, -6, 0, 12, 34, 5, C.arm, "#1e40af");
+      jumpCanvasRR(ctx, -9, 32, 18, 14, 6, C.hand, "#1e40af");
+      ctx.restore();
+    });
+
+    ctx.save();
+    ctx.translate(0, headBob);
+    jumpCanvasRR(ctx, -10, by + 52, 20, 12, 4, C.joint, "#0f172a");
+    jumpCanvasRR(ctx, -38, by - 2, 76, 60, 12, C.head, C.headLight);
+    [-1, 1].forEach(function (side) {
+      jumpCanvasRR(ctx, side * 36 - 4, by + 10, 8, 20, 4, C.panel, C.headLight);
+      ctx.fillStyle = C.antennaTop;
+      ctx.beginPath();
+      ctx.arc(side * 40, by + 20, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    [-1, 1].forEach(function (side) {
+      var ex = side * 16;
+      var ey = by + 18;
+      jumpCanvasRR(ctx, ex - 12, ey - 9, 24, 18, 5, "#0c1445", null);
+      ctx.fillStyle = eyeCol;
+      ctx.globalAlpha = 0.9;
+      if (mood === "angry") {
+        ctx.beginPath();
+        ctx.moveTo(ex - 10, ey - 6);
+        ctx.lineTo(ex + 10, ey - 2);
+        ctx.lineTo(ex + 10, ey + 6);
+        ctx.lineTo(ex - 10, ey + 6);
+        ctx.closePath();
+        ctx.fill();
+      } else if (mood === "happy") {
+        ctx.beginPath();
+        ctx.arc(ex, ey + 2, 7, Math.PI, 0);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(ex, ey, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.beginPath();
+        ctx.arc(ex + 3, ey - 3, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    });
+
+    var my = by + 42;
+    jumpCanvasRR(ctx, -16, my - 5, 32, 12, 4, "#0c1445", null);
+    if (mouthOpen > 0) {
+      ctx.globalAlpha = 0.85;
+      var mw = 28 * mouthOpen;
+      jumpCanvasRR(ctx, -mw / 2, my - 3, mw, 8, 3, eyeCol, null);
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.strokeStyle = C.antenna;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(0, by - 2);
+    ctx.lineTo(antennaWobble, by - 26);
+    ctx.stroke();
+    ctx.fillStyle = C.antennaTop;
+    ctx.beginPath();
+    ctx.arc(antennaWobble, by - 28, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.arc(antennaWobble + 1, by - 30, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+    ctx.restore();
+  }
+
   function renderStep2Content(puzzle) {
     var body = getEl("challenge2Body");
     if (!body || !puzzle || !puzzle.step2) return;
     stopChallenge2Visuals();
-    body.classList.remove("puzzle-body-tall", "puzzle-body-xl", "stage2-dark-scene", "step2-glass-scene", "step2-jump");
+    body.classList.remove("puzzle-body-tall", "puzzle-body-xl", "stage2-dark-scene", "step2-glass-scene", "step2-jump", "step2-quiz-scene");
     var s = puzzle.step2;
     var type = s.type;
     var limit = s.timeLimit || 30;
@@ -954,18 +1237,17 @@
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
+        "<p class=\"storm-bookmark-hint\">Spam your saved bookmark — that “uses” your food or bandage to restore health. <strong>Only the bookmark</strong> works; clicks on the scene do nothing.</p>" +
         "<div class=\"puzzle-storm-v2\" id=\"stormBox\">" +
         "<div class=\"storm-fog\"></div>" +
         "<div class=\"storm-vignette\" id=\"stormVignette\"></div>" +
         "<div class=\"storm-clouds\"></div>" +
         "<div class=\"storm-rain-v2\" id=\"stormRain\"></div>" +
-        "<div class=\"storm-zombie-glass-panel\">" +
-        "<span class=\"z-tomb-tag\">Infected</span>" +
-        "<div class=\"storm-zombie-bust\" aria-hidden=\"true\">" +
-        "<div class=\"z-skull\">" +
-        "<span class=\"z-eye z-eye-l\"></span><span class=\"z-eye z-eye-r\"></span>" +
-        "<div class=\"z-mouth\"></div>" +
-        "</div></div></div>" +
+        "<div class=\"storm-robot-panel\">" +
+        "<span class=\"storm-status-tag\">Heavy rain</span>" +
+        "<div class=\"storm-robot-stage\" aria-hidden=\"true\">" +
+        "<img class=\"storm-hero-robot\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"112\" height=\"112\" alt=\"\">" +
+        "</div></div>" +
         "<div class=\"puzzle-progress-wrap storm-health-wrap\">" +
         "<div class=\"puzzle-progress-label\"><span class=\"storm-health-title\">Survivor health</span><span class=\"storm-health-pct\" id=\"stormHealthPct\">100%</span></div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill storm-health\" id=\"stormHealthFill\" style=\"width:100%\"></div></div>" +
@@ -974,12 +1256,15 @@
 
       var rain = getEl("stormRain");
       if (rain) {
-        for (var ri = 0; ri < 56; ri++) {
+        for (var ri = 0; ri < 96; ri++) {
           var drop = document.createElement("span");
-          drop.className = "rain-drop";
+          var cls = "rain-drop";
+          if (Math.random() < 0.38) cls += " rain-wide";
+          if (Math.random() < 0.28) cls += " rain-fast";
+          drop.className = cls;
           drop.style.left = Math.random() * 100 + "%";
-          drop.style.animationDuration = (0.4 + Math.random() * 0.45) + "s";
-          drop.style.animationDelay = Math.random() * 1.6 + "s";
+          drop.style.animationDuration = (0.32 + Math.random() * 0.58) + "s";
+          drop.style.animationDelay = Math.random() * 2.2 + "s";
           rain.appendChild(drop);
         }
       }
@@ -1029,7 +1314,7 @@
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
-        "<p class=\"zombies-bookmark-hint\">Click your bookmark <strong>fast</strong> to shoot and survive — <strong>only the bookmark</strong> fires your gun. Spam it to kill zombies before they cross the red line. Clicks on the game do nothing.</p>" +
+        "<p class=\"zombies-bookmark-hint\">Protect the red line until each wave timer resets — <strong>no zombie may cross it</strong>. Spam your saved bookmark to shoot; <strong>only the bookmark</strong> fires. Clicks on the field do nothing.</p>" +
         "<div class=\"puzzle-zombies-v2 puzzle-zombies-canvas-gw\" id=\"zombiesCanvasGw\">" +
         "<div class=\"zombies-canvas-ui\">" +
         "<span class=\"zombies-canvas-stat zombies-canvas-kills\" id=\"zombiesKillsStat\">Kills: 0</span>" +
@@ -1079,8 +1364,9 @@
       var gameState = "playing";
       var startTime = 0;
       var lastTime = 0;
+      var zcSpawnsPerSecond = 20;
+      var spawnInterval = 1000 / zcSpawnsPerSecond;
       var spawnTimer = 0;
-      var spawnInterval = 1300;
       var aimAngle = 0;
       var humanShootTimer = 0;
       var lastZ = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
@@ -1333,7 +1619,12 @@
         var bar = getEl("zombiesSurviveBar");
         if (bar) {
           bar.style.width = pct * 100 + "%";
-          bar.style.background = pct > 0.4 ? "#22c55e" : pct > 0.2 ? "#f59e0b" : "#ef4444";
+          bar.style.background =
+            pct > 0.4
+              ? "linear-gradient(90deg,#15803d,#22c55e,#4ade80)"
+              : pct > 0.2
+                ? "linear-gradient(90deg,#c2410c,#f97316,#fbbf24)"
+                : "linear-gradient(90deg,#991b1b,#ef4444,#fca5a5)";
         }
 
         if (remaining <= 0) {
@@ -1341,12 +1632,11 @@
           startTime = ts;
           var wv = getEl("zombiesWaveStat");
           if (wv) wv.textContent = "Wave " + zcWave;
-          spawnInterval = Math.max(420, 1300 - zcWave * 140 - Math.min(kills, 80) * 5);
         }
 
         spawnTimer += dt;
-        if (spawnTimer > spawnInterval) {
-          spawnTimer = 0;
+        while (spawnTimer >= spawnInterval) {
+          spawnTimer -= spawnInterval;
           zcList.push(zcMakeZombie());
         }
         if (humanShootTimer > 0) humanShootTimer--;
@@ -1361,8 +1651,7 @@
           }
           var delta = n - lastZ;
           lastZ = n;
-          var burst = Math.min(delta * 22, 40);
-          zcShootFromBookmark(burst);
+          zcShootFromBookmark(delta);
         }
 
         var zi;
@@ -1457,7 +1746,7 @@
       kills = 0;
       zcWave = 1;
       spawnTimer = 0;
-      spawnInterval = 1300;
+      spawnInterval = 1000 / zcSpawnsPerSecond;
       aimAngle = 0;
       humanShootTimer = 0;
       lastTime = 0;
@@ -1483,32 +1772,73 @@
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
         "<div class=\"jump-puzzle-shell\">" +
+        "<div class=\"jump-scene-frame\">" +
         "<div class=\"puzzle-jump-v2\">" +
         "<div class=\"jump-scene\">" +
         "<div class=\"jump-ground\"></div>" +
-        "<img class=\"storm-robot-img\" id=\"jumpRobotImg\" src=\"https://upload.wikimedia.org/wikipedia/commons/0/05/Robot_icon.svg\" width=\"120\" height=\"120\" alt=\"\" style=\"position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:3;transition:bottom .12s ease-out;filter:drop-shadow(0 10px 18px rgba(0,0,0,.25))\">" +
-        "<div class=\"jet-flame\" id=\"jumpFlame\" style=\"position:absolute;left:50%;bottom:22px;width:24px;height:26px;margin-left:-12px;background:linear-gradient(180deg,#fff59d,#ff9800,rgba(255,152,0,0));border-radius:50% 50% 60% 60%;opacity:0;z-index:2;filter:blur(0.3px)\"></div>" +
+        "<div class=\"jump-robot-stack\" id=\"jumpRobotStack\">" +
+        "<div class=\"jump-robot-pad\">" +
+        "<canvas class=\"jump-robot-canvas\" id=\"jumpRobotCanvas\" width=\"300\" height=\"380\" aria-hidden=\"true\"></canvas>" +
+        "</div>" +
+        "<div class=\"jet-flame jump-jet\" id=\"jumpFlame\"></div>" +
+        "</div>" +
         "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> m</div>" +
         "</div></div></div>" +
         "<div class=\"puzzle-progress-wrap jump-meter-card\">" +
         "<div class=\"puzzle-progress-label\">Altitude</div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"jumpMeterFill\"></div></div>" +
-        "</div>";
+        "</div></div>";
+
+      if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+          r = Math.min(r, w / 2, h / 2);
+          this.beginPath();
+          this.moveTo(x + r, y);
+          this.arcTo(x + w, y, x + w, y + h, r);
+          this.arcTo(x + w, y + h, x, y + h, r);
+          this.arcTo(x, y + h, x, y, r);
+          this.arcTo(x, y, x + w, y, r);
+          this.closePath();
+          return this;
+        };
+      }
+
+      var jumpCv = getEl("jumpRobotCanvas");
+      var jumpCtx = jumpCv && jumpCv.getContext ? jumpCv.getContext("2d") : null;
+      window._jumpRobotTick = 0;
+      window._jumpThrustFrames = 0;
+      function jumpRobotFrame() {
+        if (!currentPuzzle || currentPuzzle.step2.type !== "jump" || !getEl("jumpRobotCanvas")) {
+          window._jumpRobotRaf = null;
+          return;
+        }
+        var mood = window._jumpThrustFrames > 0 ? "wave" : "idle";
+        if (jumpCtx) {
+          window._jumpRobotTick++;
+          jumpCanvasDrawRobot(jumpCtx, window._jumpRobotTick, mood);
+        }
+        if (window._jumpThrustFrames > 0) window._jumpThrustFrames--;
+        window._jumpRobotRaf = requestAnimationFrame(jumpRobotFrame);
+      }
+      if (jumpCtx) {
+        window._jumpRobotRaf = requestAnimationFrame(jumpRobotFrame);
+      }
 
       var prevNJ = -1;
       function updateJump() {
         var heightEl = getEl("jumpHeightDisplay");
         var fill = getEl("jumpMeterFill");
-        var img = getEl("jumpRobotImg");
+        var stack = getEl("jumpRobotStack");
         var flame = getEl("jumpFlame");
         if (!heightEl || !currentPuzzle || currentPuzzle.step2.type !== "jump") return;
         var deltaJ = getStep2SpamClicks();
         var meters = Math.min(100, deltaJ);
         heightEl.textContent = String(meters);
         if (fill) fill.style.width = meters + "%";
-        var rise = Math.min(175, meters * 1.75);
-        if (img) img.style.bottom = 34 + rise + "px";
+        var rise = Math.min(108, meters * 1.12);
+        if (stack) stack.style.bottom = 30 + rise + "px";
         if (deltaJ > prevNJ && deltaJ > 0) {
+          window._jumpThrustFrames = 36;
           if (flame) {
             flame.style.opacity = "1";
             setTimeout(function () {
@@ -1544,9 +1874,11 @@
       if (currentPuzzle && currentPuzzle.step2 && currentPuzzle.step2.type === "jump") {
         var jumpEl = getEl("jumpHeightDisplay");
         var jfill = getEl("jumpMeterFill");
+        var jstack = getEl("jumpRobotStack");
         var meters = Math.min(100, getStep2SpamClicks());
         if (jumpEl) jumpEl.textContent = String(meters);
         if (jfill) jfill.style.width = meters + "%";
+        if (jstack) jstack.style.bottom = 30 + Math.min(108, meters * 1.12) + "px";
       }
       if (window._spamRedirectPoll) {
         clearInterval(window._spamRedirectPoll);
