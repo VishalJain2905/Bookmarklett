@@ -726,7 +726,7 @@
       ".storm-hero-human{position:relative;z-index:4;display:block;width:auto;height:auto;max-width:min(76px,22vw);max-height:min(22vh,150px);margin:0;padding:0;background:transparent;filter:drop-shadow(0 8px 18px rgba(0,0,0,.55));animation:storm-survivor-bob 3.2s ease-in-out infinite}" +
       "@keyframes storm-survivor-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
       ".puzzle-zombies-v2{position:relative;width:100%;max-width:100%;margin:0;overflow:hidden}" +
-      ".zombies-bookmark-hint{font-size:11px;line-height:1.45;color:#94a3b8;text-align:center;margin:0 4px 10px;font-family:'Outfit',system-ui,sans-serif;font-weight:600}" +
+      ".zombies-bookmark-hint{display:none}" +
       ".puzzle-zombies-canvas-gw{background:#0f172a;border-radius:14px;overflow:hidden;width:100%;max-width:640px;margin:0 auto;border:1px solid rgba(251,191,36,.35);box-shadow:0 10px 36px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}" +
       ".zombies-canvas-ui{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:linear-gradient(180deg,#0f172a 0%,#0c1322 100%);border-bottom:1px solid rgba(251,191,36,.2)}" +
       ".zombies-canvas-stat{font-size:11px;font-weight:600;font-family:ui-monospace,SFMono-Regular,monospace;color:#e2e8f0}" +
@@ -796,8 +796,8 @@
       ".jump-scene .storm-robot-img{z-index:3}" +
       ".puzzle-progress-wrap.jump-meter-card{margin:0;padding:8px 10px 10px;border-radius:0;border:none;border-top:1px solid rgba(15,23,42,.07);background:linear-gradient(180deg,#f8fafc,#fff);box-shadow:none}" +
       ".jump-meter-card .puzzle-progress-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;font-weight:800;margin:0 0 5px;text-align:center}" +
-      ".jump-meter-card .puzzle-progress-track{height:11px;border-radius:999px;border:1px solid rgba(203,213,225,.85);background:#f1f5f9;box-shadow:inset 0 1px 4px rgba(15,23,42,.05)}" +
-      ".jump-meter-card .puzzle-progress-fill{background:linear-gradient(90deg,#0284c7,#0ea5e9,#f97316,#fb923c);box-shadow:0 0 16px rgba(14,165,233,.4),inset 0 1px 0 rgba(255,255,255,.35);border-radius:999px;min-width:0}" +
+      ".jump-meter-card .puzzle-progress-track{height:11px;border-radius:999px;border:1px solid rgba(203,213,225,.85);background:#f1f5f9;box-shadow:none}" +
+      ".jump-meter-card .puzzle-progress-fill{background:linear-gradient(90deg,#0ea5e9,#22c55e);box-shadow:none;border-radius:999px;min-width:0}" +
       ".challenge-stage2-body.step2-quiz-scene{background:#f1f5f9!important;border-top:1px solid rgba(148,163,184,.25)!important}" +
       ".quiz-cap-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;width:100%;max-width:400px;margin:0 auto;overflow:hidden;transition:transform .08s;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}" +
       ".quiz-cap-header{background:#f8fafc;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0}" +
@@ -881,10 +881,10 @@
     { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
   ];
   var PUZZLES = [
-    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the</span><strong class=\"banner-line2\">glass</strong>" } },
-    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Done (1/1) Bookmark the edible or bandage item (either bandage or food)", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Done (2/2) Use your bookmarked supplies in the storm — <strong>survive 10 seconds</strong> with health above zero." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Protect the line until the timer runs out to survive. <strong>Do not let any zombie pass it</strong>." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Get to <strong>100 m</strong> before the timer runs out." } },
+    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the glass</span>" } },
+    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark any food or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked supplies while the timer counts down." } },
+    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Hold the line until time runs out." } },
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Current height: <strong>0 / 100 m</strong>." } },
     {
       id: "math",
       name: "Solve Math",
@@ -1221,7 +1221,6 @@
       '<span class="step2-timer-digits"><span id="step2TimerValue">0</span><span class="step2-timer-s">s</span></span>' +
       "</div>" +
       '<div class="step2-timer-track"><div class="step2-timer-fill" id="step2TimerFill"></div></div>' +
-      '<p class="step2-timer-hint">The timer is limited to keep the process quick — please click the bookmark quickly.</p>' +
       "</div>";
 
     if (type === "glass") {
@@ -1288,7 +1287,6 @@
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
-        "<p class=\"storm-bookmark-hint\">Spam your saved bookmark — that “uses” your food or bandage to restore health. <strong>Only the bookmark</strong> works; clicks on the scene do nothing.</p>" +
         "<div class=\"puzzle-storm-v2\" id=\"stormBox\">" +
         "<div class=\"storm-fog\"></div>" +
         "<div class=\"storm-vignette\" id=\"stormVignette\"></div>" +
@@ -1493,16 +1491,9 @@
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
-        "<p class=\"zombies-bookmark-hint\">Protect the red line until each wave timer resets — <strong>no zombie may cross it</strong>. Spam your saved bookmark to shoot; <strong>only the bookmark</strong> fires. Clicks on the field do nothing.</p>" +
         "<div class=\"puzzle-zombies-v2 puzzle-zombies-canvas-gw\" id=\"zombiesCanvasGw\">" +
-        "<div class=\"zombies-canvas-ui\">" +
-        "<span class=\"zombies-canvas-stat zombies-canvas-kills\" id=\"zombiesKillsStat\">Kills: 0</span>" +
-        "<span class=\"zombies-canvas-stat zombies-canvas-time\" id=\"zombiesTimeStat\">0.0s</span>" +
-        "<span class=\"zombies-canvas-stat zombies-canvas-wave\" id=\"zombiesWaveStat\">Wave 1</span>" +
-        "</div>" +
-        "<div class=\"zombies-canvas-timer-wrap\"><div class=\"zombies-canvas-timer-bar\" id=\"zombiesSurviveBar\"></div></div>" +
         "<div class=\"zombies-canvas-overlay\">" +
-        "<canvas class=\"zombies-canvas-el\" id=\"zombiesCv\" width=\"640\" height=\"300\" role=\"img\" aria-label=\"Zombie survival — use your bookmark to shoot\"></canvas>" +
+        "<canvas class=\"zombies-canvas-el\" id=\"zombiesCv\" width=\"640\" height=\"300\" role=\"img\" aria-label=\"Zombie survival\"></canvas>" +
         "<div class=\"zombies-canvas-msg\" id=\"zombiesCvMsg\" aria-live=\"polite\"></div>" +
         "</div></div>";
 
@@ -1959,10 +1950,10 @@
         "<canvas class=\"jump-robot-canvas\" id=\"jumpRobotCanvas\" width=\"300\" height=\"380\" aria-hidden=\"true\"></canvas>" +
         "<div class=\"jet-flame jump-jet\" id=\"jumpFlame\"></div>" +
         "</div>" +
-        "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> m</div>" +
+        "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> / 100 m</div>" +
         "</div></div></div>" +
         "<div class=\"puzzle-progress-wrap jump-meter-card\">" +
-        "<div class=\"puzzle-progress-label\">Altitude</div>" +
+        "<div class=\"puzzle-progress-label\">Current height</div>" +
         "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"jumpMeterFill\"></div></div>" +
         "</div></div>";
 
