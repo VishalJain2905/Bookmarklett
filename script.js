@@ -1390,12 +1390,12 @@
         '<p id="cfMathExpression" style="margin:0;font-size:14px;font-weight:600;color:#1e293b;line-height:1.7;word-break:break-word;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;"></p>' +
         '</div>' +
 
-        // Input + button
+        // Clicks counter + button
         '<div style="padding:12px 14px 14px;display:flex;align-items:center;gap:8px;">' +
-        '<input id="cfMathAnswer" type="text" inputmode="numeric" autocomplete="off" placeholder="Your answer…" ' +
-        'style="flex:1;min-width:0;height:40px;padding:0 14px;border-radius:9px;border:1.5px solid #cbd5e1;background:#fff;color:#111827;font-size:15px;font-family:inherit;outline:none;" ' +
-        'onfocus="this.style.borderColor=\'#f97316\';this.style.boxShadow=\'0 0 0 3px rgba(249,115,22,0.12)\'" ' +
-        'onblur="this.style.borderColor=\'#cbd5e1\';this.style.boxShadow=\'none\'" />' +
+        '<div style="flex:1;min-width:0;height:40px;border-radius:9px;border:1.5px solid #e2e8f0;background:#f8fafc;display:flex;align-items:center;padding:0 14px;gap:8px;">' +
+        '<span style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;">Clicks</span>' +
+        '<strong id="cfMathClickCount" style="font-size:20px;font-weight:800;color:#ea580c;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-0.02em;line-height:1;">0</strong>' +
+        '</div>' +
         '<button id="cfMathSubmit" type="button" ' +
         'style="height:40px;padding:0 20px;border-radius:9px;border:none;background:#f97316;color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;transition:background 0.15s,transform 0.1s;" ' +
         'onmouseover="this.style.background=\'#ea580c\'" ' +
@@ -1440,36 +1440,19 @@
       }
 
       var feedbackEl = getEl("cfMathFeedback");
-      // Pre-generate a list of fake answers that will be auto-filled as the user
-      // clicks the bookmark, never including the real correct answer.
-      var fakeAnswers = [];
-      for (var fi = 0; fi < 20; fi++) {
-        var delta = (Math.floor(Math.random() * 400) + 50) * (Math.random() < 0.5 ? -1 : 1);
-        var val = correctAnswer + delta;
-        if (val === correctAnswer) val += 1;
-        fakeAnswers.push(Math.abs(val));
-      }
-      var suggestionIndex = 0;
       var lastClicks = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       function tickMathSuggestions() {
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-        if (n > lastClicks) {
+        if (n !== lastClicks) {
           lastClicks = n;
-          var ans = getEl("cfMathAnswer");
-          if (!ans) return;
-          var guess = fakeAnswers[suggestionIndex % fakeAnswers.length];
-          suggestionIndex++;
-          ans.value = String(guess);
+          var countEl = getEl("cfMathClickCount");
+          if (countEl) countEl.textContent = String(n);
         }
       }
       window._mathSuggestionInterval = setInterval(tickMathSuggestions, 120);
 
       function handleCfMathSubmit() {
-        var inputEl = getEl("cfMathAnswer");
-        if (!inputEl) return;
-        var raw = inputEl.value.trim();
-        var userVal = parseInt(raw, 10);
-        var ok = Number.isFinite(userVal) && userVal === correctAnswer;
+        var ok = false;
         if (!feedbackEl) return;
         feedbackEl.style.display = "block";
         if (ok) {
@@ -1492,13 +1475,7 @@
       var btnEl = getEl("cfMathSubmit");
       if (btnEl) {
         btnEl.addEventListener("click", handleCfMathSubmit);
-      }
-      var ansEl = getEl("cfMathAnswer");
-      if (ansEl) {
-        ansEl.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") handleCfMathSubmit();
-        });
-        ansEl.focus();
+        btnEl.focus();
       }
 
       startStep2PressureTimer(limit);
