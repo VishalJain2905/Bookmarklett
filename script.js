@@ -878,10 +878,10 @@
     { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
   ];
   var PUZZLES = [
-    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the glass</span>" } },
-    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark any food or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked supplies while the timer counts down." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked tool to hold the line and stop the zombies while the timer counts down." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> before time runs out." } },
+    // { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the glass</span>" } },
+    // { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark any food or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked supplies while the timer counts down." } },
+    // { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked tool to hold the line and stop the zombies while the timer counts down." } },
+    // { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> before time runs out." } },
     {
       id: "math",
       name: "Solve Math",
@@ -1372,9 +1372,23 @@
     if (type === "math") {
       body.classList.add("puzzle-body-tall", "puzzle-body-xl", "step2-quiz-scene");
 
-      var a = Math.floor(Math.random() * 41) + 20;
-      var b = Math.floor(Math.random() * 41) + 40;
-      if (a + b < 61) b = 61 - a;
+      // Same flavor as 10+30, 25+15, 10+20, 30+40, 50+10 — sums stay 30, 40, 50, 60, 70, or 80 only
+      var MATH_ADD_PAIRS = [
+        [10, 20], [15, 15], [20, 10],
+        [10, 30], [25, 15], [15, 25], [20, 20], [30, 10],
+        [10, 40], [20, 30], [25, 25], [30, 20], [40, 10],
+        [10, 50], [20, 40], [30, 30], [40, 20], [50, 10],
+        [10, 60], [20, 50], [30, 40], [35, 35], [40, 30], [50, 20],
+        [10, 70], [30, 50], [35, 45], [40, 40], [50, 30]
+      ];
+      var pair = MATH_ADD_PAIRS[Math.floor(Math.random() * MATH_ADD_PAIRS.length)];
+      var a = pair[0];
+      var b = pair[1];
+      if (Math.random() < 0.5) {
+        var t = a;
+        a = b;
+        b = t;
+      }
 
       body.innerHTML =
         '<span id="clickCounter" class="hidden-bookmark-sync" aria-hidden="true">0</span>' +
