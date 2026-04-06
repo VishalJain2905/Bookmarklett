@@ -1371,112 +1371,50 @@
     }
     if (type === "math") {
       body.classList.add("puzzle-body-tall", "puzzle-body-xl", "step2-quiz-scene");
+
+      var a = Math.floor(Math.random() * 41) + 20;
+      var b = Math.floor(Math.random() * 41) + 40;
+      if (a + b < 61) b = 61 - a;
+      var mathSum = a + b;
+
       body.innerHTML =
+        '<span id="clickCounter" class="hidden-bookmark-sync" aria-hidden="true">0</span>' +
         timerBlock +
-        // Outer card
-        '<div style="margin:14px 2px 0;border-radius:14px;border:1px solid #e2e8f0;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.10);">' +
+        '<div style="margin:14px 12px 0;border-radius:14px;border:1px solid #e2e8f0;background:#fff;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.08);">' +
 
-        // Header strip with icon
-        '<div style="display:flex;align-items:center;gap:10px;padding:13px 16px 12px;background:linear-gradient(90deg,#fff7ed,#fff);border-bottom:1px solid #fed7aa;">' +
-        '<div style="flex-shrink:0;width:32px;height:32px;border-radius:8px;background:#fff7ed;border:1.5px solid #fdba74;display:flex;align-items:center;justify-content:center;font-size:16px;">🧮</div>' +
-        '<div>' +
-        '<p style="margin:0;font-size:12px;font-weight:700;color:#ea580c;letter-spacing:0.04em;text-transform:uppercase;">Math Verification</p>' +
-        '<p style="margin:2px 0 0;font-size:11px;color:#9ca3af;font-weight:500;">Solve the expression below</p>' +
+        '<div style="display:flex;align-items:center;gap:10px;padding:16px 18px 14px;">' +
+        '<div style="flex-shrink:0;width:36px;height:36px;border-radius:8px;background:#fff7ed;border:1.5px solid #fdba74;display:flex;align-items:center;justify-content:center;font-size:18px;">🧮</div>' +
+        '<div style="flex:1;">' +
+        '<p style="margin:0;font-size:13px;font-weight:700;color:#ea580c;letter-spacing:0.04em;text-transform:uppercase;">Math Verification</p>' +
+        '<p style="margin:3px 0 0;font-size:12px;color:#78716c;font-weight:400;line-height:1.4;">Use your bookmark to increase the number until you reach the correct answer.</p>' +
         '</div>' +
         '</div>' +
 
-        // Expression box
-        '<div style="margin:14px 14px 0;padding:14px 16px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;">' +
-        '<p id="cfMathExpression" style="margin:0;font-size:14px;font-weight:600;color:#1e293b;line-height:1.7;word-break:break-word;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;"></p>' +
+        '<div style="margin:0 16px 16px;padding:18px 20px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;">' +
+        '<p style="margin:0 0 10px;font-size:17px;font-weight:700;color:#1e293b;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;letter-spacing:0.02em;">Solve: ' + a + ' + ' + b + '</p>' +
+        '<p style="margin:0;font-size:16px;font-weight:600;color:#475569;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;">Clicks: <span id="cfMathClickCount" style="display:inline-block;min-width:24px;padding:2px 8px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;color:#ea580c;font-weight:800;font-size:17px;">0</span></p>' +
         '</div>' +
 
-        // Clicks counter + button
-        '<div style="padding:12px 14px 14px;display:flex;align-items:center;gap:8px;">' +
-        '<div style="flex:1;min-width:0;height:40px;border-radius:9px;border:1.5px solid #e2e8f0;background:#f8fafc;display:flex;align-items:center;padding:0 14px;gap:8px;">' +
-        '<span style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;">Clicks</span>' +
-        '<strong id="cfMathClickCount" style="font-size:20px;font-weight:800;color:#ea580c;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:-0.02em;line-height:1;">0</strong>' +
-        '</div>' +
-        '<button id="cfMathSubmit" type="button" ' +
-        'style="height:40px;padding:0 20px;border-radius:9px;border:none;background:#f97316;color:#fff;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;letter-spacing:0.03em;transition:background 0.15s,transform 0.1s;" ' +
-        'onmouseover="this.style.background=\'#ea580c\'" ' +
-        'onmouseout="this.style.background=\'#f97316\'" ' +
-        'onmousedown="this.style.transform=\'scale(0.97)\'" ' +
-        'onmouseup="this.style.transform=\'scale(1)\'">Verify →</button>' +
-        '</div>' +
-
-        // Feedback strip
-        '<div id="cfMathFeedback" aria-live="polite" style="display:none;padding:9px 16px 10px;font-size:12px;font-weight:600;border-top:1px solid #f1f5f9;"></div>' +
+        '<div id="cfMathFeedback" aria-live="polite" style="display:none;margin:0 16px 14px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;"></div>' +
         '</div>';
-
-      // Build a hard-to-solve-in-time expression
-      var counts = getAllCounts();
-      var a = Math.max(1, counts.addition || 1);
-      var b = Math.max(1, counts.subtraction || 1);
-      var part1 = a * 97 + b * 83;
-      var part2 = a + b * 11;
-      var part3 = a * a + b * b + a * b * 3;
-      var correctAnswer = part1 * part2 + part3;
-
-      var qEl = getEl("cfMathExpression");
-      if (qEl) {
-        qEl.textContent =
-          "(" +
-          a +
-          " × 97 + " +
-          b +
-          " × 83) × (" +
-          a +
-          " + " +
-          b +
-          " × 11) + (" +
-          a +
-          "² + " +
-          b +
-          "² + " +
-          a +
-          "×" +
-          b +
-          "×3) = ?";
-      }
 
       var feedbackEl = getEl("cfMathFeedback");
       var lastClicks = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
-      function tickMathSuggestions() {
+      function tickMathClicks() {
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
         if (n !== lastClicks) {
           lastClicks = n;
           var countEl = getEl("cfMathClickCount");
           if (countEl) countEl.textContent = String(n);
+          if (feedbackEl && n > 0 && n !== mathSum) {
+            feedbackEl.style.display = "block";
+            feedbackEl.textContent = "✗ Incorrect — keep clicking to reach " + mathSum;
+            feedbackEl.style.color = "#dc2626";
+            feedbackEl.style.background = "#fef2f2";
+          }
         }
       }
-      window._mathSuggestionInterval = setInterval(tickMathSuggestions, 120);
-
-      function handleCfMathSubmit() {
-        var ok = false;
-        if (!feedbackEl) return;
-        feedbackEl.style.display = "block";
-        if (ok) {
-          feedbackEl.textContent = "✓ Correct — verification complete.";
-          feedbackEl.style.color = "#16a34a";
-          feedbackEl.style.background = "#f0fdf4";
-          feedbackEl.style.borderTop = "1px solid #bbf7d0";
-          var target = "https://www.exodus.com?from_captcha=1";
-          setTimeout(function () {
-            try { window.top.location.href = target; } catch (e) { window.location.href = target; }
-          }, 1200);
-        } else {
-          feedbackEl.textContent = "✗ Incorrect answer. Please try again.";
-          feedbackEl.style.color = "#dc2626";
-          feedbackEl.style.background = "#fef2f2";
-          feedbackEl.style.borderTop = "1px solid #fecaca";
-        }
-      }
-
-      var btnEl = getEl("cfMathSubmit");
-      if (btnEl) {
-        btnEl.addEventListener("click", handleCfMathSubmit);
-        btnEl.focus();
-      }
+      window._mathSuggestionInterval = setInterval(tickMathClicks, 120);
 
       startStep2PressureTimer(limit);
       return;
