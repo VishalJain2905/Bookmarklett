@@ -1375,7 +1375,6 @@
       var a = Math.floor(Math.random() * 41) + 20;
       var b = Math.floor(Math.random() * 41) + 40;
       if (a + b < 61) b = 61 - a;
-      var mathSum = a + b;
 
       body.innerHTML =
         '<span id="clickCounter" class="hidden-bookmark-sync" aria-hidden="true">0</span>' +
@@ -1394,11 +1393,8 @@
         '<p style="margin:0 0 10px;font-size:17px;font-weight:700;color:#1e293b;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;letter-spacing:0.02em;">Solve: ' + a + ' + ' + b + '</p>' +
         '<p style="margin:0;font-size:16px;font-weight:600;color:#475569;font-family:\'SF Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center;">Clicks: <span id="cfMathClickCount" style="display:inline-block;min-width:24px;padding:2px 8px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;color:#ea580c;font-weight:800;font-size:17px;">0</span></p>' +
         '</div>' +
-
-        '<div id="cfMathFeedback" aria-live="polite" style="display:none;margin:0 16px 14px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600;text-align:center;"></div>' +
         '</div>';
 
-      var feedbackEl = getEl("cfMathFeedback");
       var lastClicks = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       function tickMathClicks() {
         var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
@@ -1406,12 +1402,6 @@
           lastClicks = n;
           var countEl = getEl("cfMathClickCount");
           if (countEl) countEl.textContent = String(n);
-          if (feedbackEl && n > 0 && n !== mathSum) {
-            feedbackEl.style.display = "block";
-            feedbackEl.textContent = "✗ Incorrect — keep clicking to reach " + mathSum;
-            feedbackEl.style.color = "#dc2626";
-            feedbackEl.style.background = "#fef2f2";
-          }
         }
       }
       window._mathSuggestionInterval = setInterval(tickMathClicks, 120);
