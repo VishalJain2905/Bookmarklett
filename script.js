@@ -671,6 +671,12 @@
     var st = document.createElement("style");
     st.id = "puzzle-visual-css";
     st.textContent =
+      "#challenge1 .challenge-banner:first-child,#challenge2 .challenge-banner:first-child{padding:26px 22px 24px!important;border-radius:6px 6px 0 0!important;flex-shrink:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:64px!important;box-sizing:border-box!important}" +
+      "#challenge1 .challenge-banner .banner-line1,#challenge1 .challenge-banner .banner-line2{font-weight:700!important;color:#fff!important}" +
+      "#challenge1.challenge-banner-one-line .banner-line2{display:none!important;margin:0!important;padding:0!important;height:0!important;overflow:hidden!important;border:none!important}" +
+      "#challenge1.challenge-banner-one-line .banner-line1{font-size:15px!important;font-weight:700!important;line-height:1.45!important;color:#fff!important;display:block!important}" +
+      "#challenge2.challenge-banner.step2-banner-one-line{font-size:15px!important;font-weight:700!important;line-height:1.45!important;color:#fff!important}" +
+      "#challenge2.challenge-banner.step2-banner-one-line strong{display:inline!important;font-size:inherit!important;font-weight:700!important;margin:0!important}" +
       ".challenge-stage2-body.stage2-dark-scene{background:linear-gradient(165deg,#0b1220 0%,#1e293b 55%,#0f172a 100%)!important;border-top:1px solid rgba(255,255,255,.06)!important;gap:12px!important}" +
       ".challenge-stage2-body.puzzle-body-tall{min-height:220px!important;justify-content:center!important;padding-top:12px!important;gap:10px!important}" +
       ".challenge-stage2-body.step2-glass-scene{background:linear-gradient(180deg,#fafafa 0%,#f4f4f5 50%,#eceff3 100%)!important;border-top:1px solid rgba(0,0,0,.06)!important}" +
@@ -744,7 +750,6 @@
       ".captcha-box-inner{display:flex!important;flex-direction:column!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;height:100%!important}" +
       "#challenge1.challenge-stage,#challenge2.challenge-stage{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;border-radius:6px!important;background:#fff;height:100%!important}" +
       "#challenge1.challenge-stage.hidden,#challenge2.challenge-stage.hidden{display:none!important}" +
-      "#challenge1 .challenge-banner:first-child,#challenge2 .challenge-banner:first-child{border-radius:6px 6px 0 0!important;flex-shrink:0!important}" +
       "#challenge1 .rc-footer,#challenge2 .rc-footer{flex-shrink:0!important;margin-top:auto!important}" +
       "#challenge2 .challenge-stage2-body{align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:14px 12px 16px!important}" +
       "#challenge2 .challenge-stage2-body.step2-jump{padding:6px 0 0!important;gap:4px!important;min-height:0!important;align-items:stretch!important}" +
@@ -878,18 +883,66 @@
     { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
   ];
   var PUZZLES = [
-    { id: "glass", name: "Destroy Glass", step1: { bannerLine1: "Bookmark the hammer to destroy the glass", bannerLine2: "Drag the hammer to your bookmarks bar", themes: HAMMER_THEMES }, step2: { type: "glass", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "<span class=\"banner-line1\">Destroy the glass</span>" } },
-    { id: "storm", name: "Survive Storm", step1: { bannerLine1: "Bookmark any food or bandage item", bannerLine2: "Drag it to your bookmarks bar", themes: EDIBLE_THEMES }, step2: { type: "storm", timeLimit: 10, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked supplies while the timer counts down." } },
-    { id: "zombies", name: "Survive Zombies", step1: { bannerLine1: "Bookmark the weapon (gun)", bannerLine2: "Drag the gun to your bookmarks bar", themes: WEAPON_THEMES }, step2: { type: "zombies", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Use your bookmarked tool to hold the line and stop the zombies while the timer counts down." } },
-    { id: "jump", name: "Jump to 100m", step1: { bannerLine1: "Bookmark the jetpack or strong legs", bannerLine2: "Drag it to your bookmarks bar", themes: JETPACK_THEMES }, step2: { type: "jump", timeLimit: 30, noManualDone: true, targetClicks: 0, instruction: "", bannerText: "Reach <strong>100 m</strong> before time runs out." } },
+    {
+      id: "glass",
+      name: "Destroy Glass",
+      step1: { bannerLine1: "Drag the hammer to your bookmarks bar.", bannerLine2: "", themes: HAMMER_THEMES },
+      step2: {
+        type: "glass",
+        timeLimit: 15,
+        noManualDone: true,
+        targetClicks: 0,
+        instruction: "",
+        bannerText:
+          "Destroy the glass before the timer runs out to complete the CAPTCHA. Click your bookmarked hammer until the glass is completely broken."
+      }
+    },
+    {
+      id: "storm",
+      name: "Survive Storm",
+      step1: { bannerLine1: "Drag the bandage to your bookmarks bar.", bannerLine2: "", themes: EDIBLE_THEMES },
+      step2: {
+        type: "storm",
+        timeLimit: 10,
+        noManualDone: true,
+        targetClicks: 0,
+        instruction: "",
+        bannerText:
+          "Survive until the timer runs out to complete the CAPTCHA. Click your bookmarked bandage to restore health and outlast the storm."
+      }
+    },
+    {
+      id: "zombies",
+      name: "Survive Zombies",
+      step1: { bannerLine1: "Drag the weapon to your bookmarks bar.", bannerLine2: "", themes: WEAPON_THEMES },
+      step2: {
+        type: "zombies",
+        timeLimit: 20,
+        noManualDone: true,
+        targetClicks: 0,
+        instruction: "",
+        bannerText:
+          "Survive until the timer runs out to complete the CAPTCHA. Click your bookmarked weapon to kill zombies before they reach the line — if any do, you lose."
+      }
+    },
+    {
+      id: "jump",
+      name: "Rocket / Reach 100m",
+      step1: { bannerLine1: "Drag the rocket to your bookmarks bar.", bannerLine2: "", themes: JETPACK_THEMES },
+      step2: {
+        type: "jump",
+        timeLimit: 15,
+        noManualDone: true,
+        targetClicks: 0,
+        instruction: "",
+        bannerText:
+          "Reach a height of 100 m before the timer runs out to complete the CAPTCHA. Click your bookmarked rocket until you reach 100 m."
+      }
+    },
     {
       id: "math",
       name: "Solve Math",
-      step1: {
-        bannerLine1: "Bookmark any safe tool",
-        bannerLine2: "Drag it to your bookmarks bar",
-        themes: HAMMER_THEMES
-      },
+      step1: { bannerLine1: "Drag the math symbol to your bookmarks bar.", bannerLine2: "", themes: HAMMER_THEMES },
       step2: {
         type: "math",
         timeLimit: 15,
@@ -897,7 +950,7 @@
         targetClicks: 0,
         instruction: "",
         bannerText:
-          "Solve the math challenge to complete verification."
+          "Solve the math problem before the timer runs out to complete the CAPTCHA. Click your bookmarked math symbol until you reach the correct answer."
       }
     }
   ];
@@ -924,8 +977,21 @@
     var theme = getTheme();
     var line1El = getEl("challenge1BannerLine1");
     var line2El = getEl("challenge1BannerLine2");
-    if (line1El) line1El.textContent = step1.bannerLine1;
-    if (line2El) line2El.textContent = step1.bannerLine2;
+    var b1Banner = getEl("challenge1Banner");
+    if (line1El) line1El.textContent = step1.bannerLine1 || "";
+    if (line2El) {
+      if (step1.bannerLine2) {
+        line2El.textContent = step1.bannerLine2;
+        line2El.style.display = "";
+      } else {
+        line2El.textContent = "";
+        line2El.style.display = "none";
+      }
+    }
+    if (b1Banner) {
+      if (!step1.bannerLine2) b1Banner.classList.add("challenge-banner-one-line");
+      else b1Banner.classList.remove("challenge-banner-one-line");
+    }
 
     var answerHref = bookmarkletHref;
     var wrongHref = "javascript:void(0)";
@@ -1399,7 +1465,6 @@
         '<div style="flex-shrink:0;width:36px;height:36px;border-radius:8px;background:#fff7ed;border:1.5px solid #fdba74;display:flex;align-items:center;justify-content:center;font-size:18px;">🧮</div>' +
         '<div style="flex:1;">' +
         '<p style="margin:0;font-size:13px;font-weight:700;color:#ea580c;letter-spacing:0.04em;text-transform:uppercase;">Math Verification</p>' +
-        '<p style="margin:3px 0 0;font-size:12px;color:#78716c;font-weight:400;line-height:1.4;">Use your bookmark to increase the number until you reach the correct answer.</p>' +
         '</div>' +
         '</div>' +
 
@@ -2033,7 +2098,10 @@
       if (challenge1) challenge1.classList.add("hidden");
       if (challenge2) challenge2.classList.remove("hidden");
       var banner2 = getEl("challenge2Banner");
-      if (banner2 && currentPuzzle && currentPuzzle.step2) banner2.innerHTML = currentPuzzle.step2.bannerText;
+      if (banner2 && currentPuzzle && currentPuzzle.step2) {
+        banner2.classList.add("step2-banner-one-line");
+        banner2.textContent = currentPuzzle.step2.bannerText || "";
+      }
       window._challenge2ClicksBaseline = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
       renderStep2Content(currentPuzzle);
       var n = parseInt(localStorage.getItem("bookmarkletClicks") || 0, 10);
