@@ -857,10 +857,11 @@
   var ICECREAM  = U + "photo-1563805042-7684c019e1cb" + Q;  
   var KEYS      = U + "photo-1522770179533-24471fcdba45" + Q;
   var BANDAGE =
-    "https://images.unsplash.com/photo-1655913197827-03d6e92e5182?q=80&w=300&h=300&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    "https://images.unsplash.com/photo-1609840534195-e6385ca0d10a?q=80&w=300&h=300&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   var GUN       = U + "photo-1591123720164-de1348028a82" + Q;
-  var HAMMER_SOLO = U + "photo-1504148455328-c376907d081c" + Q;
-  var ROCKET    = U + "photo-1516849841032-87cbac4d88f1" + Q;
+  var HAMMER_SOLO =
+    "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=300&h=300&auto=format&fit=crop&q=80&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFtbWVyfGVufDB8fDB8fHww";
+  var ROCKET    = U + "photo-1628126235206-5260b9ea6441" + Q;
   var MATH_SYMBOL =
     "data:image/svg+xml," +
     encodeURIComponent(
