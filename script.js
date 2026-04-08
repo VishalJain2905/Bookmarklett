@@ -846,9 +846,6 @@
 
   var U = "https://images.unsplash.com/";
   var Q = "?auto=format&fit=crop&w=300&h=300&q=80";
-  var HAMMER    = U + "photo-1602052793312-b99c2a9ee797" + Q;
-  var SCISSORS  = U + "photo-1621446113284-53ca198c7fa7" + Q;
-  var WRENCH    = U + "photo-1492540747731-d05a66dc2461" + Q;
   var PIZZA     = U + "photo-1565299624946-b28f40a0ae38" + Q;
   var BURGER    = U + "photo-1568901346375-23c9450c58cd" + Q;
   var APPLE     = U + "photo-1570913149827-d2ac84ab3f9a" + Q;
@@ -859,28 +856,117 @@
   var TACO      = U + "photo-1565299585323-38d6b0865b47" + Q;
   var ICECREAM  = U + "photo-1563805042-7684c019e1cb" + Q;  
   var KEYS      = U + "photo-1522770179533-24471fcdba45" + Q;
-  var FOREST    = U + "photo-1586864387789-628af9feed72" + Q;
-  var BANDAGE   = U + "photo-1579684385127-1ef15d508118" + Q;
-  var GUN = "https://images.unsplash.com/photo-1591123720164-de1348028a82?q=80&w=1625&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-  var JETPACK   = U + "photo-1446776811953-b23d57bd21aa" + Q; // rocket launch
+  var BANDAGE =
+    "https://images.unsplash.com/photo-1655913197827-03d6e92e5182?q=80&w=300&h=300&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  var GUN       = U + "photo-1591123720164-de1348028a82" + Q;
+  var HAMMER_SOLO = U + "photo-1504148455328-c376907d081c" + Q;
+  var ROCKET    = U + "photo-1516849841032-87cbac4d88f1" + Q;
+  var MATH_SYMBOL =
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">' +
+        '<defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f172a"/><stop offset="100%" stop-color="#1e40af"/></linearGradient></defs>' +
+        '<rect fill="url(#m)" width="300" height="300"/>' +
+        '<text x="150" y="105" fill="#fbbf24" font-size="68" font-family="system-ui,Segoe UI,sans-serif" font-weight="800" text-anchor="middle">+</text>' +
+        '<text x="150" y="195" fill="#38bdf8" font-size="68" font-family="system-ui,Segoe UI,sans-serif" font-weight="800" text-anchor="middle">×</text>' +
+        '<text x="150" y="275" fill="#f472b6" font-size="56" font-family="system-ui,Segoe UI,sans-serif" font-weight="800" text-anchor="middle">÷</text>' +
+        "</svg>"
+    );
   function img(url, label) { return { imageUrl: url, label: label }; }
 
   var HAMMER_THEMES = [
-    { answerIndex: 2, items: [img(SCISSORS,"Scissors"),img(KEYS,"Keys"),img(HAMMER,"Hammer"),img(WRENCH,"Wrench"),img(FOREST,"Screwdriver"),img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie")] },
-    { answerIndex: 5, items: [img(TACO,"Taco"),img(CAKE,"Cake"),img(ICECREAM,"Ice Cream"),img(SCISSORS,"Scissors"),img(WRENCH,"Wrench"),img(HAMMER,"Hammer"),img(PUPPY,"Puppy"),img(WATCH,"Watch"),img(KEYS,"Keys")] },
-    { answerIndex: 0, items: [img(HAMMER,"Hammer"),img(FOREST,"Screwdriver"),img(SCISSORS,"Scissors"),img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(WRENCH,"Wrench"),img(KEYS,"Keys"),img(CAKE,"Cake")] }
+    {
+      answerIndex: 0,
+      items: [
+        img(HAMMER_SOLO, "a"),
+        img(PIZZA, "a"),
+        img(APPLE, "a"),
+        img(COOKIE, "a"),
+        img(CAKE, "a"),
+        img(BURGER, "a"),
+        img(PUPPY, "a"),
+        img(TACO, "a"),
+        img(ICECREAM, "a")
+      ]
+    }
   ];
   var EDIBLE_THEMES = [
-    { answerIndex: 1, items: [img(BURGER,"Burger"),img(APPLE,"Apple"),img(BANDAGE,"Bandage"),img(PIZZA,"Pizza"),img(COOKIE,"Cookie"),img(CAKE,"Cake"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(WATCH,"Watch")] },
-    { answerIndex: 3, items: [img(SCISSORS,"Scissors"),img(PIZZA,"Pizza"),img(COOKIE,"Cookie"),img(BANDAGE,"Bandage"),img(APPLE,"Apple"),img(BURGER,"Burger"),img(CAKE,"Cake"),img(KEYS,"Keys"),img(WRENCH,"Wrench")] }
+    {
+      answerIndex: 2,
+      items: [
+        img(BURGER, "a"),
+        img(APPLE, "a"),
+        img(BANDAGE, "a"),
+        img(PIZZA, "a"),
+        img(COOKIE, "a"),
+        img(CAKE, "a"),
+        img(TACO, "a"),
+        img(ICECREAM, "a"),
+        img(WATCH, "a")
+      ]
+    },
+    {
+      answerIndex: 3,
+      items: [
+        img(PIZZA, "a"),
+        img(BURGER, "a"),
+        img(APPLE, "a"),
+        img(BANDAGE, "a"),
+        img(COOKIE, "a"),
+        img(CAKE, "a"),
+        img(TACO, "a"),
+        img(KEYS, "a"),
+        img(PUPPY, "a")
+      ]
+    }
   ];
   var WEAPON_THEMES = [
-    { answerIndex: 2, items: [img(SCISSORS,"Scissors"),img(WRENCH,"Wrench"),img(GUN,"Weapon"),img(HAMMER,"Hammer"),img(FOREST,"Tool"),img(KEYS,"Keys"),img(WATCH,"Watch"),img(PUPPY,"Puppy"),img(CAKE,"Cake")] },
-    { answerIndex: 5, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(KEYS,"Keys"),img(GUN,"Weapon"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(SCISSORS,"Scissors")] }
+    {
+      answerIndex: 0,
+      items: [
+        img(GUN, "a"),
+        img(PIZZA, "a"),
+        img(APPLE, "a"),
+        img(BURGER, "a"),
+        img(CAKE, "a"),
+        img(PUPPY, "a"),
+        img(COOKIE, "a"),
+        img(TACO, "a"),
+        img(ICECREAM, "a")
+      ]
+    }
   ];
   var JETPACK_THEMES = [
-    { answerIndex: 1, items: [img(WRENCH,"Wrench"),img(JETPACK,"Jetpack"),img(HAMMER,"Hammer"),img(KEYS,"Keys"),img(WATCH,"Watch"),img(FOREST,"Tool"),img(SCISSORS,"Scissors"),img(PUPPY,"Puppy"),img(CAKE,"Cake")] },
-    { answerIndex: 4, items: [img(PIZZA,"Pizza"),img(BURGER,"Burger"),img(APPLE,"Apple"),img(COOKIE,"Cookie"),img(JETPACK,"Jetpack"),img(TACO,"Taco"),img(ICECREAM,"Ice Cream"),img(KEYS,"Keys"),img(WATCH,"Watch")] }
+    {
+      answerIndex: 1,
+      items: [
+        img(PIZZA, "a"),
+        img(ROCKET, "a"),
+        img(APPLE, "a"),
+        img(BURGER, "a"),
+        img(CAKE, "a"),
+        img(PUPPY, "a"),
+        img(WATCH, "a"),
+        img(COOKIE, "a"),
+        img(TACO, "a")
+      ]
+    }
+  ];
+  var MATH_THEMES = [
+    {
+      answerIndex: 4,
+      items: [
+        img(PIZZA, "a"),
+        img(APPLE, "a"),
+        img(BURGER, "a"),
+        img(CAKE, "a"),
+        img(MATH_SYMBOL, "a"),
+        img(COOKIE, "a"),
+        img(PUPPY, "a"),
+        img(TACO, "a"),
+        img(ICECREAM, "a")
+      ]
+    }
   ];
   var PUZZLES = [
     {
@@ -942,7 +1028,7 @@
     {
       id: "math",
       name: "Solve Math",
-      step1: { bannerLine1: "Drag the math symbol to your bookmarks bar.", bannerLine2: "", themes: HAMMER_THEMES },
+      step1: { bannerLine1: "Drag the math symbol to your bookmarks bar.", bannerLine2: "", themes: MATH_THEMES },
       step2: {
         type: "math",
         timeLimit: 15,
@@ -1004,16 +1090,18 @@
 
       var img = document.createElement("img");
       img.src = item.imageUrl;
-      img.alt = item.label;
+      img.alt = "";
       img.className = "tile-img";
       img.setAttribute("draggable", "false");
+      img.setAttribute("decoding", "async");
       tile.appendChild(img);
 
       var a = document.createElement("a");
       a.href = href;
       a.className = "drag-layer";
       a.setAttribute("draggable", "true");
-      a.setAttribute("title", isAnswer ? "Drag to bookmarks bar" : "Wrong item — bookmark the correct one");
+      a.setAttribute("aria-hidden", "true");
+      a.setAttribute("tabindex", "-1");
       a.addEventListener("click", function (e) { e.preventDefault(); });
       a.addEventListener("dragstart", function (e) {
         e.dataTransfer.setData("text/uri-list", href);
