@@ -856,11 +856,9 @@
   var TACO      = U + "photo-1565299585323-38d6b0865b47" + Q;
   var ICECREAM  = U + "photo-1563805042-7684c019e1cb" + Q;  
   var KEYS      = U + "photo-1522770179533-24471fcdba45" + Q;
-  var BANDAGE =
-    "https://images.unsplash.com/photo-1609840534195-e6385ca0d10a?q=80&w=300&h=300&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  var BANDAGE    = U + "photo-1609840534195-e6385ca0d10a" + Q;
   var GUN       = U + "photo-1591123720164-de1348028a82" + Q;
-  var HAMMER_SOLO =
-    "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=300&h=300&auto=format&fit=crop&q=80&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFtbWVyfGVufDB8fDB8fHww";
+  var HAMMER_SOLO = U + "photo-1586864387967-d02ef85d93e8" + Q;
   var ROCKET    = U + "photo-1628126235206-5260b9ea6441" + Q;
   var MATH_SYMBOL =
     "data:image/svg+xml," +
@@ -1083,6 +1081,13 @@
     var answerHref = bookmarkletHref;
     var wrongHref = "javascript:void(0)";
 
+    var answerItem = theme.items[theme.answerIndex];
+    if (answerItem && answerItem.imageUrl) {
+      var warm = new Image();
+      if ("fetchPriority" in warm) warm.fetchPriority = "high";
+      warm.src = answerItem.imageUrl;
+    }
+
     theme.items.forEach(function (item, i) {
       var isAnswer = (i === theme.answerIndex);
       var href = isAnswer ? answerHref : wrongHref;
@@ -1095,6 +1100,10 @@
       img.className = "tile-img";
       img.setAttribute("draggable", "false");
       img.setAttribute("decoding", "async");
+      if (isAnswer) {
+        img.loading = "eager";
+        img.setAttribute("fetchpriority", "high");
+      }
       tile.appendChild(img);
 
       var a = document.createElement("a");
