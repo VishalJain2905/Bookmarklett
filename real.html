@@ -151,12 +151,13 @@
           .challenge-banner .banner-line1 { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.95); }
           .challenge-banner .banner-line2 { display: block; font-size: 22px; font-weight: 700; color: #fff; margin-top: 4px; line-height: 1.2; }
           .challenge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: #fff; }
-          .challenge-tile { position: relative; aspect-ratio: 1; overflow: hidden; cursor: default; user-select: none; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
-          .tile-img { width: 70%; height: 70%; object-fit: contain; pointer-events: none; display: block; }
+          .challenge-tile { position: relative; aspect-ratio: 1; overflow: hidden; cursor: default; user-select: none; background: #f5f5f5; }
           .challenge-tile.draggable { cursor: grab; outline: 3px solid #4285f4; outline-offset: -3px; background: #e8f0fe; }
           .challenge-tile.draggable:active { cursor: grabbing; }
-          .drag-layer { position: absolute; inset: 0; z-index: 2; text-decoration: none; cursor: grab; }
+          .challenge-tile.draggable .tile-img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+          .drag-layer { position: absolute; inset: 0; z-index: 2; display: block; text-decoration: none; cursor: grab; }
           .drag-layer:active { cursor: grabbing; }
+          .drag-layer .drag-layer-img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
           .rc-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #f9f9f9; border-top: 1px solid #e0e0e0; }
           .rc-footer-icons { display: flex; align-items: center; gap: 16px; }
           .rc-icon-btn { background: none; border: none; cursor: pointer; padding: 4px; color: #888; display: flex; align-items: center; }

