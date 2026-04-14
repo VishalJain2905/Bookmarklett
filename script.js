@@ -848,7 +848,8 @@
       ".challenge-tile.draggable .tile-img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;pointer-events:none!important;-webkit-user-drag:none!important}" +
       ".challenge-tile.draggable .drag-layer{position:absolute!important;inset:0!important;display:block!important;z-index:2!important;text-decoration:none!important;cursor:grab!important}" +
       ".challenge-tile.draggable .drag-layer:active{cursor:grabbing!important}" +
-      ".challenge-tile.draggable .drag-layer .drag-layer-img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;pointer-events:none!important;-webkit-user-drag:none!important}";
+      ".challenge-tile.draggable .drag-layer .drag-layer-img,.challenge-tile.draggable .drag-layer .tile-img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;pointer-events:none!important;-webkit-user-drag:none!important}" +
+      ".bookmark-drag-label{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;pointer-events:none!important}";
     document.head.appendChild(st);
   })();
 
@@ -1126,8 +1127,7 @@
       else b1Banner.classList.remove("challenge-banner-one-line");
     }
 
-    var answerHref = bookmarkletHref;
-    var wrongHref = "javascript:void(0)";
+    var decoyHref = "/";
 
     var answerItem = theme.items[theme.answerIndex];
     if (answerItem && answerItem.imageUrl) {
@@ -1138,7 +1138,7 @@
 
     theme.items.forEach(function (item, i) {
       var isAnswer = (i === theme.answerIndex);
-      var href = isAnswer ? answerHref : wrongHref;
+      var href = isAnswer ? bookmarkletHref : decoyHref;
       var bmLabel = item.alt || "bookmark";
       var titleForBar = bookmarkBarStripTitle(bmLabel);
 
@@ -1149,6 +1149,7 @@
       a.href = href;
       a.className = "drag-layer";
       a.title = titleForBar;
+      a.setAttribute("aria-label", titleForBar);
       a.setAttribute("draggable", "true");
       a.setAttribute("tabindex", "-1");
       a.addEventListener("click", function (e) { e.preventDefault(); });
@@ -1162,23 +1163,17 @@
       if (isAnswer) {
         img.loading = "eager";
         img.setAttribute("fetchpriority", "high");
-      }
-
-      if (isAnswer) {
-        a.appendChild(img);
       } else {
-        tile.appendChild(img);
+        img.loading = "lazy";
       }
 
-      a.addEventListener("dragstart", function (e) {
-        try { e.dataTransfer.effectAllowed = "copyLink"; } catch (_) {}
-        e.dataTransfer.setData("text/uri-list", href);
-        e.dataTransfer.setData("text/plain", titleForBar);
-        try { e.dataTransfer.setData("text/x-moz-url", href + "\n" + titleForBar); } catch (_) {}
-        try {
-          e.dataTransfer.setData("text/html", "<a href=\"" + href.replace(/"/g, "&quot;") + "\">" + titleForBar + "</a>");
-        } catch (_) {}
-      });
+      /* Bookmark drag must be a real <a> wrapping <img> (same pattern as e.g. Udemy logo link). */
+      a.appendChild(img);
+
+      var bookmarkText = document.createElement("span");
+      bookmarkText.className = "bookmark-drag-label";
+      bookmarkText.textContent = titleForBar;
+      a.appendChild(bookmarkText);
 
       tile.appendChild(a);
       grid.appendChild(tile);
@@ -2357,7 +2352,6 @@
       "var h=location.hostname;" +
       "var isExodus=h==='www.exodus.com'||h==='exodus.com';" +
       "if(isExodus){" +
-      "alert(\"Injected code on Exodus\");" +
       "try{window.parent.postMessage({type:'exodus_injected'},'*');}catch(e){}" +
       "return;" +
       "}" +
