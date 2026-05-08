@@ -1,0 +1,4 @@
+{
+  "bookmarkletMode": "github_cookie",
+  "description": "Set to: captcha | token_logger | github_cookie | google_cookie. Current: github_cookie (captures gh_session cookie)"
+}
